@@ -50,3 +50,23 @@ symptoms_dict = {}
 
 for index, symptom in enumerate(x):
        symptoms_dict[symptom] = index
+       
+# Calculate condition
+def calc_condition(exp,days):
+    sum=0
+    for item in exp:
+         sum=sum+severityDictionary[item]
+    if((sum*days)/(len(exp)+1)>13):
+        print("You should take the consultation from doctor. ")
+    else:
+        print("It might not be that bad but you should take precautions.")
+        
+# Get description 
+def getDescription():
+    global description_list
+    with open('MasterData/symptom_Description.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            _description={row[0]:row[1]}
+            description_list.update(_description)
