@@ -37,3 +37,16 @@ print (scores.mean())
 model = SVC()
 model.fit(x_train,y_train)
 print('model score :',model.score(x_test,y_test))
+
+importances = clf.feature_importances_
+indices = np.argsort(importances)[::-1]
+features = cols
+
+severityDictionary=dict()
+description_list = dict()
+precautionDictionary=dict()
+
+symptoms_dict = {}
+
+for index, symptom in enumerate(x):
+       symptoms_dict[symptom] = index
