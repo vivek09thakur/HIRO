@@ -100,7 +100,7 @@ def getprecautionDict():
 
 def get_info():
     print("Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^")
-    name = input('But you have to tell me your name first.\n what is your name?')
+    name = input('But you have to tell me your name first.\nwhat is your name? \n>')
     print('Hello',name)
 
 def check_pattern(dis_list,inp):
@@ -134,3 +134,6 @@ def print_disease(node):
     val  = node.nonzero() 
     disease = le.inverse_transform(val[0])
     return list(map(lambda x:x.strip(),list(disease)))
+
+if __name__ == '__main__':
+    get_info()
