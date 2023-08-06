@@ -3,10 +3,8 @@ import csv
 import numpy as np
 import pandas
 from sklearn import preprocessing
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.tree import _tree
+from sklearn.model_selection import cross_val_score , train_test_split
+from sklearn.tree import DecisionTreeClassifier , _tree
 from sklearn.svm import SVC
 
 training = pandas.read_csv('dataset/data/Training.csv')
