@@ -32,3 +32,8 @@ clf1 = DecisionTreeClassifier()
 clf = clf1.fit(x_train,y_train)
 scores = cross_val_score(clf, x_test, y_test, cv=3)
 print (scores.mean())
+
+# INITIALIZING THE MODEL
+model = SVC()
+model.fit(x_train,y_train)
+print('model score :',model.score(x_test,y_test))
