@@ -100,7 +100,7 @@ def getprecautionDict():
 
 def get_info():
     print("Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^")
-    name = input('But you have to tell me your name first.\nwhat is your name? \n>')
+    name = input('But you have to tell me your name first.\nwhat is your name? \n> ')
     print('Hello',name)
 
 def check_pattern(dis_list,inp):
