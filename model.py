@@ -6,6 +6,8 @@ from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score , train_test_split
 from sklearn.tree import DecisionTreeClassifier , _tree
 from sklearn.svm import SVC
+import os
+import warnings
 
 training = pandas.read_csv('dataset/data/Training.csv')
 testing = pandas.read_csv('dataset/data/Testing.csv')
@@ -57,9 +59,9 @@ def calc_condition(exp,days):
     for item in exp:
          sum=sum+severityDictionary[item]
     if((sum*days)/(len(exp)+1)>13):
-        print("You should take the consultation from doctor.")
+        print("\nYou should take the consultation from doctor.")
     else:
-        print("It might not be that bad but you should take precautions.")
+        print("\nIt might not be that bad but you should take precautions.")
         
 # Get description 
 def getDescription():
@@ -97,9 +99,10 @@ def getprecautionDict():
             
 
 def get_info():
+    os.system('cls')
     print("Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^")
-    name = input('But you have to tell me your name first.\nwhat is your name? \n> ')
-    print('Hello',name)
+    name = input('But you have to tell me your name first. what is your name? \n\n[patient name] :: ')
+    print(f'\nSo hello {name} , let\'s start with your problem ')
 
 def check_pattern(dis_list,inp):
     pred_list = [] # prediction list
@@ -113,7 +116,7 @@ def check_pattern(dis_list,inp):
         return 0,[]
     
 def sec_predict(symptoms_exp):
-    df = pandas.read_csv('Data/Training.csv')
+    df = pandas.read_csv('./dataset/data/Training.csv')
     X = df.iloc[:, :-1]
     y = df['prognosis']
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=20)
@@ -133,6 +136,7 @@ def print_disease(node):
     disease = le.inverse_transform(val[0])
     return list(map(lambda x:x.strip(),list(disease)))
 
+    
 def tree_to_code(tree, feature_names):
     tree_ = tree.tree_
     feature_name = [
@@ -142,33 +146,36 @@ def tree_to_code(tree, feature_names):
 
     chk_dis=",".join(feature_names).split(",")
     symptoms_present = []
-
+    
     while True:
 
-        print("\nEnter the symptom you are experiencing")
-        disease_input = input("describe your problem : ")
+        print("\ncan you please all the symptom you are experiencing from past few days so I can understand you more!")
+        disease_input = input("\n[enter symtoms description here] :: ")
         conf,cnf_dis=check_pattern(chk_dis,disease_input)
         if conf==1:
-            print("searches related to input: ")
+            print("\nsearches related to input: \n")
             for num,it in enumerate(cnf_dis):
                 print(num,")",it)
             if num!=0:
-                print(f"Select the one you meant (0 - {num}):  ", end="")
-                conf_inp = int(input(""))
+                try:
+                    conf_inp = int(input(f"select the one you meant (0 - {num}): "))
+                except Exception:
+                    print("\nplease enter a valid input for choice")
             else:
                 conf_inp=0
 
             disease_input=cnf_dis[conf_inp]
             break
         else:
-            print("Enter valid symptom.")
+            print("enter valid symptom.")
 
     while True:
         try:
-            num_days=int(input("Okay. From how many days ? : "))
+            num_days=int(input("\nOkay. From how many days ? : "))
             break
         except:
-            print("Enter valid input.")
+            print("\nplease enter a valid input.")
+            
     def recurse(node, depth):
         indent = "  " * depth
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
@@ -189,7 +196,7 @@ def tree_to_code(tree, feature_names):
 
             red_cols = reduced_data.columns 
             symptoms_given = red_cols[reduced_data.loc[present_disease].values[0].nonzero()]
-            print("Are you experiencing any ")
+            print("\nSo, are you experiencing any \n")
             symptoms_exp=[]
             for syms in list(symptoms_given):
                 inp=""
@@ -204,20 +211,20 @@ def tree_to_code(tree, feature_names):
                     symptoms_exp.append(syms)
 
             second_prediction=sec_predict(symptoms_exp)
-            # print(second_prediction)
+            
             calc_condition(symptoms_exp,num_days)
             if(present_disease[0]==second_prediction[0]):
-                print("You may have ", present_disease[0])
-                print(description_list[present_disease[0]])
+                print("\nYou may have ", present_disease[0])
+                print(f'\nDESCRIPTION OF DISEASES :', description_list[present_disease[0]])
 
             else:
-                print("You may have ", present_disease[0], "or ", second_prediction[0])
+                print("\nYou may have ", present_disease[0], "or ", second_prediction[0])
                 print(description_list[present_disease[0]])
                 print(description_list[second_prediction[0]])
 
             # print(description_list[present_disease[0]])
             precution_list=precautionDictionary[present_disease[0]]
-            print("Take following measures : ")
+            print("\nTake following measures : \n")
             for  i,j in enumerate(precution_list):
                 print(i+1,")",j)
     recurse(0, 1)
@@ -227,4 +234,3 @@ getDescription()
 getprecautionDict()
 get_info()
 tree_to_code(clf,cols)
-eval()
