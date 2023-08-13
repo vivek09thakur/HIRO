@@ -137,7 +137,7 @@ def print_disease(node):
     return list(map(lambda x:x.strip(),list(disease)))
 
     
-def tree_to_code(tree, feature_names):
+def run(tree, feature_names):
     tree_ = tree.tree_
     feature_name = [
         feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
@@ -233,4 +233,4 @@ getSeverityDict()
 getDescription()
 getprecautionDict()
 get_info()
-tree_to_code(clf,cols)
+run(clf,cols)
