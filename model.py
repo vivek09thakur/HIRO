@@ -8,6 +8,7 @@ from sklearn.tree import DecisionTreeClassifier , _tree
 from sklearn.svm import SVC
 import os
 import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 training = pandas.read_csv('dataset/data/Training.csv')
 testing = pandas.read_csv('dataset/data/Testing.csv')
@@ -196,13 +197,13 @@ def run(tree, feature_names):
 
             red_cols = reduced_data.columns 
             symptoms_given = red_cols[reduced_data.loc[present_disease].values[0].nonzero()]
-            print("\nSo, are you experiencing any \n")
+            print("\nOkay Now I am going to ask you some question , please answer all of them in yes or no \n")
             symptoms_exp=[]
             for syms in list(symptoms_given):
                 inp=""
-                print(syms,"? : ",end='')
+                print(f'\nAre you experiencing any {syms} ? \n')
                 while True:
-                    inp=input("")
+                    inp=input('[yes or no] : ')
                     if(inp=="yes" or inp=="no"):
                         break
                     else:
