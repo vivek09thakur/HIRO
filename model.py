@@ -223,7 +223,6 @@ def run(tree, feature_names):
                 print(description_list[present_disease[0]])
                 print(description_list[second_prediction[0]])
 
-            # print(description_list[present_disease[0]])
             precution_list=precautionDictionary[present_disease[0]]
             print("\nTake following measures : \n")
             for  i,j in enumerate(precution_list):
