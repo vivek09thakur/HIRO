@@ -22,6 +22,13 @@ class HIRO:
         self.classifier, self.CLASSIFIER_SCORE = self.load_classifier()
         self.encoder = self.load_encoder()
 
+        self.tree_ = self.classifier.tree_
+        self.symptoms_present = []
+        self.feature_name = [
+            self.COLUMNS[i] if i != _tree.TREE_UNDEFINED else "undefined!"
+            for i in self.tree_.feature
+        ]
+
     def introduce(self):
         os.system("cls")
         print(
@@ -96,29 +103,26 @@ class HIRO:
         disease = self.encoder.inverse_transform(val[0])
         return list(map(lambda x: x.strip(), list(disease)))
 
-    def get_disease_from_name(self, symptom_name, node=0, depth=1):
-        tree_ = self.classifier.tree_
-        symptoms_present = []
-        feature_name = [
-            self.COLUMNS[i] if i != _tree.TREE_UNDEFINED else "undefined!"
-            for i in tree_.feature
-        ]
-
-        if tree_.feature[node] != _tree.TREE_UNDEFINED:
-            name = feature_name[node]
-            threshold = tree_.threshold[node]
+    def get_disease_from_symptom_name(self, symptom_name, node=0, depth=1):
+        if self.tree_.feature[node] != _tree.TREE_UNDEFINED:
+            name = self.feature_name[node]
+            threshold = self.tree_.threshold[node]
 
             if name == symptom_name:
                 val = 1
             else:
                 val = 0
             if val <= threshold:
-                self.get_disease_from_name(tree_.children_left[node], depth + 1)
+                self.get_disease_from_symptom_name(
+                    symptom_name, self.tree_.children_left[node], depth + 1
+                )
             else:
-                symptoms_present.append(name)
-                self.get_disease_from_name(tree_.children_right[node], depth + 1)
+                self.symptoms_present.append(name)
+                self.get_disease_from_symptom_name(
+                    symptom_name, self.tree_.children_right[node], depth + 1
+                )
         else:
-            present_disease = self.print_disease(tree_.value[node])
+            present_disease = self.print_disease(self.tree_.value[node])
             return present_disease
 
     def get_probable_symptoms(self, disease):
@@ -127,7 +131,7 @@ class HIRO:
         probable_symptoms = red_cols[reduced_data.loc[disease].values[0].nonzero()]
         return probable_symptoms
 
-    def get_disease_from_arr(symptoms_arr):
+    def get_disease_from_symptom_arr(symptoms_arr):
         df = pd.read_csv("./dataset/data/Training.csv")
         X = df.iloc[:, :-1]
         y = df["prognosis"]
@@ -158,3 +162,11 @@ class HIRO:
 
     def get_precautions(self, disease):
         return self.PRECAUTION_LIST[disease]
+
+    def get_matching_symptoms(self, symptom_name):
+        symptoms = [
+            self.COLUMNS[i] if i != _tree.TREE_UNDEFINED else "undefined!"
+            for i in self.tree_.feature
+        ]
+        print(symptoms)
+        return check_list_match(symptoms, symptom_name)
