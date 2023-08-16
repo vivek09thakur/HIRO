@@ -5,7 +5,6 @@ import pandas
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.tree import DecisionTreeClassifier, _tree
-from sklearn.svm import SVC
 import os
 import warnings
 
@@ -38,7 +37,7 @@ x_train, x_test, y_train, y_test = train_test_split(
 classifier = DecisionTreeClassifier()
 classifier.fit(x_train, y_train)
 scores = cross_val_score(classifier, x_test, y_test, cv=3)
-print(scores.mean())
+# print(scores.mean())
 
 # INITIALIZING THE MODEL
 # model = SVC()

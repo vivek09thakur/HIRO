@@ -68,8 +68,6 @@ class HIRO:
         return precaution_dictionary
 
     def load_dataset(self):
-        # train_dataset = pd.read_csv(TRAIN_DATASET_PATH)
-        # test_dataset = pd.read_csv(TEST_DATASET_PATH)
 
         dataset = pd.read_csv(TRAIN_DATASET_PATH)
 
