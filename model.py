@@ -11,47 +11,26 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 train = pandas.read_csv("dataset/data/Training.csv")
-# test = pandas.read_csv("dataset/data/Testing.csv")
 
 cols = train.columns
 cols = cols[:-1]
 x = train[cols]
 y = train["prognosis"]
 
-# y1 = y
-
 reduced_data = train.groupby(train["prognosis"]).max()
 
 encoder = preprocessing.LabelEncoder()
 encoder.fit(y)
-# y = encoder.transform(y)
 
 x_train, x_test, y_train, y_test = train_test_split(
     x, y, test_size=0.33, random_state=42
 )
-# testx = testing[cols]
-# testy = testing["prognosis"]
-# testy = le.transform(testy)
-
 
 classifier = DecisionTreeClassifier()
 classifier.fit(x_train, y_train)
 scores = cross_val_score(classifier, x_test, y_test, cv=3)
-# print(scores.mean())
-
-# INITIALIZING THE MODEL
-# model = SVC()
-# model.fit(x_train, y_train)
-# print("model score :", model.score(x_test, y_test))
 
 feature_importance = classifier.feature_importances_
-
-# indices = np.argsort(importances)[::-1]
-# features = cols
-
-# severity_dictionary = dict()
-# description_list = dict()
-# precaution_list=dict()
 
 symptoms_dict = {}
 
@@ -128,7 +107,7 @@ def sec_predict(symptoms_exp):
     df = pandas.read_csv("./dataset/data/Training.csv")
     X = df.iloc[:, :-1]
     y = df["prognosis"]
-    X_train, X_test, y_train, y_test = train_test_split(
+    X_train, y_train = train_test_split(
         X, y, test_size=0.3, random_state=20
     )
     rf_clf = DecisionTreeClassifier()
@@ -149,20 +128,9 @@ def print_disease(node):
     return list(map(lambda x: x.strip(), list(disease)))
 
 
-def run(tree, feature_names):
-    # tree_ = tree.tree_
-    # feature_name = [
-    #     feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
-    #     for i in tree_.feature
-    # ]
-
-    # print(feature_name)
+def run(feature_names):
 
     symptoms = ",".join(feature_names).split(",")
-
-    # print(chk_dis)
-
-    symptoms_present = []
 
     while True:
         print(
@@ -197,19 +165,9 @@ def run(tree, feature_names):
                 print("\nplease enter a valid input.")
 
 
-# getSeverityDict()
-# getDescription()
-# getprecautionDict()
-# get_info()
-
 severity_list = load_severity_list()
 description_list = load_description_list()
 precaution_list = load_precaution_list()
-
-# display_intro()
-# run(classifier, cols)
-# print(severity_list)
-
 
 tree_ = classifier.tree_
 feature_name = [
