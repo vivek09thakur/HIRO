@@ -91,3 +91,23 @@ class hiro:
             self.precautionDictionary.update(prec)
             break
         return self.precautionDictionary
+    
+    def introduce(self):
+        patient_name = input('=> ')
+        small_talks = [
+            'Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^',
+            f'So hello {patient_name} , let\'s start with your problem'
+        ]
+        print(small_talks[0])
+        print(small_talks[1])
+    
+    def match_patterns(self,dis_list,inp):
+        prediction_list = []
+        inp = str(inp).replace(" ","_")
+        pattern = f'{inp}'
+        regular_expression = re.compile(pattern)
+        prediction_list = [item for item in dis_list if regular_expression.search(item)]
+        if len(prediction_list)>0:
+            return 1 , prediction_list
+        else:
+            return 0 ,[]

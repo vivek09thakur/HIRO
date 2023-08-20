@@ -165,7 +165,7 @@ def run(tree, feature_names):
         print(
             "\ncan you please all the symptom you are experiencing from past few days so I can understand you more!"
         )
-        disease_input = input("\n[enter symtoms description here] :: ")
+        disease_input = input("\n[enter symtoms description here] :: ") # parameter 1
         conf, cnf_dis = check_pattern(chk_dis, disease_input)
         if conf == 1:
             print("\nsearches related to input: \n")
@@ -173,7 +173,7 @@ def run(tree, feature_names):
                 print(num, ")", it)
             if num != 0:
                 try:
-                    conf_inp = int(input(f"select the one you meant (0 - {num}): "))
+                    conf_inp = int(input(f"select the one you meant (0 - {num}): ")) # parameter 2
                 except Exception:
                     print("\nplease enter a valid input for choice")
             else:
@@ -186,12 +186,12 @@ def run(tree, feature_names):
 
     while True:
         try:
-            num_days = int(input("\nOkay. From how many days ? : "))
+            num_days = int(input("\nOkay. From how many days ? : ")) # parameter 3
             break
         except:
             print("\nplease enter a valid input.")
 
-    def recurse(node, depth):
+    def recurse(node,depth):
         indent = "  " * depth
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
             name = feature_name[node]
