@@ -110,7 +110,7 @@ class hiro:
         else:
             return 0,[]
         
-    def find_disease_problem(self,tree,feature_name,user_problem_description):
+    def get_user_problem(self,tree,feature_name,user_problem_description):
         tree_ = tree.tree_
         feature_name = [
             feature_name[i] if i != _tree.TREE_UNDEFINED else 'undefined!'
