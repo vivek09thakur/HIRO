@@ -6,8 +6,8 @@ from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.tree import DecisionTreeClassifier, _tree
 from sklearn.svm import SVC
-import os
 import warnings
+import os
 
 warnings.filterwarnings("ignore", category=UserWarning) 
 
@@ -43,9 +43,19 @@ class hiro:
         self.description_list = dict()
         self.precautionDictionary = dict()
         self.symptoms_dict = {}
+        
         for index, symptom in enumerate(self.x):
             self.symptoms_dict[symptom] = index
-        pass
+            
+        self.description_list = {}
+        self.severityDictionary = {}
+        self.precautionDictionary = {}
+        
+    
+    def read_csv(self,csv_file):
+        with open(csv_file) as f:
+            readed_date = csv.reader(f,delimiter=",")
+        return readed_date
     
     def calcCondition(self,exp,days):
         sum = 0
@@ -55,26 +65,29 @@ class hiro:
         sum = sum + days
         return sum
     
-    def getDescription():
-        global description_list
-        with open("dataset/data/symptom_Description.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                _name, _desc = row
-                description_list[_name] = _desc
+    def getDescription(self):
+        csv_reader = self.read_csv("dataset/data/symptom_Description.csv")
+        for row in csv_reader:
+            description = {row[0]: row[1]}
+            self.description_list.update(description)
+            break
+        return self.description_list
                 
-    def getServersity():
-        global severityDictionary
-        with open("dataset/data/symptom_severity.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                _diction  = {row[0]: int(row[1])}
-                severityDictionary.update(_diction)
+    def getServersity(self):
+        csv_reader = self.read_csv("dataset/data/symptom_severity.csv")
+        for row in csv_reader:
+            try:
+                diction  = {row[0]: int(row[1])}
+                self.severityDictionary.update(diction)
+            except Exception:
+                pass
+            break
+        return self.severityDictionary
             
-    def getPrecaution():
-        global precautionDictionary
-        with open("dataset/data/symptom_precaution.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                _name, *precaution = row
-                precautionDictionary[_name] = precaution
+    def getPrecaution(self):
+        csv_reader = self.read_csv("dataset/data/symptom_precaution.csv")
+        for row in csv_reader:
+            prec = {row[0]: [row[1], row[2], row[3], row[4]]}
+            self.precautionDictionary.update(prec)
+            break
+        return self.precautionDictionary
