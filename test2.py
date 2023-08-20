@@ -92,14 +92,12 @@ class hiro:
             break
         return self.precautionDictionary
     
-    def introduce(self):
-        patient_name = input('=> ')
+    def introduce(self,patient_name):
         small_talks = [
             'Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^',
             f'So hello {patient_name} , let\'s start with your problem'
         ]
-        print(small_talks[0])
-        print(small_talks[1])
+        return small_talks
     
     def match_patterns(self,dis_list,inp):
         prediction_list = []
@@ -110,4 +108,16 @@ class hiro:
         if len(prediction_list)>0:
             return 1 , prediction_list
         else:
-            return 0 ,[]
+            return 0,[]
+        
+    def find_disease_problem(self,tree,feature_name,user_problem_description):
+        tree_ = tree.tree_
+        feature_name = [
+            feature_name[i] if i != _tree.TREE_UNDEFINED else 'undefined!'
+            for i in tree_.feature
+        ]
+        chk_dis = ','.join(feature_name).split(',')
+        symtoms_present = []
+        confidence , cnf_dis = self.match_patterns(chk_dis,user_problem_description)
+        
+        return confidence,cnf_dis,symtoms_present
