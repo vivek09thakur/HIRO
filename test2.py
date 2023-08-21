@@ -66,7 +66,7 @@ class hiro:
         return sum
     
     def getDescription(self):
-        csv_reader = self.read_csv("dataset/data/symptom_Description.csv")
+        csv_reader = self.read_csv("./dataset/main/symptom_Description.csv")
         for row in csv_reader:
             description = {row[0]: row[1]}
             self.description_list.update(description)
@@ -74,7 +74,7 @@ class hiro:
         return self.description_list
                 
     def getServersity(self):
-        csv_reader = self.read_csv("dataset/data/symptom_severity.csv")
+        csv_reader = self.read_csv("./dataset/main/Symptom_severity.csv")
         for row in csv_reader:
             try:
                 diction  = {row[0]: int(row[1])}
@@ -85,7 +85,7 @@ class hiro:
         return self.severityDictionary
             
     def getPrecaution(self):
-        csv_reader = self.read_csv("dataset/data/symptom_precaution.csv")
+        csv_reader = self.read_csv("./dataset/main/symptom_precaution.csv")
         for row in csv_reader:
             prec = {row[0]: [row[1], row[2], row[3], row[4]]}
             self.precautionDictionary.update(prec)
@@ -99,6 +99,11 @@ class hiro:
         ]
         return small_talks
     
+    def prepare(self):
+        self.getServersity()
+        self.getDescription()
+        self.getPrecaution()
+        
     def match_patterns(self,dis_list,inp):
         prediction_list = []
         inp = str(inp).replace(" ","_")
@@ -121,3 +126,16 @@ class hiro:
         confidence , cnf_dis = self.match_patterns(chk_dis,user_problem_description)
         
         return confidence,cnf_dis,symtoms_present
+    
+    
+if __name__ == '__main__':
+    
+    Hiro = hiro()
+    Hiro.prepare()
+
+    patient_name = input('[patient name] :: ')
+    Hiro.introduce(patient_name)
+    
+    user_problem = input('=> ')
+    result = Hiro.get_user_problem(user_problem)
+    print(result)
