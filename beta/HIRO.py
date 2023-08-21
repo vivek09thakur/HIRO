@@ -11,7 +11,7 @@ import os
 
 warnings.filterwarnings("ignore", category=UserWarning) 
 
-class hiro:
+class HIRO:
     
     def __init__(self):
         self.training = pd.read_csv("dataset/data/Training.csv")
@@ -128,14 +128,14 @@ class hiro:
         return confidence,cnf_dis,symtoms_present
     
     
-if __name__ == '__main__':
+# if __name__ == '__main__':
     
-    Hiro = hiro()
-    Hiro.prepare()
+#     hiro = HIRO()
+#     hiro.prepare()
 
-    patient_name = input('[patient name] :: ')
-    Hiro.introduce(patient_name)
+#     patient_name = input('[patient name] :: ')
+#     hiro.introduce(patient_name)
     
-    user_problem = input('=> ')
-    result = Hiro.get_user_problem(user_problem)
-    print(result)
+#     user_problem = input('=> ')
+#     result = hiro.get_user_problem(user_problem)
+#     print(result)

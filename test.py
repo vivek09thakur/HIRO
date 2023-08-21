@@ -169,8 +169,8 @@ def run(tree, feature_names):
         conf, cnf_dis = check_pattern(chk_dis, disease_input)
         if conf == 1:
             print("\nsearches related to input: \n")
-            for num, it in enumerate(cnf_dis):
-                print(num, ")", it)
+            for num, item in enumerate(cnf_dis):
+                print(num, ")", item)
             if num != 0:
                 try:
                     conf_inp = int(input(f"select the one you meant (0 - {num}): ")) # parameter 2
