@@ -74,7 +74,7 @@ def getDescription():
     global description_list
     with open("./dataset/main/symptom_Description.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        line_count = 0
+        # line_count = 0
         for row in csv_reader:
             _description = {row[0]: row[1]}
             description_list.update(_description)
@@ -84,7 +84,7 @@ def getSeverityDict():
     global severityDictionary
     with open("./dataset/main/Symptom_severity.csv") as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=",")
-        line_count = 0
+        # line_count = 0
         try:
             for row in csv_reader:
                 _diction = {row[0]: int(row[1])}

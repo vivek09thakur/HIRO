@@ -54,7 +54,7 @@ class HIRO:
     
     def read_csv(self,csv_file):
         with open(csv_file) as f:
-            readed_date = csv.reader(f,delimiter=",")
+            readed_date = pd.read_csv(f)
         return readed_date
     
     def calcCondition(self,exp,days):
@@ -93,11 +93,11 @@ class HIRO:
         return self.precautionDictionary
     
     def introduce(self,patient_name):
+        print('Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^')
         small_talks = [
-            'Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^',
             f'So hello {patient_name} , let\'s start with your problem'
         ]
-        return small_talks
+        print(small_talks[0])
     
     def prepare(self):
         self.getServersity()
@@ -115,7 +115,9 @@ class HIRO:
         else:
             return 0,[]
         
-    def get_user_problem(self,tree,feature_name,user_problem_description):
+    def get_user_problem(self,user_problem):
+        tree = self.clf
+        feature_name = self.cols
         tree_ = tree.tree_
         feature_name = [
             feature_name[i] if i != _tree.TREE_UNDEFINED else 'undefined!'
@@ -123,19 +125,6 @@ class HIRO:
         ]
         chk_dis = ','.join(feature_name).split(',')
         symtoms_present = []
-        confidence , cnf_dis = self.match_patterns(chk_dis,user_problem_description)
+        confidence , cnf_dis = self.match_patterns(chk_dis,user_problem)
         
         return confidence,cnf_dis,symtoms_present
-    
-    
-# if __name__ == '__main__':
-    
-#     hiro = HIRO()
-#     hiro.prepare()
-
-#     patient_name = input('[patient name] :: ')
-#     hiro.introduce(patient_name)
-    
-#     user_problem = input('=> ')
-#     result = hiro.get_user_problem(user_problem)
-#     print(result)
