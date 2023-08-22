@@ -16,11 +16,9 @@ hiro = HIRO(
     datasets[4]
 )
 hiro.prepare()
-
+hiro.introduce(patient_name=input('[patient name] :: '))
     
 while True:
-    patient_name = input('[patient name] :: ')
-    hiro.introduce(patient_name)
 
     user_problem = input('\n[can you explain your problem] :: ')
     result = hiro.get_user_problem(user_problem)
@@ -41,3 +39,4 @@ while True:
         print('please enter a valid symptoms')     
     num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
                                'please enter number of days in digits (0-9)!')
+    
