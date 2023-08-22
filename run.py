@@ -33,12 +33,12 @@ if __name__=='__main__':
             if item_number !=0:
                     confidence_input = hiro.get_choice(
                         input(f'select an option from 1 - {item_number} : '),
-                        'please enter choice in digits (0-9)!')      
+                       'please enter choice in digits (0-9)!')      
             else:
                 confidence_input = 0
             disease_input = result[1]
             break
         else:
             print('please enter a valid symptoms')     
-        num_days = hiro.get_choice(int(input("\nOkay. From how many days ? : ")),
+        num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
                                    'please enter number of days in digits (0-9)!')
