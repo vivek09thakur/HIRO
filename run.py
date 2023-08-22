@@ -30,19 +30,16 @@ if __name__=='__main__':
             print(f'\nsearches related to {result[1][0]} :')
             for item_number , item_name in enumerate(result[1]):
                 print(f'{item_number} ) {item_name}')
-                
+            
             if item_number !=0:
                 try:
                     confidence_input = int(input(f'select an option from 1 - {item_number} : '))
                 except Exception:
                     print("\nplease enter a valid input for choice")
             else:
-                confidence_input = 0 
+                confidence_input = 0
                 
             disease_input = result[1]
             break
-        
         else:
             print('please enter a valid symptoms')
-        
-            
