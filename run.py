@@ -17,31 +17,27 @@ hiro = HIRO(
 )
 hiro.prepare()
 
-if __name__=='__main__':
     
-    while True:
-        patient_name = input('[patient name] :: ')
-        hiro.introduce(patient_name)
-        
-        user_problem = input('\n[can you explain your problem] :: ')
-        result = hiro.get_user_problem(user_problem)
-        # print(result)
-        
-        if result[0] == 1:
-            print(f'\nsearches related to {result[1][0]} :')
-            for item_number , item_name in enumerate(result[1]):
-                print(f'{item_number} ) {item_name}')   
-            if item_number !=0:
-                    confidence_input = hiro.get_choice(
-                        input(f'select an option from 1 - {item_number} : '),
-                       'please enter choice in digits (0-9)!')  
-                    # print(confidence_input)    
-            else:
-                confidence_input = 0
-            disease_input = result[1]
-            break
+while True:
+    patient_name = input('[patient name] :: ')
+    hiro.introduce(patient_name)
+
+    user_problem = input('\n[can you explain your problem] :: ')
+    result = hiro.get_user_problem(user_problem)
+
+    if result[0] == 1:
+        print(f'\nsearches related to {result[1][0]} :')
+        for item_number , item_name in enumerate(result[1]):
+            print(f'{item_number} ) {item_name}')   
+
+        if item_number !=0:
+                confidence_input = hiro.get_choice(
+                    input(f'select an option from 1 - {item_number} : '),
+                   'please enter choice in digits (0-9)!')    
         else:
-            print('please enter a valid symptoms')     
-        num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
-                                   'please enter number of days in digits (0-9)!')
-        # print(num_days)
+            confidence_input = 0
+        disease_input = result[1]
+    else:
+        print('please enter a valid symptoms')     
+    num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
+                               'please enter number of days in digits (0-9)!')
