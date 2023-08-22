@@ -77,6 +77,12 @@ class HIRO:
             readed_date = pd.read_csv(f)
         return readed_date
     
+    def get_choice(self,inp,error_message):
+        try:
+            return int(inp)
+        except Exception as e:
+            print(error_message)
+        
     def calcCondition(self,exp,days):
         sum = 0
         for item in exp:
