@@ -130,7 +130,7 @@ def sec_predict(symptoms_exp):
     df = pandas.read_csv("./dataset/data/Training.csv")
     X = df.iloc[:, :-1]
     y = df["prognosis"]
-    X_train, X_test, y_train, y_test = train_test_split(
+    X_train, y_train = train_test_split(
         X, y, test_size=0.3, random_state=20
     )
     rf_clf = DecisionTreeClassifier()
@@ -213,9 +213,7 @@ def run(tree, feature_names):
             symptoms_given = red_cols[
                 reduced_data.loc[present_disease].values[0].nonzero()
             ]
-            print(
-                "\nOkay Now I am going to ask you some question , please answer all of them in yes or no \n"
-            )
+            print("\nOkay Now I am going to ask you some question , please answer all of them in yes or no \n")
             symptoms_exp = []
             for syms in list(symptoms_given):
                 inp = ""

@@ -13,9 +13,28 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class HIRO:
     
-    def __init__(self):
-        self.training = pd.read_csv("dataset/data/Training.csv")
-        self.testing = pd.read_csv("dataset/data/Testing.csv")
+    def __init__(self,
+                 training_data_file,
+                 testing_data_file,
+                 serverity_dataset,
+                 precaution_dataset,
+                 description_dataset
+                ):
+        
+        # training and test datasets
+        self.training_data_file = training_data_file
+        self.testing_data_file = testing_data_file
+        
+        # precautions , description and serverity dataset
+        self.serverity_dataset = serverity_dataset
+        self.precaution_dataset = precaution_dataset
+        self.description_dataset = description_dataset
+        
+        # read training and test datasets
+        self.training = pd.read_csv(self.training_data_file)
+        self.testing = pd.read_csv(self.testing_data_file)
+        
+        # preprocessing training and test datasets
         self.cols = self.training.columns
         self.cols = self.cols[:-1]
         self.x = self.training[self.cols]
@@ -34,6 +53,7 @@ class HIRO:
         self.clf1 = DecisionTreeClassifier()
         self.clf = self.clf1.fit(self.x_train, self.y_train)
         self.scores = cross_val_score(self.clf, self.x_test, self.y_test, cv=3)
+        # 
         self.model = SVC()
         self.model.fit(self.x_train, self.y_train)
         self.importances = self.clf.feature_importances_
@@ -66,7 +86,7 @@ class HIRO:
         return sum
     
     def getDescription(self):
-        csv_reader = self.read_csv("./dataset/main/symptom_Description.csv")
+        csv_reader = self.read_csv(self.description_dataset)
         for row in csv_reader:
             description = {row[0]: row[1]}
             self.description_list.update(description)
@@ -74,7 +94,7 @@ class HIRO:
         return self.description_list
                 
     def getServersity(self):
-        csv_reader = self.read_csv("./dataset/main/Symptom_severity.csv")
+        csv_reader = self.read_csv(self.serverity_dataset)
         for row in csv_reader:
             try:
                 diction  = {row[0]: int(row[1])}
@@ -85,7 +105,7 @@ class HIRO:
         return self.severityDictionary
             
     def getPrecaution(self):
-        csv_reader = self.read_csv("./dataset/main/symptom_precaution.csv")
+        csv_reader = self.read_csv(self.precaution_dataset)
         for row in csv_reader:
             prec = {row[0]: [row[1], row[2], row[3], row[4]]}
             self.precautionDictionary.update(prec)
@@ -128,3 +148,25 @@ class HIRO:
         confidence , cnf_dis = self.match_patterns(chk_dis,user_problem)
         
         return confidence,cnf_dis,symtoms_present
+    
+    
+    def second_prediction(self,symptoms_exp):
+        dataframe = self.training
+        X = dataframe.iloc[:,:-1]
+        y = dataframe['prognosis']
+        X_train,y_train = train_test_split(X,y,test_size=0.3,random_state=20)
+        rf_clf = self.clf1
+        rf_clf.fit(X_train,y_train)
+        
+        symptoms_dictionary = {symptom:index for index,symptom in enumerate(X)}
+        input_vector = np.zeros(len(symptoms_dictionary))
+        for item in symptoms_exp:
+            input_vector[[symptoms_dictionary[item]]] =1
+        
+        return rf_clf.predict([input_vector])
+    
+    def print_diseases(self,node):
+        node = node[0]
+        val = node.nonzero()
+        disease = self.le.inverse_transform(val[0])
+        return list(map(lambda x:x.strip(),list(disease)))
