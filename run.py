@@ -25,6 +25,7 @@ if __name__=='__main__':
         
         user_problem = input('\n[can you explain your problem] :: ')
         result = hiro.get_user_problem(user_problem)
+        # print(result)
         
         if result[0] == 1:
             print(f'\nsearches related to {result[1][0]} :')
@@ -33,7 +34,8 @@ if __name__=='__main__':
             if item_number !=0:
                     confidence_input = hiro.get_choice(
                         input(f'select an option from 1 - {item_number} : '),
-                       'please enter choice in digits (0-9)!')      
+                       'please enter choice in digits (0-9)!')  
+                    # print(confidence_input)    
             else:
                 confidence_input = 0
             disease_input = result[1]
@@ -42,3 +44,4 @@ if __name__=='__main__':
             print('please enter a valid symptoms')     
         num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
                                    'please enter number of days in digits (0-9)!')
+        # print(num_days)
