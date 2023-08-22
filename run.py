@@ -27,7 +27,7 @@ if __name__=='__main__':
         result = hiro.get_user_problem(user_problem)
         
         if result[0] == 1:
-            print(f'\nsearches related to {result[1][0]} :')\   
+            print(f'\nsearches related to {result[1][0]} :')
             for item_number , item_name in enumerate(result[1]):
                 print(f'{item_number} ) {item_name}')   
             if item_number !=0:
