@@ -196,7 +196,6 @@ def run(tree, feature_names):
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
             name = feature_name[node]
             threshold = tree_.threshold[node]
-
             if name == disease_input:
                 val = 1
             else:
@@ -208,11 +207,8 @@ def run(tree, feature_names):
                 recurse(tree_.children_right[node], depth + 1)
         else:
             present_disease = print_disease(tree_.value[node])
-
             red_cols = reduced_data.columns
-            symptoms_given = red_cols[
-                reduced_data.loc[present_disease].values[0].nonzero()
-            ]
+            symptoms_given = red_cols[reduced_data.loc[present_disease].values[0].nonzero()]
             print("\nOkay Now I am going to ask you some question , please answer all of them in yes or no \n")
             symptoms_exp = []
             for syms in list(symptoms_given):
@@ -226,28 +222,19 @@ def run(tree, feature_names):
                         print("provide proper answers i.e. (yes/no) : ", end="")
                 if inp == "yes":
                     symptoms_exp.append(syms)
-
             second_prediction = sec_predict(symptoms_exp)
-
             calc_condition(symptoms_exp, num_days)
             if present_disease[0] == second_prediction[0]:
                 print("\nYou may have ", present_disease[0])
-                print(
-                    f"\nDESCRIPTION OF DISEASES :", description_list[present_disease[0]]
-                )
-
+                print(f"\nDESCRIPTION OF DISEASES :", description_list[present_disease[0]])
             else:
-                print(
-                    "\nYou may have ", present_disease[0], "or ", second_prediction[0]
-                )
+                print("\nYou may have ", present_disease[0], "or ", second_prediction[0])
                 print(description_list[present_disease[0]])
                 print(description_list[second_prediction[0]])
-
             precution_list = precautionDictionary[present_disease[0]]
             print("\nTake following measures : \n")
             for i, j in enumerate(precution_list):
                 print(i + 1, ")", j)
-
     recurse(0, 1)
 
 
