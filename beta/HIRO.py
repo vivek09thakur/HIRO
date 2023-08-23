@@ -171,8 +171,30 @@ class HIRO:
         
         return rf_clf.predict([input_vector])
     
-    def print_diseases(self,node):
+    def daignose_diseases(self,node):
         node = node[0]
         val = node.nonzero()
         disease = self.le.inverse_transform(val[0])
         return list(map(lambda x:x.strip(),list(disease)))
+    
+    def recurse(self,node,depth,disease_input,symtoms_present):
+        # indent = ' '*depth
+        tree_ = self.clf
+        feature_name = self.cols
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            name = feature_name[node]
+            threshold = tree_.threshold[node]
+            if name == disease_input:
+                val = 1
+            else:
+                val = 0
+            if val <= threshold:
+                self.recurse(tree_.children_left[node],depth+1,disease_input,symtoms_present)
+            else:
+                list(symtoms_present).append(name)
+                self.recurse(tree_.children_right[node],depth+2,disease_input,symtoms_present)
+            
+        else:
+            present_diseases = self.daignose_diseases(tree_.value[node])
+            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].value[0].nonzero()]
+        return symptoms_given
