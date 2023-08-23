@@ -9,8 +9,6 @@ from sklearn.svm import SVC
 import warnings
 import os
 
-warnings.filterwarnings("ignore", category=UserWarning) 
-
 class HIRO:
     
     def __init__(self,
@@ -126,6 +124,7 @@ class HIRO:
         print(small_talks[0])
     
     def prepare(self):
+        warnings.filterwarnings("ignore", category=UserWarning) 
         self.getServersity()
         self.getDescription()
         self.getPrecaution()
@@ -177,24 +176,25 @@ class HIRO:
         disease = self.le.inverse_transform(val[0])
         return list(map(lambda x:x.strip(),list(disease)))
     
-    def recurse(self,node,depth,disease_input,symtoms_present):
+    def recurse(self,node,depth,disease_input,symptoms_present):
         # indent = ' '*depth
-        tree_ = self.clf
-        feature_name = self.cols
+        tree_ = self.clf.tree_
+        # feature_name = self.cols
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
-            name = feature_name[node]
+            name = tree_.feature[node]
             threshold = tree_.threshold[node]
             if name == disease_input:
                 val = 1
             else:
                 val = 0
             if val <= threshold:
-                self.recurse(tree_.children_left[node],depth+1,disease_input,symtoms_present)
+                self.recurse(tree_.children_left[node],depth+1,disease_input,symptoms_present)
             else:
-                list(symtoms_present).append(name)
-                self.recurse(tree_.children_right[node],depth+2,disease_input,symtoms_present)
+                list(symptoms_present).append(name)
+                self.recurse(tree_.children_right[node],depth+2,disease_input,symptoms_present)
             
         else:
             present_diseases = self.daignose_diseases(tree_.value[node])
-            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].value[0].nonzero()]
-        return symptoms_given
+            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
+            return symptoms_given
+        return symptoms_present
