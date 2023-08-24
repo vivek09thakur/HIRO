@@ -159,7 +159,7 @@ class HIRO:
         dataframe = self.training
         X = dataframe.iloc[:,:-1]
         y = dataframe['prognosis']
-        X_train,y_train = train_test_split(X,y,test_size=0.3,random_state=20)
+        X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3,random_state=20)
         rf_clf = self.clf1
         rf_clf.fit(X_train,y_train)
         
