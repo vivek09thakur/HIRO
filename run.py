@@ -48,7 +48,7 @@ while True:
         )
     symptoms_exp = []
     for symps in given_symptoms:
-        choice = input(f'\nAre you experiencing any {symps} ? \n enter [yes or no] :: ')
+        choice = input(f'\nAre you experiencing any {symps} ? \nEnter your answer in [yes or no] :: ')
         if choice == 'yes':
             symptoms_exp.append(symps)
     second_prediction = hiro.second_prediction(symptoms_exp)
