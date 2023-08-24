@@ -192,6 +192,8 @@ class HIRO:
                 self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
         else:
             present_diseases = self.daignose_diseases(tree_.value[node])
+            print(present_diseases)
             symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
             symptoms_present.extend(symptoms_given)
+            
         return symptoms_present
