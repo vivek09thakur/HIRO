@@ -176,25 +176,22 @@ class HIRO:
         disease = self.le.inverse_transform(val[0])
         return list(map(lambda x:x.strip(),list(disease)))
     
-    def recurse(self,node,depth,disease_input,symptoms_present):
-        # indent = ' '*depth
+    def recurse(self, node, depth, disease_input, symptoms_present):
         tree_ = self.clf.tree_
-        # feature_name = self.cols
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
-            name = tree_.feature[node]
+            feature_index = tree_.feature[node]
             threshold = tree_.threshold[node]
-            if name == disease_input:
+            if feature_index == self.symptoms_dict[disease_input]:
                 val = 1
             else:
                 val = 0
             if val <= threshold:
-                self.recurse(tree_.children_left[node],depth+1,disease_input,symptoms_present)
+                self.recurse(tree_.children_left[node], depth + 1, disease_input, symptoms_present)
             else:
-                list(symptoms_present).append(name)
-                self.recurse(tree_.children_right[node],depth+2,disease_input,symptoms_present)
-            
-        # else:
-        present_diseases = self.daignose_diseases(tree_.value[node])
-        symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
-        return symptoms_given
-        # return symptoms_present
+                symptoms_present.append(self.cols[feature_index])
+                self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
+        else:
+            present_diseases = self.daignose_diseases(tree_.value[node])
+            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
+            symptoms_present.extend(symptoms_given)
+        return symptoms_present

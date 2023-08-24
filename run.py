@@ -42,5 +42,5 @@ while True:
     num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
                                'please enter number of days in digits (0-9)!')
     # print(num_days)
-    given_symptoms = hiro.recurse(0,1,disease_input,result[2])
+    given_symptoms = hiro.recurse(0,1,disease_input[0],result[2])
     print(given_symptoms)
