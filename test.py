@@ -209,6 +209,8 @@ def run(tree, feature_names):
             present_disease = print_disease(tree_.value[node])
             red_cols = reduced_data.columns
             symptoms_given = red_cols[reduced_data.loc[present_disease].values[0].nonzero()]
+            print(symptoms_given)
+            print(type(symptoms_given))
             print("\nOkay Now I am going to ask you some question , please answer all of them in yes or no \n")
             symptoms_exp = []
             for syms in list(symptoms_given):

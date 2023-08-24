@@ -193,8 +193,8 @@ class HIRO:
                 list(symptoms_present).append(name)
                 self.recurse(tree_.children_right[node],depth+2,disease_input,symptoms_present)
             
-        else:
-            present_diseases = self.daignose_diseases(tree_.value[node])
-            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
-            return symptoms_given
-        return symptoms_present
+        # else:
+        present_diseases = self.daignose_diseases(tree_.value[node])
+        symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
+        return symptoms_given
+        # return symptoms_present
