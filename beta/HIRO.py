@@ -179,6 +179,7 @@ class HIRO:
     
     def recurse(self, node, depth, disease_input, symptoms_present):
         tree_ = self.clf.tree_
+        present_diseases = []
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
             feature_index = tree_.feature[node]
             threshold = tree_.threshold[node]
@@ -193,8 +194,8 @@ class HIRO:
                 self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
         else:
             present_diseases = self.daignose_diseases(tree_.value[node])
-            print(present_diseases)
+            # print(present_diseases)
             symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
             symptoms_present.extend(symptoms_given)
             
-        return symptoms_present
+        return symptoms_present,present_diseases
