@@ -1,13 +1,14 @@
+# import csv
+# import os
 import re
-import csv
+import warnings
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.tree import DecisionTreeClassifier, _tree
 from sklearn.svm import SVC
-import warnings
-import os
+from sklearn.tree import DecisionTreeClassifier, _tree
+
 
 class HIRO:
     
