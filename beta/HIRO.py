@@ -216,6 +216,6 @@ class HIRO:
         else:
             self.present_diseases = self.daignose_diseases(tree_.value[node])
             symptoms_given = self.reduced_data.columns[self.reduced_data.loc[self.present_diseases].values[0].nonzero()]
-            symptoms_present.extend(symptoms_given)
+            list(symptoms_present).append(symptoms_given)
             
         return symptoms_present,self.present_diseases
