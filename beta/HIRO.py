@@ -69,6 +69,7 @@ class HIRO:
         self.description_list = {}
         self.severityDictionary = {}
         self.precautionDictionary = {}
+        self.present_diseases = None
         
     
     def read_csv(self,csv_file):
@@ -88,7 +89,9 @@ class HIRO:
             sum = sum + self.symptoms_dict[item]
         sum = sum/len(exp)
         sum = sum + days
-        return sum
+        if sum/len(exp) >= 13:
+            return sum , 'You should take the consultation from doctor'
+        return sum , 'It might not be that bad but you should take precautions'
     
     def getDescription(self):
         csv_reader = self.read_csv(self.description_dataset)
@@ -177,9 +180,8 @@ class HIRO:
         disease = self.le.inverse_transform(val[0])
         return list(map(lambda x:x.strip(),list(disease)))
     
-    def recurse(self, node, depth, disease_input, symptoms_present):
+    def predict_disease(self, node, depth, disease_input, symptoms_present):
         tree_ = self.clf.tree_
-        present_diseases = []
         if tree_.feature[node] != _tree.TREE_UNDEFINED:
             feature_index = tree_.feature[node]
             threshold = tree_.threshold[node]
@@ -194,8 +196,26 @@ class HIRO:
                 self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
         else:
             present_diseases = self.daignose_diseases(tree_.value[node])
-            # print(present_diseases)
-            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[present_diseases].values[0].nonzero()]
+            symptoms_present.extend(present_diseases)
+        return symptoms_present
+    
+    def recurse(self, node, depth, disease_input, symptoms_present):
+        tree_ = self.clf.tree_
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            feature_index = tree_.feature[node]
+            threshold = tree_.threshold[node]
+            if feature_index == self.symptoms_dict[disease_input]:
+                val = 1
+            else:
+                val = 0
+            if val <= threshold:
+                self.recurse(tree_.children_left[node], depth + 1, disease_input, symptoms_present)
+            else:
+                symptoms_present.append(self.cols[feature_index])
+                self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
+        else:
+            self.present_diseases = self.daignose_diseases(tree_.value[node])
+            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[self.present_diseases].values[0].nonzero()]
             symptoms_present.extend(symptoms_given)
             
-        return symptoms_present,present_diseases
+        return symptoms_present,self.present_diseases

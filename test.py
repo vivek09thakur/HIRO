@@ -206,6 +206,9 @@ def run(tree, feature_names):
                 symptoms_present.append(name)
                 recurse(tree_.children_right[node], depth + 1)
         else:
+            print(tree_)
+            print(node)
+            print(tree_.value[node])
             present_disease = print_disease(tree_.value[node])
             red_cols = reduced_data.columns
             symptoms_given = red_cols[reduced_data.loc[present_disease].values[0].nonzero()]
