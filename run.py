@@ -58,14 +58,20 @@ while True:
     print(patient_condition[1])
     
     if first_prediction[0]==second_prediction[0]:
-        print(f'\nYou may have {first_prediction[0]}\nDISEASE DESCRIPTION : {description_list[first_prediction[0]]}')
+        print(f'''
+              You may have {first_prediction[0]}
+              DISEASE DESCRIPTION : {description_list[first_prediction[0]]}
+            ''')
     else:
         try:
             print(f'\nYou may have {first_prediction[0]} or {second_prediction[0]}')
-            print(f'DISEASE DESCRIPTION [1] : {description_list[first_prediction[0]]}\nDISEASE DESCRIPTION [2] : {description_list[second_prediction[0]]}')
+            print(f'''
+                  DISEASE DESCRIPTION [1] : {description_list[first_prediction[0]]}
+                  DISEASE DESCRIPTION [2] : {description_list[second_prediction[0]]}
+            ''')
         except KeyError:
             print(f'sorry but I don\'t have any data about the disease {first_prediction[0]} or {second_prediction[0]} your suffering through')
-    precaution_list = precaution_dict[first_prediction[0]]
     
+    precaution_list = precaution_dict[first_prediction[0]]
     for precaution_num,precaution_discription in enumerate(precaution_list):
         print(f'{precaution_num} -- {precaution_discription}')
