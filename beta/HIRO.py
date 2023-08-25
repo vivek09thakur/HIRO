@@ -72,7 +72,7 @@ class HIRO:
         self.present_diseases = None
         
     
-    def read_csv(self,csv_file):
+    def read_csv_file(self,csv_file):
         with open(csv_file) as f:
             readed_date = pd.read_csv(f)
         return readed_date
@@ -94,7 +94,7 @@ class HIRO:
         return sum , 'It might not be that bad but you should take precautions'
     
     def getDescription(self):
-        csv_reader = self.read_csv(self.description_dataset)
+        csv_reader = self.read_csv_file(self.description_dataset)
         for row in csv_reader:
             description = {row[0]: row[1]}
             self.description_list.update(description)
@@ -102,7 +102,7 @@ class HIRO:
         return self.description_list
                 
     def getServersity(self):
-        csv_reader = self.read_csv(self.serverity_dataset)
+        csv_reader = self.read_csv_file(self.serverity_dataset)
         for row in csv_reader:
             try:
                 diction  = {row[0]: int(row[1])}
@@ -113,7 +113,7 @@ class HIRO:
         return self.severityDictionary
             
     def getPrecaution(self):
-        csv_reader = self.read_csv(self.precaution_dataset)
+        csv_reader = self.read_csv_file(self.precaution_dataset)
         for row in csv_reader:
             prec = {row[0]: [row[1], row[2], row[3], row[4]]}
             self.precautionDictionary.update(prec)
