@@ -7,6 +7,10 @@ params = [
     './dataset/main/symptom_precaution.csv' ,# precaution_data
     './dataset/main/symptom_Description.csv' # description_dat
 ]
+messages = [
+    'please enter choice in digits (0-9)!', # error message 1
+    'please enter number of days in digits (0-9)!', # error message 2
+]
 
 hiro = HIRO(params[0],params[1])
 hiro.introduce(patient_name=input('[patient name] :: '))
@@ -26,18 +30,17 @@ while True:
         if item_number !=0:
                 confidence_input = hiro.get_choice(
                     input(f'select an option from 1 - {item_number} : '),
-                'please enter choice in digits (0-9)!') 
+                    messages[0]) 
         else:
             confidence_input = 0
         disease_input = result[1]
     else:
         print('please enter a valid symptoms')
-    num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),
-                               'please enter number of days in digits (0-9)!')
+        
+    num_days = hiro.get_choice(input("\nOkay. From how many days ? : "),messages[1])
     given_symptoms,first_prediction = hiro.recurse(0,1,disease_input[0],result[2])
-    print(
-        '\nOkay Now I am going to ask you some question,please answer all of them in yes or no'
-    )
+    
+    print('\nOkay Now I am going to ask you some question,please answer all of them in yes or no')
     symptoms_exp = []
     for symps in given_symptoms:
         choice = input(
@@ -49,21 +52,18 @@ while True:
     patient_condition = hiro.calcCondition(symptoms_exp,num_days)
     print(patient_condition[1])
     
-    if first_prediction[0]==second_prediction[0]:
-        print(f'''You may have {first_prediction[0]}
-              DISEASE DESCRIPTION : {description_list[first_prediction[0]]}''')
-    else:
-        try:
+    try:
+        if first_prediction[0]==second_prediction[0]:
+            print(f'''You may have {first_prediction[0]}
+                  DISEASE DESCRIPTION : {description_list[first_prediction[0]]}''')
+        else:
             print(f'\nYou may have {first_prediction[0]} or {second_prediction[0]}')
             print(f'''
                 DISEASE DESCRIPTION [1] : {description_list[first_prediction[0]]}
                 DISEASE DESCRIPTION [2] : {description_list[second_prediction[0]]}
             ''')
-        except Exception as e:
-            print(e)
-    try:
-        precaution_list = precaution_dict[first_prediction[0]]
-        for precaution_num,precaution_discription in enumerate(precaution_list):
-            print(f'{precaution_num} -- {precaution_discription}')
+            precaution_list = precaution_dict[first_prediction[0]]
+            for precaution_num,precaution_discription in enumerate(precaution_list):
+                print(f'{precaution_num} -- {precaution_discription}')
     except Exception as e:
-        print(e)
+        print(f'ERROR OCCURED : {e}')
