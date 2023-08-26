@@ -1,4 +1,4 @@
-from beta.HIRO import HIRO
+from hiro.HIRO import HIRO
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning) 

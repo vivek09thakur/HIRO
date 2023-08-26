@@ -1,170 +1,201 @@
-import os
-import csv
-import pandas as pd
+import re
 import numpy as np
-from utils import check_list_match
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.tree import DecisionTreeClassifier, _tree
+import pandas as pd
 from sklearn import preprocessing
-
-TRAIN_DATASET_PATH = "./dataset/data/Training.csv"
-TEST_DATASET_PATH = "./dataset/data/Testing.csv"
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.tree import DecisionTreeClassifier, _tree
+from sklearn.svm import SVC
+import csv
 
 
 class HIRO:
-    def __init__(self):
-        self.DESCRIPTION_LIST = self.load_description_list()
-        self.PRECAUTION_LIST = self.load_precaution_list()
-        self.SEVERITY_LIST = self.load_severity_list()
-
-        self.COLUMNS, self.DATASET, self.DATASET_X, self.DATASET_Y = self.load_dataset()
-
-        self.classifier, self.CLASSIFIER_SCORE = self.load_classifier()
-        self.encoder = self.load_encoder()
-
-        self.tree_ = self.classifier.tree_
-        self.symptoms_present = []
-        self.feature_name = [
-            self.COLUMNS[i] if i != _tree.TREE_UNDEFINED else "undefined!"
-            for i in self.tree_.feature
+    
+    def __init__(self,training_data_file,testing_data_file):
+        
+        # training and test datasets
+        self.training_data_file = training_data_file
+        self.testing_data_file = testing_data_file
+        
+        # read training and test datasets
+        self.training = pd.read_csv(self.training_data_file)
+        self.testing = pd.read_csv(self.testing_data_file)
+        
+        # preprocessing training and test datasets
+        self.cols = self.training.columns
+        self.cols = self.cols[:-1]
+        self.x = self.training[self.cols]
+        self.y = self.training["prognosis"]
+        self.y1 = self.y
+        self.reduced_data = self.training.groupby(self.training["prognosis"]).max()
+        self.le = preprocessing.LabelEncoder()
+        self.le.fit(self.y)
+        self.y = self.le.transform(self.y)
+        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
+            self.x, self.y, test_size=0.33, random_state=42
+        )
+        self.testx = self.testing[self.cols]
+        self.testy = self.testing["prognosis"]
+        self.testy = self.le.transform(self.testy)
+        self.clf1 = DecisionTreeClassifier()
+        self.clf = self.clf1.fit(self.x_train, self.y_train)
+        self.scores = cross_val_score(self.clf, self.x_test, self.y_test, cv=3)
+        # 
+        self.model = SVC()
+        self.model.fit(self.x_train, self.y_train)
+        self.importances = self.clf.feature_importances_
+        self.indices = np.argsort(self.importances)[::-1]
+        self.features = self.cols
+        self.severityDictionary = dict()
+        self.description_list = dict()
+        self.precautionDictionary = dict()
+        self.symptoms_dict = {}
+        
+        for index, symptom in enumerate(self.x):
+            self.symptoms_dict[symptom] = index
+            
+        self.description_list = {}
+        self.severityDictionary = {}
+        self.precautionDictionary = {}
+        self.present_diseases = None
+    
+    def get_choice(self,inp,error_message):
+        try:
+            return int(inp)
+        except Exception as e:
+            print(error_message)
+        
+    def calcCondition(self,exp,days):
+        sum = 0
+        for item in exp:
+            sum = sum + self.symptoms_dict[item]
+        sum = sum/len(exp)
+        sum = sum + days
+        if sum/len(exp) >= 13:
+            return sum , 'You should take the consultation from doctor'
+        return sum , 'It might not be that bad but you should take precautions'
+    
+    def getDescription(self,description_dataset):
+        with open(description_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                description = {row[0]: row[1]}
+                self.description_list.update(description)
+                break
+            return self.description_list
+                
+    def getServersity(self,serverity_dataset):
+        with open(serverity_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                try:
+                    diction  = {row[0]: int(row[1])}
+                    self.severityDictionary.update(diction)
+                except Exception as e:
+                    print(e)
+                    pass
+                break
+            return self.severityDictionary
+            
+    def getPrecaution(self,precaution_dataset):
+        with open(precaution_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                prec = {row[0]: [row[1], row[2], row[3], row[4]]}
+                self.precautionDictionary.update(prec)
+                break
+            return self.precautionDictionary
+    
+    def introduce(self,patient_name):
+        print('Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^')
+        small_talks = [
+            f'So hello {patient_name} , let\'s start with your problem'
         ]
-
-    def introduce(self):
-        os.system("cls")
-        print(
-            "Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^"
-        )
-        name = input(
-            "But you have to tell me your name first. what is your name? \n\n[patient name] :: "
-        )
-        print(f"\nSo hello {name} , let's start with your problem ")
-
-    def load_description_list(self):
-        description_list = dict()
-        with open("./dataset/main/symptom_Description.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                _description = {row[0]: row[1]}
-                description_list.update(_description)
-        return description_list
-
-    def load_severity_list(self):
-        severity_dictionary = dict()
-        with open("./dataset/main/Symptom_severity.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                if len(row) == 2:
-                    _diction = {row[0]: int(row[1])}
-                    severity_dictionary.update(_diction)
-        return severity_dictionary
-
-    def load_precaution_list(self):
-        precaution_dictionary = dict()
-        with open("./dataset/main/symptom_precaution.csv") as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            for row in csv_reader:
-                _prec = {row[0]: [row[1], row[2], row[3], row[4]]}
-                precaution_dictionary.update(_prec)
-        return precaution_dictionary
-
-    def load_dataset(self):
-
-        dataset = pd.read_csv(TRAIN_DATASET_PATH)
-
-        columns = dataset.columns
-        columns = columns[:-1]
-
-        dataset_x = dataset[columns]
-        dataset_y = dataset["prognosis"]
-
-        return [columns, dataset, dataset_x, dataset_y]
-
-    def load_classifier(self):
-        x_train, x_test, y_train, y_test = train_test_split(
-            self.DATASET_X, self.DATASET_Y, test_size=0.33, random_state=42
-        )
-
-        classifier = DecisionTreeClassifier()
-        classifier.fit(x_train, y_train)
-        scores = cross_val_score(classifier, x_test, y_test, cv=3)
-
-        return [classifier, scores]
-
-    def load_encoder(self):
-        encoder = preprocessing.LabelEncoder()
-        encoder.fit(self.DATASET_Y)
-        return encoder
-
-    def print_disease(self, node):
+        print(small_talks[0])
+    
+        
+    def match_patterns(self,dis_list,inp):
+        prediction_list = []
+        inp = str(inp).replace(" ","_")
+        pattern = f'{inp}'
+        regular_expression = re.compile(pattern)
+        prediction_list = [item for item in dis_list if regular_expression.search(item)]
+        if len(prediction_list)>0:
+            return 1 , prediction_list
+        else:
+            return 0,[]
+        
+    def get_user_problem(self,user_problem):
+        tree = self.clf
+        feature_name = self.cols
+        tree_ = tree.tree_
+        feature_name = [
+            feature_name[i] if i != _tree.TREE_UNDEFINED else 'undefined!'
+            for i in tree_.feature
+        ]
+        chk_dis = ','.join(feature_name).split(',')
+        symtoms_present = []
+        confidence , cnf_dis = self.match_patterns(chk_dis,user_problem)
+        
+        return confidence,cnf_dis,symtoms_present
+    
+    
+    def second_prediction(self,symptoms_exp):
+        dataframe = self.training
+        X = dataframe.iloc[:,:-1]
+        y = dataframe['prognosis']
+        X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3,random_state=20)
+        rf_clf = self.clf1
+        rf_clf.fit(X_train,y_train)
+        
+        symptoms_dictionary = {symptom:index for index,symptom in enumerate(X)}
+        input_vector = np.zeros(len(symptoms_dictionary))
+        for item in symptoms_exp:
+            input_vector[[symptoms_dictionary[item]]] =1
+        
+        return rf_clf.predict([input_vector])
+    
+    def daignose_diseases(self,node):
         node = node[0]
         val = node.nonzero()
-        disease = self.encoder.inverse_transform(val[0])
-        return list(map(lambda x: x.strip(), list(disease)))
-
-    def get_disease_from_symptom_name(self, symptom_name, node=0, depth=1):
-        if self.tree_.feature[node] != _tree.TREE_UNDEFINED:
-            name = self.feature_name[node]
-            threshold = self.tree_.threshold[node]
-
-            if name == symptom_name:
+        disease = self.le.inverse_transform(val[0])
+        return list(map(lambda x:x.strip(),list(disease)))
+    
+    def predict_disease(self, node, depth, disease_input, symptoms_present):
+        tree_ = self.clf.tree_
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            feature_index = tree_.feature[node]
+            threshold = tree_.threshold[node]
+            if feature_index == self.symptoms_dict[disease_input]:
                 val = 1
             else:
                 val = 0
             if val <= threshold:
-                self.get_disease_from_symptom_name(
-                    symptom_name, self.tree_.children_left[node], depth + 1
-                )
+                self.recurse(tree_.children_left[node], depth + 1, disease_input, symptoms_present)
             else:
-                self.symptoms_present.append(name)
-                self.get_disease_from_symptom_name(
-                    symptom_name, self.tree_.children_right[node], depth + 1
-                )
+                symptoms_present.append(self.cols[feature_index])
+                self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
         else:
-            present_disease = self.print_disease(self.tree_.value[node])
-            return present_disease
-
-    def get_probable_symptoms(self, disease):
-        reduced_data = self.DATASET.groupby(self.DATASET["prognosis"]).max()
-        red_cols = reduced_data.columns
-        probable_symptoms = red_cols[reduced_data.loc[disease].values[0].nonzero()]
-        return probable_symptoms
-
-    def get_disease_from_symptom_arr(symptoms_arr):
-        df = pd.read_csv("./dataset/data/Training.csv")
-        X = df.iloc[:, :-1]
-        y = df["prognosis"]
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, random_state=20
-        )
-        rf_clf = DecisionTreeClassifier()
-        rf_clf.fit(X_train, y_train)
-
-        symptoms_dict = {symptom: index for index, symptom in enumerate(X)}
-        input_vector = np.zeros(len(symptoms_dict))
-        for item in symptoms_arr:
-            input_vector[[symptoms_dict[item]]] = 1
-
-        return rf_clf.predict([input_vector])
-
-    def is_consult_doctor(self, symptoms_arr, days):
-        THRESHOLD = 13
-
-        severity = 0
-        for item in symptoms_arr:
-            severity = severity + self.SEVERITY_LIST[item]
-
-        if severity > THRESHOLD:
-            return True
-
-        return False
-
-    def get_precautions(self, disease):
-        return self.PRECAUTION_LIST[disease]
-
-    def get_matching_symptoms(self, symptom_name):
-        symptoms = [
-            self.COLUMNS[i] if i != _tree.TREE_UNDEFINED else "undefined!"
-            for i in self.tree_.feature
-        ]
-        print(symptoms)
-        return check_list_match(symptoms, symptom_name)
+            present_diseases = self.daignose_diseases(tree_.value[node])
+            symptoms_present.extend(present_diseases)
+        return symptoms_present
+    
+    def recurse(self, node, depth, disease_input, symptoms_present):
+        tree_ = self.clf.tree_
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            feature_index = tree_.feature[node]
+            threshold = tree_.threshold[node]
+            if feature_index == self.symptoms_dict[disease_input]:
+                val = 1
+            else:
+                val = 0
+            if val <= threshold:
+                self.recurse(tree_.children_left[node], depth + 1, disease_input, symptoms_present)
+            else:
+                symptoms_present.append(self.cols[feature_index])
+                self.recurse(tree_.children_right[node], depth + 1, disease_input, symptoms_present)
+        else:
+            self.present_diseases = self.daignose_diseases(tree_.value[node])
+            symptoms_given = self.reduced_data.columns[self.reduced_data.loc[self.present_diseases].values[0].nonzero()]
+            list(symptoms_present).append(symptoms_given)
+            
+        return symptoms_present,self.present_diseases
