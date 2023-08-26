@@ -1,4 +1,7 @@
 from beta.HIRO import HIRO
+import warnings
+
+warnings.filterwarnings("ignore", category=UserWarning) 
 
 params = [
     'dataset/data/Training.csv', # training_data
