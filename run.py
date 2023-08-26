@@ -4,11 +4,11 @@ import warnings
 warnings.filterwarnings("ignore", category=UserWarning) 
 
 params = [
-    'dataset/data/Training.csv', # training_data
-    'dataset/data/Testing.csv', # testing_data
-    'dataset/main/Symptom_severity.csv', # serverity_data 
-    'dataset/main/symptom_precaution.csv' ,# precaution_data
-    'dataset/main/symptom_Description.csv' # description_dat
+    './dataset/data/Training.csv', # training_data
+    './dataset/data/Testing.csv', # testing_data
+    './dataset/main/Symptom_severity.csv', # serverity_data 
+    './dataset/main/symptom_precaution.csv' ,# precaution_data
+    './dataset/main/symptom_Description.csv' # description_dat
 ]
 
 hiro = HIRO(params[0],params[1])
