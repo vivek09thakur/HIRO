@@ -1,33 +1,21 @@
-# import csv
-# import os
 import re
 import warnings
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier, _tree
+from sklearn.svm import SVC
+import csv
 
 
 class HIRO:
     
-    def __init__(self,
-                 training_data_file,
-                 testing_data_file,
-                 serverity_dataset,
-                 precaution_dataset,
-                 description_dataset
-                ):
+    def __init__(self,training_data_file,testing_data_file):
         
         # training and test datasets
         self.training_data_file = training_data_file
         self.testing_data_file = testing_data_file
-        
-        # precautions , description and serverity dataset
-        self.serverity_dataset = serverity_dataset
-        self.precaution_dataset = precaution_dataset
-        self.description_dataset = description_dataset
         
         # read training and test datasets
         self.training = pd.read_csv(self.training_data_file)
@@ -70,12 +58,6 @@ class HIRO:
         self.severityDictionary = {}
         self.precautionDictionary = {}
         self.present_diseases = None
-        
-    
-    def read_csv_file(self,csv_file):
-        with open(csv_file) as f:
-            readed_date = pd.read_csv(f)
-        return readed_date
     
     def get_choice(self,inp,error_message):
         try:
@@ -93,32 +75,36 @@ class HIRO:
             return sum , 'You should take the consultation from doctor'
         return sum , 'It might not be that bad but you should take precautions'
     
-    def getDescription(self):
-        csv_reader = self.read_csv_file(self.description_dataset)
-        for row in csv_reader:
-            description = {row[0]: row[1]}
-            self.description_list.update(description)
-            break
-        return self.description_list
+    def getDescription(self,description_dataset):
+        with open(description_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                description = {row[0]: row[1]}
+                self.description_list.update(description)
+                break
+            return self.description_list
                 
-    def getServersity(self):
-        csv_reader = self.read_csv_file(self.serverity_dataset)
-        for row in csv_reader:
-            try:
-                diction  = {row[0]: int(row[1])}
-                self.severityDictionary.update(diction)
-            except Exception:
-                pass
-            break
-        return self.severityDictionary
+    def getServersity(self,serverity_dataset):
+        with open(serverity_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                try:
+                    diction  = {row[0]: int(row[1])}
+                    self.severityDictionary.update(diction)
+                except Exception as e:
+                    print(e)
+                    pass
+                break
+            return self.severityDictionary
             
-    def getPrecaution(self):
-        csv_reader = self.read_csv_file(self.precaution_dataset)
-        for row in csv_reader:
-            prec = {row[0]: [row[1], row[2], row[3], row[4]]}
-            self.precautionDictionary.update(prec)
-            break
-        return self.precautionDictionary
+    def getPrecaution(self,precaution_dataset):
+        with open(precaution_dataset) as f:
+            csv_reader = csv.reader(f,delimiter=',')
+            for row in csv_reader:
+                prec = {row[0]: [row[1], row[2], row[3], row[4]]}
+                self.precautionDictionary.update(prec)
+                break
+            return self.precautionDictionary
     
     def introduce(self,patient_name):
         print('Hello , I am HIRO , your own healthcare companion.I am here to make you fit and fine ^_^')
@@ -127,11 +113,6 @@ class HIRO:
         ]
         print(small_talks[0])
     
-    def prepare(self):
-        warnings.filterwarnings("ignore", category=UserWarning) 
-        self.getServersity()
-        self.getDescription()
-        self.getPrecaution()
         
     def match_patterns(self,dis_list,inp):
         prediction_list = []
