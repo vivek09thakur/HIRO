@@ -18,7 +18,7 @@ description_list = hiro.getDescription(params[4])
 precaution_dict = hiro.getPrecaution(params[3])
 
 
-while True:
+if __name__ == '__main__':
     user_problem = input('\n[can you explain your problem] :: ')
     result = hiro.get_user_problem(user_problem)
     
@@ -67,3 +67,4 @@ while True:
                 print(f'{precaution_num} -- {precaution_discription}')
     except Exception as e:
         print('ERROR OCCURED : {}'.format(e))
+print('\nThank you for using our service, we hope you get well soon!')
