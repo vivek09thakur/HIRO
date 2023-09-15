@@ -199,3 +199,17 @@ class HIRO:
             list(symptoms_present).append(symptoms_given)
             
         return symptoms_present,self.present_diseases
+    
+    def show_first_prediction(self,disease,discrption_list):
+        print(f'You may have {disease}')
+        print(f'DISEASE DESCRIPTION -- {discrption_list[disease]}')
+        
+    def show_second_prediction(self,disease1,disease2,discrption_list):
+        print(f'You may have {disease1} or {disease2}')
+        print(f'''
+            DISEASE DESCRIPTION [1] -- {discrption_list[disease1]}
+            DISEASE DESCRIPTION [2] -- {discrption_list[disease2]}
+        ''')
+    
+    def show_patient_condition(self,condition):
+        print(f'PATIENT CONDITION -- {condition}')
