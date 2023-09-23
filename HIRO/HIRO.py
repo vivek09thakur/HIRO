@@ -129,7 +129,10 @@ class HEALTHCARE_CHATBOT:
     def introduce(self,patient_name):
         print(f'Hello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
     
-    def show_diseases(self):
-        print('\nHere is the list of diseases I can diagnose:')
-        for disease in self.disease_list:
-            print(f'=> {disease}')
+    def show_diseases(self,disease_dictionary):
+        print('Okay just wait for a second!, Let me analyze your symptoms :)')
+        
+        print(f'TEST 1 => {disease_dictionary["Random Forest"]}')
+        print(f'TEST 2 => {disease_dictionary["SVC"]}')
+        print(f'TEST 3 => {disease_dictionary["Naive Bayes"]}')
+        print(f'After examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
