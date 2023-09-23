@@ -40,5 +40,22 @@ class HEALTHCARE_CHATBOT:
             
             if show_accuracy==True:
                 print(f'{model_name} \nAccuracy: {scores.mean()}')
+                
+    
+    def build_model(self):
+        # TRAINING AND TESTING SVC MODEL
+        self.svc_model = SVC()
+        self.svc_model.fit(self.X_train,self.Y_train)
+        self.svc_pred = self.svc_model.predict(self.X_test)
         
+        # TRAINING AND TESTING NAIVE BAYES MODEL
+        self.nb_model = GaussianNB()
+        self.nb_model.fit(self.X_train,self.Y_train)
+        self.svc_pred = self.nb_model.predict(self.X_test)
         
+        # TRAINING AND TESTING RANDOM FOREST MODEL
+        self.rf_model = RandomForestClassifier()
+        self.rf_model.fit(self.X_train,self.Y_train)
+        self.svc_pred = self.rf_model.predict(self.X_test)
+        
+        # return self.svc_model,self.nb_model,self.rf_model
