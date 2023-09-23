@@ -78,5 +78,49 @@ class HEALTHCARE_CHATBOT:
         
         return self.final_pred
     
-    def predict_disease(self,):
-        pass
+    def collect_symtoms_data(self):
+        self.symtoms = self.X.columns.values
+        self.symtoms_index = {}
+        for index,symtom in enumerate(self.symtoms):
+            self.symtoms = ' '.join([i.capitalize() for i in symtom.split('_')])
+            self.symtoms_index[self.symtoms] = index
+            
+        self.data_dict = {
+            'symtoms_index': self.symtoms_index,
+            'prediction_class': self.encoder.classes_
+        }
+        
+    def predict_disease_from_symtoms(self,user_input):
+        symtoms = user_input.split(',')
+        input_data = [0]*len(self.data_dict['symtoms_index'])
+        for symtom in symtoms:
+            index = self.data_dict['symtoms_index'][symtom]
+            input_data[index] = 1
+            
+        input_data = np.array(input_data).reshape(1,-1)
+        
+        # Generate the prediction individually
+        rf_pred = self.data_dict['prediction_class'][self.rf_model.predict(input_data)[0]]
+        svc_pred = self.data_dict['prediction_class'][self.svc_model.predict(input_data)[0]]
+        nb_pred = self.data_dict['prediction_class'][self.nb_model.predict(input_data)[0]]
+        
+        final_pred = mode([rf_pred,svc_pred,nb_pred])[0][0]
+        
+        all_predictions = {
+            'Random Forest': rf_pred,
+            'SVC': svc_pred,
+            'Naive Bayes': nb_pred,
+            'Final Prediction': final_pred
+        }
+        
+        return all_predictions
+    
+    
+    def prepare_model(self):
+        self.preprocess()
+        self.build_model()
+        self.combine_model()
+        self.collect_symtoms_data()
+        
+    def introduce(self,patient_name):
+        print(f'Hello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symtoms.')
