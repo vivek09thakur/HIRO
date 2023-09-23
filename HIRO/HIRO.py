@@ -20,6 +20,7 @@ class HEALTHCARE_CHATBOT:
     
     def preprocess(self):
         self.encoder = LabelEncoder()
+        self.data = self.data.dropna(axis=1)
         self.data['prognosis'] = self.encoder.fit_transform(self.data['prognosis'])
         self.X = self.data.iloc[:,:-1]
         self.Y = self.data.iloc[:,-1]
@@ -39,7 +40,7 @@ class HEALTHCARE_CHATBOT:
             scores = cross_val_score(model,self.X,self.Y,cv=10,n_jobs=-1,scoring=vc_scoring)
             
             if show_accuracy==True:
-                print(f'{model_name} \nAccuracy: {scores.mean()}')
+                print(f'\nMODEL => {model_name} => Accuracy: {scores.mean()}')
                 
     
     def build_model(self):
@@ -78,23 +79,23 @@ class HEALTHCARE_CHATBOT:
         
         return self.final_pred
     
-    def collect_symtoms_data(self):
-        self.symtoms = self.X.columns.values
-        self.symtoms_index = {}
-        for index,symtom in enumerate(self.symtoms):
-            self.symtoms = ' '.join([i.capitalize() for i in symtom.split('_')])
-            self.symtoms_index[self.symtoms] = index
+    def collect_symptoms_data(self):
+        self.symptoms = self.X.columns.values
+        self.symptoms_index = {}
+        for index,symtom in enumerate(self.symptoms):
+            self.symptoms = ' '.join([i.capitalize() for i in symtom.split('_')])
+            self.symptoms_index[self.symptoms] = index
             
         self.data_dict = {
-            'symtoms_index': self.symtoms_index,
+            'symptoms_index': self.symptoms_index,
             'prediction_class': self.encoder.classes_
         }
         
-    def predict_disease_from_symtoms(self,user_input):
-        symtoms = user_input.split(',')
-        input_data = [0]*len(self.data_dict['symtoms_index'])
-        for symtom in symtoms:
-            index = self.data_dict['symtoms_index'][symtom]
+    def predict_disease_from_symptoms(self,user_input):
+        symptoms = user_input.split(',')
+        input_data = [0]*len(self.data_dict['symptoms_index'])
+        for symtom in symptoms:
+            index = self.data_dict['symptoms_index'][symtom]
             input_data[index] = 1
             
         input_data = np.array(input_data).reshape(1,-1)
@@ -116,11 +117,19 @@ class HEALTHCARE_CHATBOT:
         return all_predictions
     
     
-    def prepare_model(self):
+    def process_training_data(self,show_accuracy=False):
         self.preprocess()
+        self.train(show_accuracy=show_accuracy)
+        
+    def build_robust_model(self):
         self.build_model()
         self.combine_model()
-        self.collect_symtoms_data()
+        self.collect_symptoms_data()
         
     def introduce(self,patient_name):
-        print(f'Hello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symtoms.')
+        print(f'Hello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
+    
+    def show_diseases(self):
+        print('\nHere is the list of diseases I can diagnose:')
+        for disease in self.disease_list:
+            print(f'=> {disease}')
