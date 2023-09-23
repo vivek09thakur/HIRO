@@ -40,7 +40,7 @@ class HEALTHCARE_CHATBOT:
             scores = cross_val_score(model,self.X,self.Y,cv=10,n_jobs=-1,scoring=vc_scoring)
             
             if show_accuracy==True:
-                print(f'\nMODEL => {model_name} => Accuracy: {scores.mean()}')
+                print(f'MODEL => {model_name} \nAccuracy => {scores.mean()}')
                 
     
     def build_model(self):
@@ -127,12 +127,12 @@ class HEALTHCARE_CHATBOT:
         self.collect_symptoms_data()
         
     def introduce(self,patient_name):
-        print(f'Hello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
+        print(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
     
     def show_diseases(self,disease_dictionary):
-        print('Okay just wait for a second!, Let me analyze your symptoms :)')
+        print('\nOkay just wait for a second!, Let me analyze your symptoms :)')
         
         print(f'TEST 1 => {disease_dictionary["Random Forest"]}')
         print(f'TEST 2 => {disease_dictionary["SVC"]}')
         print(f'TEST 3 => {disease_dictionary["Naive Bayes"]}')
-        print(f'After examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
+        print(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
