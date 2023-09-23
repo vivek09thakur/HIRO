@@ -59,3 +59,24 @@ class HEALTHCARE_CHATBOT:
         self.svc_pred = self.rf_model.predict(self.X_test)
         
         # return self.svc_model,self.nb_model,self.rf_model
+        
+    def combine_model(self):
+        # TRAINING THE MODELS ON THE ENTIRE DATASET
+        self.svc_model.fit(self.X,self.Y)
+        self.nb_model.fit(self.X,self.Y)
+        self.rf_model.fit(self.X,self.Y)
+        # Read the test data
+        self.test_data = pd.read_csv(self.test_data_path).dropna(axis=1)
+        self.test_X = self.test_data.iloc[:,:-1]
+        self.test_Y = self.encoder.transform(self.test_data.iloc[:,-1])
+        # predict the test data
+        self.svc_pred = self.svc_model.predict(self.test_X)
+        self.nb_pred = self.nb_model.predict(self.test_X)
+        self.rf_pred = self.rf_model.predict(self.test_X)
+        
+        self.final_pred = [mode([self.svc_pred[i],self.nb_pred[i],self.rf_pred[i]])[0][0] for i in range(len(self.svc_pred))]
+        
+        return self.final_pred
+    
+    def predict_disease(self,):
+        pass
