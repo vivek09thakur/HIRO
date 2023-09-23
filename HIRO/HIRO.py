@@ -10,5 +10,35 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 
 class HEALTHCARE_CHATBOT:
     
-    def __init__(self):
-        pass
+    def __init__(self,training_data_path,test_data_path):
+        self.training_data_path = training_data_path
+        self.test_data_path = test_data_path
+        self.data = pd.read_csv(self.training_data_path)
+        self.test_data = pd.read_csv(self.test_data_path)
+        self.disease_list = self.data['prognosis'].unique()
+        
+    
+    def preprocess(self):
+        self.encoder = LabelEncoder()
+        self.data['prognosis'] = self.encoder.fit_transform(self.data['prognosis'])
+        self.X = self.data.iloc[:,:-1]
+        self.Y = self.data.iloc[:,-1]
+        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(self.X,self.Y,test_size=0.2,random_state=24)
+        
+    def train(self,show_accuracy=False):
+        def vc_scoring(estimator,X,Y):
+            return accuracy_score(Y,estimator.predict(X))
+        models = {
+            'SVC': SVC(),
+            'Naive Bayes': GaussianNB(),
+            'Random Forest': RandomForestClassifier()
+        }
+        
+        for model_name in models:
+            model = models[model_name]
+            scores = cross_val_score(model,self.X,self.Y,cv=10,n_jobs=-1,scoring=vc_scoring)
+            
+            if show_accuracy==True:
+                print(f'{model_name} \nAccuracy: {scores.mean()}')
+        
+        
