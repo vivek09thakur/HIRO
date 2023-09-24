@@ -16,6 +16,7 @@ hiro.build_robust_model()
 if __name__ == '__main__':
     hiro.introduce('Guest')
     
-    user_input = input('\nEnter the symtoms separated by comma: ')
-    disease = hiro.predict_disease_from_symptoms(user_input)
-    hiro.show_diseases(disease)
+    while True:
+        user_input = input('\nEnter the symtoms separated by comma: ')
+        disease = hiro.predict_disease_from_symptoms(user_input)
+        hiro.show_diseases(disease)

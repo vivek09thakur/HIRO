@@ -7,6 +7,8 @@ from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+import time
+import sys
 
 class HEALTHCARE_CHATBOT:
     
@@ -91,6 +93,7 @@ class HEALTHCARE_CHATBOT:
             'prediction_class': self.encoder.classes_
         }
         
+        
     def predict_disease_from_symptoms(self,user_input):
         symptoms = user_input.split(',')
         input_data = [0]*len(self.data_dict['symptoms_index'])
@@ -126,13 +129,18 @@ class HEALTHCARE_CHATBOT:
         self.combine_model()
         self.collect_symptoms_data()
         
+    def type_text(self,text):
+        for char in text:
+            sys.stdout.write(char)
+            sys.stdout.flush()
+            time.sleep(0.005)
+        
     def introduce(self,patient_name):
-        print(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
+        self.type_text(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
     
     def show_diseases(self,disease_dictionary):
-        print('\nOkay just wait for a second!, Let me analyze your symptoms :)')
-        
-        print(f'TEST 1 => {disease_dictionary["Random Forest"]}')
-        print(f'TEST 2 => {disease_dictionary["SVC"]}')
-        print(f'TEST 3 => {disease_dictionary["Naive Bayes"]}')
-        print(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
+        self.type_text('\nOkay just wait for a second!, Let me analyze your symptoms :)')
+        self.type_text(f'\nTEST 1 => {disease_dictionary["Random Forest"]}')
+        self.type_text(f'\nTEST 2 => {disease_dictionary["SVC"]}')
+        self.type_text(f'\nTEST 3 => {disease_dictionary["Naive Bayes"]}')
+        self.type_text(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
