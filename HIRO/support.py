@@ -26,19 +26,27 @@ class support:
         for i in self.normalized_symptoms_list:
             if i in self.sentence:
                 self.extracted_symptoms.append(i)
-        # Return the list of symptoms extracted from the sentence as : symptoms1,symptoms2,symptoms3
         return ','.join(self.extracted_symptoms)
   
 class chat_support:
     
-    def __init__(self,pairs_file) -> None:
+    def __init__(self,pairs_file):
         self.pairs_file = pairs_file
-        with open(self.pairs_file, 'r') as f:
+        with open(self.pairs_file,'r') as f:
             self.pairs = json.load(f)
+        self.questions = self.pairs['questions']
+        self.answers = self.pairs['answers']
         self.vectorizer = CountVectorizer()
+        self.vectorizer.fit(self.questions)
+        self.question_vectors = self.vectorizer.transform(self.questions)
         
     def get_response(self,user_input):
-        pass
+        self.user_input = user_input
+        self.user_input_vector = self.vectorizer.transform([self.user_input])
+        self.similarity_scores = cosine_similarity(self.user_input_vector,self.question_vectors)
+        self.most_similar_index = self.similarity_scores.argmax()
+        self.response = self.answers[self.most_similar_index]
+        return self.response
 
 # Test case 
 if __name__ == '__main__':
