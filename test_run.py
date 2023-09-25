@@ -17,6 +17,7 @@ if __name__ == '__main__':
     hiro.introduce('Guest')
     
     while True:
-        user_input = input('\nEnter the symtoms separated by comma: ')
+        user_input = input('\nUSER : ')
+        # extracted_symptoms = hiro.extract_symptoms(user_input)
         disease = hiro.predict_disease_from_symptoms(user_input)
-        hiro.show_diseases(disease)
+        hiro.show_diseases("HIRO :",disease)

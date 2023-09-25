@@ -1,14 +1,18 @@
+import sys
+import time
+
 import numpy as np
 import pandas as pd
 from scipy.stats import mode
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.svm import SVC
-from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
-import time
-import sys
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
+
+from .support import chat_support, support
+
 
 class HEALTHCARE_COMPANION:
     
@@ -16,8 +20,9 @@ class HEALTHCARE_COMPANION:
         self.training_data_path = training_data_path
         self.test_data_path = test_data_path
         self.data = pd.read_csv(self.training_data_path)
-        self.test_data = pd.read_csv(self.test_data_path)
+        # self.test_data = pd.read_csv(self.training_data_path)
         self.disease_list = self.data['prognosis'].unique()
+        # self.supportive_module = support(self.tr)
         
     
     def preprocess(self):
@@ -93,6 +98,8 @@ class HEALTHCARE_COMPANION:
             'prediction_class': self.encoder.classes_
         }
         
+    def extract_symptoms(self,sentence):
+        return self.supportive_module.extract_symptoms(sentence)
         
     def predict_disease_from_symptoms(self,user_input):
         symptoms = user_input.split(',')
