@@ -1,4 +1,4 @@
-from HIRO.HIRO import HEALTHCARE_CHATBOT
+from HIRO.HIRO import HEALTHCARE_COMPANION
 from warnings import filterwarnings
 
 filterwarnings('ignore')
@@ -8,7 +8,7 @@ parameters = [
     './Notebook/dataset/Testing.csv'
 ]
 
-hiro = HEALTHCARE_CHATBOT(parameters[0],parameters[1])
+hiro = HEALTHCARE_COMPANION(parameters[0],parameters[1])
 hiro.process_training_data(show_accuracy=True)
 hiro.build_robust_model()
 

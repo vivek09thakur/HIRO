@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 import time
 import sys
 
-class HEALTHCARE_CHATBOT:
+class HEALTHCARE_COMPANION:
     
     def __init__(self,training_data_path,test_data_path):
         self.training_data_path = training_data_path
