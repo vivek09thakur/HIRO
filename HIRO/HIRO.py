@@ -23,7 +23,6 @@ class HEALTHCARE_COMPANION:
         self.chat_log_path = chat_log_path
         self.data = pd.read_csv(self.training_data_path)
         self.test_data = pd.read_csv(self.training_data_path)
-        self.description_data = pd.read_csv(self.description_data)
         self.disease_list = self.data['prognosis'].unique()
         self.supportive_module = support(self.test_data_path)
         self.chat_support = chat_support(self.chat_log_path)
@@ -141,13 +140,17 @@ class HEALTHCARE_COMPANION:
             print('ERROR OCCURED WHILE PREDICTING DISEASE FROM SYMPTOMS\n ERROR =>{}'.format(e))
             
     def get_description(self,disease_name):
+        disease_dict = {}
         try:
-            self.description_dict = {}
-            for index,row in self.description_data.iterrows():
-                self.description_dict[row['Disease']] = row['Description']
-            return self.description_dict[disease_name]
+            with open(self.description_data,'r') as f:
+                self.description_data = pd.read_csv(f)
+                for row in self.description_data:
+                    disease_dict[row[0]] = row[1]
+                    
+                return disease_dict[disease_name]
+            
         except Exception as e:
-            print('ERROR OCCURED WHILE GETTING DESCRIPTION\n ERROR => {}'.format(e))
+            print('\n\nERROR OCCURED WHILE GETTING DESCRIPTION\nERROR => {}'.format(e))
     
     def process_training_data(self,show_accuracy=False):
         self.preprocess()
@@ -172,7 +175,10 @@ class HEALTHCARE_COMPANION:
         
         if show_description == True:
             disease_description = self.get_description(disease_dictionary['Final Prediction'])
-            self.type_text(f'\nDisease Description : {disease_description}')
+            if disease_description != None:
+                self.type_text(f'\nDisease Description : {disease_description}')
+            else:
+                self.type_text('\nSorry I could not find the description of the disease')
         
             
     def type_text(self,text):
