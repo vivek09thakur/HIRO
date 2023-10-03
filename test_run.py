@@ -15,13 +15,12 @@ hiro.build_robust_model()
 
 
 if __name__ == '__main__':
-    
     hiro.introduce('Guest')
     
-    while continue_chat != 'n':
+    while True:
         user_input = input('\nUSER : ')
         extracted_symptoms = hiro.extract_symptoms(user_input)
-        
+
         if extracted_symptoms:
             print('\nSYMPTOMS => ',extracted_symptoms)
             disease = hiro.predict_disease_from_symptoms(extracted_symptoms)
@@ -29,5 +28,3 @@ if __name__ == '__main__':
         else:
             hiros_response = hiro.talk_to_user(user_input)
             print('\nHIRO : ',hiros_response)
-            
-        continue_chat = input('\nDo you want to continue chatting (y/n) : ')
