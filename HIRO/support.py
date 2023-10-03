@@ -1,8 +1,9 @@
-import csv
 import json
+import random
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 
 class support:
     
@@ -47,18 +48,28 @@ class chat_support:
         with open(self.pairs_file,'r') as f:
             self.pairs = json.load(f)
         self.questions = self.pairs['questions']
-        self.answers = self.pairs['answers']
+        self.answers = self.pairs['responses']
         self.vectorizer = CountVectorizer()
         self.vectorizer.fit(self.questions)
         self.question_vectors = self.vectorizer.transform(self.questions)
-        
+        self.fail_case_responses = [
+            'Sorry But the symptoms you have provided are not enough to predict the disease please provide more symptoms',
+            'Sorry I could not understand your symptoms please provide more symptoms clearly can you please repeat it',
+            'I am not trained to answer this question please provide more symptoms',
+            'Sorry but I did not understand your symptoms please provide more symptoms clearly can you please repeat it'
+        ]
     def get_response(self,user_input):
-        self.user_input = user_input
-        self.user_input_vector = self.vectorizer.transform([self.user_input])
-        self.similarity_scores = cosine_similarity(self.user_input_vector,self.question_vectors)
-        self.most_similar_index = self.similarity_scores.argmax()
-        self.response = self.answers[self.most_similar_index]
-        return self.response
+        
+        try:
+            self.user_input = user_input
+            self.user_input_vector = self.vectorizer.transform([self.user_input])
+            self.similarity_scores = cosine_similarity(self.user_input_vector,self.question_vectors)
+            self.most_similar_index = self.similarity_scores.argmax()
+            self.response = self.answers[self.most_similar_index]
+            return self.response
+        except Exception:
+            return random.choice(self.fail_case_responses)
+        
 
 # Test case 
 # if __name__ == '__main__':
@@ -72,3 +83,9 @@ class chat_support:
 #     print(f"TEST CASE 6 : {s.extract_symptoms('I am actually suffering from fever and headache')}")
 #     print(f"TEST CASE 7 : {s.extract_symptoms('I have a headache')}")
 #     print(f"TEST CASE 8 : {s.extract_symptoms('I have a stomach pain')}")
+
+# Test case for chat support
+# if __name__ == '__main__':
+#     c = chat_support('Notebook/question_response_pairs.json')
+#     print(f"TEST CASE 1 : {c.get_response('Hello')}")
+#     print(f"TEST CASE 2 : {c.get_response('what is your name')}")
