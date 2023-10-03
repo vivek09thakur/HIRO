@@ -18,6 +18,8 @@ if __name__ == '__main__':
     
     while True:
         user_input = input('\nUSER : ')
-        # extracted_symptoms = hiro.extract_symptoms(user_input)
-        disease = hiro.predict_disease_from_symptoms(user_input)
-        hiro.show_diseases("HIRO :",disease)
+        extracted_symptoms = hiro.extract_symptoms(user_input)
+        if extracted_symptoms:
+            print('\nSYMPTOMS => ',extracted_symptoms)
+            disease = hiro.predict_disease_from_symptoms(extracted_symptoms)
+            hiro.show_diseases(disease)

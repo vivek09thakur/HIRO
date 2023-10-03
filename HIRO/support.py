@@ -22,14 +22,24 @@ class support:
         return self.normalized_symptoms_list
     
     def extract_symptoms(self,sentence):
-        self.normalize_symptoms_list()
-        self.sentence = sentence
-        self.extracted_symptoms = []
-        for i in self.normalized_symptoms_list:
-            if i in self.sentence:
-                self.extracted_symptoms.append(i)
-        return ','.join(self.extracted_symptoms)
-  
+        try:
+            self.normalize_symptoms_list()
+            self.sentence = sentence.lower()
+            self.extracted_symptoms = []
+            for i in self.normalized_symptoms_list:
+                if i in self.sentence:
+                    self.extracted_symptoms.append(i)
+            extracted_symptoms = ','.join(self.extracted_symptoms)
+            self.extracted_symptoms = extracted_symptoms.title()
+            
+            return self.extracted_symptoms
+        except KeyError:
+            print('\nERROR OCCURED WHILE EXTRACTING SYMPTOMS => {}'.format(KeyError))
+            # remove the element which caused the error and return the symptoms
+            return self.extracted_symptoms.pop(KeyError)
+            
+
+    
 class chat_support:
     
     def __init__(self,pairs_file):
@@ -54,6 +64,7 @@ class chat_support:
 # if __name__ == '__main__':
 #     s = support('Notebook/dataset/Testing.csv')
 #     print(f"TEST CASE 1 : {s.extract_symptoms('I have a skin rash and headache')}")
+#     print(f'TEST CASE 2 : {s.extract_symptoms("I am suffering from Itching skin rash and Nodal Skin Eruptions")}')
 #     print(f"TEST CASE 2 : {s.extract_symptoms('I am suffering from fever and headache')}")
 #     print(f"TEST CASE 3 : {s.extract_symptoms('I have a headache')}")
 #     print(f"TEST CASE 4 : {s.extract_symptoms('I have a skin rash')}")

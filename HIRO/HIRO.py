@@ -20,9 +20,9 @@ class HEALTHCARE_COMPANION:
         self.training_data_path = training_data_path
         self.test_data_path = test_data_path
         self.data = pd.read_csv(self.training_data_path)
-        # self.test_data = pd.read_csv(self.training_data_path)
+        self.test_data = pd.read_csv(self.training_data_path)
         self.disease_list = self.data['prognosis'].unique()
-        # self.supportive_module = support(self.tr)
+        self.supportive_module = support(self.test_data_path)
         
     
     def preprocess(self):
@@ -47,7 +47,7 @@ class HEALTHCARE_COMPANION:
             scores = cross_val_score(model,self.X,self.Y,cv=10,n_jobs=-1,scoring=vc_scoring)
             
             if show_accuracy==True:
-                print(f'MODEL => {model_name} \nAccuracy => {scores.mean()}')
+                self.type_text(f'MODEL => {model_name} \\ Accuracy => {scores.mean()}\n')
                 
     
     def build_model(self):
@@ -87,17 +87,21 @@ class HEALTHCARE_COMPANION:
         return self.final_pred
     
     def collect_symptoms_data(self):
-        self.symptoms = self.X.columns.values
-        self.symptoms_index = {}
-        for index,symtom in enumerate(self.symptoms):
-            self.symptoms = ' '.join([i.capitalize() for i in symtom.split('_')])
-            self.symptoms_index[self.symptoms] = index
+        try:
+            self.symptoms = self.X.columns.values
+            self.symptoms_index = {}
+            for index,symtom in enumerate(self.symptoms):
+                self.symptoms = ' '.join([i.capitalize() for i in symtom.split('_')])
+                self.symptoms_index[self.symptoms] = index
+
+            self.data_dict = {
+                'symptoms_index': self.symptoms_index,
+                'prediction_class': self.encoder.classes_
+            }
+            # print('SYMPTOMS DATA COLLECTED => ',self.data_dict)
+        except Exception as e:
+            print('ERROR OCCURED WHILE COLLECTING SYMPTOMS DATA')
             
-        self.data_dict = {
-            'symptoms_index': self.symptoms_index,
-            'prediction_class': self.encoder.classes_
-        }
-        
     def extract_symptoms(self,sentence):
         return self.supportive_module.extract_symptoms(sentence)
         
