@@ -3,7 +3,8 @@ from warnings import filterwarnings
 
 filterwarnings('ignore')
 
-params = ['./Notebook/dataset/Training.csv',
+params = [
+    './Notebook/dataset/Training.csv',
     './Notebook/dataset/Testing.csv',
     './Notebook/dataset/symptom_Description.csv',
     './Notebook/question_response_pairs.json'
