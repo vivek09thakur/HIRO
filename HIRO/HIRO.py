@@ -12,14 +12,15 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
 from .support import chat_support, support
-
+import csv
 
 class HEALTHCARE_COMPANION:
     
-    def __init__(self,training_data_path,test_data_path,description_data,chat_log_path):
+    def __init__(self,training_data_path,test_data_path,description_data,precaution_data,chat_log_path):
         self.training_data_path = training_data_path
         self.test_data_path = test_data_path
         self.description_data = description_data
+        self.precaution_data = precaution_data
         self.chat_log_path = chat_log_path
         self.data = pd.read_csv(self.training_data_path)
         self.test_data = pd.read_csv(self.training_data_path)
@@ -139,18 +140,28 @@ class HEALTHCARE_COMPANION:
         except Exception as e:
             print('ERROR OCCURED WHILE PREDICTING DISEASE FROM SYMPTOMS\n ERROR =>{}'.format(e))
             
-    def get_description(self,disease_name):
-        disease_dict = {}
+    def get_description(self,disease):
+        disease_description_dict = {}
+        with open(self.description_data, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                disease_description_dict[row[0]] = row[1]
         try:
-            with open(self.description_data,'r') as f:
-                self.description_data = pd.read_csv(f)
-                for row in self.description_data:
-                    disease_dict[row[0]] = row[1]
-                    
-                return disease_dict[disease_name]
-            
+            return disease_description_dict[disease]
         except Exception as e:
-            print('\n\nERROR OCCURED WHILE GETTING DESCRIPTION\nERROR => {}'.format(e))
+            return 'Sorry I could not find the description of the disease'
+        
+    def get_precautions(self,disease):
+        precautions_dict = {}
+        with open(self.precaution_data, 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                precautions_dict[row[0]] = row[1]
+        try:
+            return precautions_dict[disease]
+        except Exception as e:
+            return 'Sorry I could not find the precautions of the disease'
+        
     
     def process_training_data(self,show_accuracy=False):
         self.preprocess()
@@ -166,7 +177,7 @@ class HEALTHCARE_COMPANION:
         self.type_text(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
     
     
-    def show_diseases(self,disease_dictionary,show_description=False):
+    def show_diseases(self,disease_dictionary,show_description=False,show_precautions=False):
         self.type_text('\nOkay just wait for a second!, Let me analyze your symptoms :)')
         self.type_text(f'\nTEST 1 => {disease_dictionary["Random Forest"]}')
         self.type_text(f'\nTEST 2 => {disease_dictionary["SVC"]}')
@@ -176,9 +187,16 @@ class HEALTHCARE_COMPANION:
         if show_description == True:
             disease_description = self.get_description(disease_dictionary['Final Prediction'])
             if disease_description != None:
-                self.type_text(f'\nDisease Description : {disease_description}')
+                self.type_text(f'\n\nDisease Description : {disease_description}')
             else:
-                self.type_text('\nSorry I could not find the description of the disease')
+                self.type_text('\n\nSorry I could not find the description of the disease')
+                
+        if show_precautions == True:
+            disease_precautions = self.get_precautions(disease_dictionary['Final Prediction'])
+            if disease_precautions != None:
+                self.type_text(f'\n\nDisease Precautions : {disease_precautions}')
+            else:
+                self.type_text('\n\nSorry I could not find the precautions of the disease')
         
             
     def type_text(self,text):
