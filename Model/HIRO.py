@@ -11,7 +11,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from .support import chat_support, support
+from .support import support , chat_support
+
 import csv
 
 class HEALTHCARE_COMPANION:
