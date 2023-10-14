@@ -1,4 +1,4 @@
-from HIRO.HIRO import HEALTHCARE_COMPANION
+from Model.HIRO import HEALTHCARE_COMPANION
 from warnings import filterwarnings
 
 filterwarnings('ignore')
