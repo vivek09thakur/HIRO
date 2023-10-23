@@ -14,6 +14,7 @@ from sklearn.svm import SVC
 from .support import support , chat_support
 
 import csv
+import pyttsx3
 
 class HEALTHCARE_COMPANION:
     
@@ -175,29 +176,29 @@ class HEALTHCARE_COMPANION:
         self.collect_symptoms_data()
         
     def introduce(self,patient_name):
-        self.type_text(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms.')
-    
+        self.say_to_user(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
     
     def show_diseases(self,disease_dictionary,show_description=False,show_precautions=False):
-        self.type_text('\nOkay just wait for a second!, Let me analyze your symptoms :)')
+        self.say_to_user('\nOkay just wait for a second!, Let me analyze your symptoms')
         self.type_text(f'\nTEST 1 => {disease_dictionary["Random Forest"]}')
         self.type_text(f'\nTEST 2 => {disease_dictionary["SVC"]}')
         self.type_text(f'\nTEST 3 => {disease_dictionary["Naive Bayes"]}')
-        self.type_text(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
+        self.say_to_user(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
         
         if show_description == True:
+            
             disease_description = self.get_description(disease_dictionary['Final Prediction'])
             if disease_description != None:
-                self.type_text(f'\n\nDisease Description : {disease_description}')
+                self.say_to_user(f'\n\nDisease Description : {disease_description}')
             else:
-                self.type_text('\n\nSorry I could not find the description of the disease')
+                self.say_to_user('\n\nSorry I could not find the description of the disease')
                 
         if show_precautions == True:
             disease_precautions = self.get_precautions(disease_dictionary['Final Prediction'])
             if disease_precautions != None:
-                self.type_text(f'\n\nDisease Precautions : {disease_precautions}')
+                self.say_to_user(f'\n\nDisease Precautions : {disease_precautions}\n')
             else:
-                self.type_text('\n\nSorry I could not find the precautions of the disease')
+                self.say_to_user('\n\nSorry I could not find the precautions of the disease\n')
         
             
     def type_text(self,text):
@@ -205,3 +206,13 @@ class HEALTHCARE_COMPANION:
             sys.stdout.write(char)
             sys.stdout.flush()
             time.sleep(0.004)
+            
+    def speak(self,text):
+        engine = pyttsx3.init()
+        engine.setProperty('Volume',1.0)
+        engine.say(text)
+        engine.runAndWait()
+        
+    def say_to_user(self,question):
+        self.type_text(question)
+        self.speak(question)
