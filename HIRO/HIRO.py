@@ -15,6 +15,7 @@ from .support import support , chat_support
 
 import csv
 import pyttsx3
+from warnings import filterwarnings
 
 class HEALTHCARE_COMPANION:
     
@@ -39,6 +40,7 @@ class HEALTHCARE_COMPANION:
         self.Y = self.data.iloc[:,-1]
         self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(self.X,self.Y,test_size=0.2,random_state=24)
         
+        
     def train(self,show_accuracy=False):
         def vc_scoring(estimator,X,Y):
             return accuracy_score(Y,estimator.predict(X))
@@ -54,6 +56,7 @@ class HEALTHCARE_COMPANION:
             
             if show_accuracy==True:
                 self.type_text(f'(model loaded) MODEL NAME => {model_name} \\ Accuracy => {scores.mean()}\n')
+                
                 
     
     def build_model(self):
@@ -72,7 +75,8 @@ class HEALTHCARE_COMPANION:
         self.rf_model.fit(self.X_train,self.Y_train)
         self.svc_pred = self.rf_model.predict(self.X_test)
         
-        # return self.svc_model,self.nb_model,self.rf_model
+        
+        
         
     def combine_model(self):
         # TRAINING THE MODELS ON THE ENTIRE DATASET
@@ -92,6 +96,7 @@ class HEALTHCARE_COMPANION:
         
         return self.final_pred
     
+    
     def collect_symptoms_data(self):
         try:
             self.symptoms = self.X.columns.values
@@ -107,12 +112,18 @@ class HEALTHCARE_COMPANION:
         except Exception as e:
             print(f'ERROR OCCURED WHILE COLLECTING SYMPTOMS DATA => {e}')
             
+            
     # SUPPORTIVE FUNCTIONS
-    def extract_symptoms(self,sentence):
-        return self.supportive_module.extract_symptoms(sentence)
+    def extract_symptoms(self,sentence,show_extracted_symptoms=False):
+        extracted_symptoms = self.supportive_module.extract_symptoms(sentence)
+        if show_extracted_symptoms == True:
+            self.say_to_user('\nOkay I have founded these following symptoms : ',extracted_symptoms)
+        return extracted_symptoms
+    
         
     def talk_to_user(self,user_input):
         return self.chat_support.get_response(user_input)
+    
     
     def predict_disease_from_symptoms(self,user_input):
         try:
@@ -142,6 +153,7 @@ class HEALTHCARE_COMPANION:
         except Exception as e:
             print('ERROR OCCURED WHILE PREDICTING DISEASE FROM SYMPTOMS\n ERROR =>{}'.format(e))
             
+            
     def get_description(self,disease):
         disease_description_dict = {}
         with open(self.description_data, 'r') as f:
@@ -152,6 +164,7 @@ class HEALTHCARE_COMPANION:
             return disease_description_dict[disease]
         except Exception as e:
             return 'Sorry I could not find the description of the disease'
+        
         
     def get_precautions(self,disease):
         precautions_dict = {}
@@ -175,8 +188,20 @@ class HEALTHCARE_COMPANION:
         self.combine_model()
         self.collect_symptoms_data()
         
-    def introduce(self,patient_name):
-        self.say_to_user(f'\nHello {patient_name}, I am HIRO, your healthcare chatbot. I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+        
+    def introduce(self,ask_for_paitent_name=False):
+        
+        if ask_for_paitent_name == True:
+            paitent_name = None
+            self.say_to_user('\nHey there!,Can I get your name first?')
+            while paitent_name == None:
+                paitent_name = input('\nEnter your name here : ')
+                if paitent_name != None:
+                    self.say_to_user(f'\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+                else:
+                    self.say_to_user('Please enter your name,So that we can continue')
+        self.say_to_user(f'\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+        
     
     def show_diseases(self,disease_dictionary,show_description=False,show_precautions=False):
         self.say_to_user('\nOkay just wait for a second!, Let me analyze your symptoms')
@@ -200,6 +225,7 @@ class HEALTHCARE_COMPANION:
             else:
                 self.say_to_user('\n\nSorry I could not find the precautions of the disease\n')
         
+            
             
     def type_text(self,text):
         for char in text:
