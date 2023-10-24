@@ -3,14 +3,13 @@ from warnings import filterwarnings
 
 filterwarnings('ignore')
 
-params = ['./Notebook/dataset/Training.csv',
-    './Notebook/dataset/Testing.csv',
-    './Notebook/dataset/symptom_Description.csv',
-    './Notebook/dataset/precautions.csv',
-    './Notebook/question_response_pairs.json'
-]
+TRAINING_DATASET = './Notebook/dataset/Training.csv'
+TESTING_DATASET = './Notebook/dataset/Testing.csv'
+SYMPTOM_DESCRIPTION = './Notebook/dataset/symptom_Description.csv'
+PRECAUTION_DATASET = './Notebook/dataset/precautions.csv'
+QUESTION_RESPONSE_DATASET = './Notebook/question_response_pairs.json'
 
-hiro = HEALTHCARE_COMPANION(params[0],params[1],params[2],params[3],params[4])
+hiro = HEALTHCARE_COMPANION(TRAINING_DATASET, TESTING_DATASET, SYMPTOM_DESCRIPTION, PRECAUTION_DATASET, QUESTION_RESPONSE_DATASET)
 hiro.process_training_data(show_accuracy=True)
 hiro.build_robust_model()
 
