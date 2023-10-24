@@ -11,7 +11,7 @@ QUESTION_RESPONSE_DATASET = './Notebook/question_response_pairs.json'
 
 hiro = HEALTHCARE_COMPANION(TRAINING_DATASET, TESTING_DATASET, SYMPTOM_DESCRIPTION, PRECAUTION_DATASET,
                         QUESTION_RESPONSE_DATASET)
-hiro.process_training_data(show_accuracy=True)
+hiro.process_training_data(show_models_stats=True)
 hiro.build_robust_model()
 
 if __name__ == '__main__': 
@@ -27,8 +27,7 @@ if __name__ == '__main__':
                 hiro.show_diseases(disease,show_description=True,show_precautions=True)
             else:
                 hiros_response = hiro.talk_to_user(user_input)
-                hiro.type_text(f'\nHIRO : {hiros_response}')
-                hiro.speak(hiros_response)
+                hiro.say_to_user(f'\nHIRO : {hiros_response}')
                 
         except Exception as runtime_errors:
             hiro.type_text(f'ERROR OCCURED => {runtime_errors}')

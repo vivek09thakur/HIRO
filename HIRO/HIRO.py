@@ -15,7 +15,6 @@ from .support import support , chat_support
 
 import csv
 import pyttsx3
-from warnings import filterwarnings
 
 class HEALTHCARE_COMPANION:
     
@@ -117,7 +116,10 @@ class HEALTHCARE_COMPANION:
     def extract_symptoms(self,sentence,show_extracted_symptoms=False):
         extracted_symptoms = self.supportive_module.extract_symptoms(sentence)
         if show_extracted_symptoms == True:
-            self.say_to_user('\nOkay I have founded these following symptoms : ',extracted_symptoms)
+            if extracted_symptoms :
+                self.say_to_user(f'\nOkay I have founded these following symptoms : {extracted_symptoms}')
+            else:
+                print('\nSYMPTOMS FOUNDED => None')
         return extracted_symptoms
     
         
@@ -178,9 +180,9 @@ class HEALTHCARE_COMPANION:
             return 'Sorry I could not find the precautions of the disease'
         
     
-    def process_training_data(self,show_accuracy=False):
+    def process_training_data(self,show_models_stats=False):
         self.preprocess()
-        self.train(show_accuracy=show_accuracy)
+        self.train(show_accuracy=show_models_stats)
         
         
     def build_robust_model(self):
@@ -190,17 +192,22 @@ class HEALTHCARE_COMPANION:
         
         
     def introduce(self,ask_for_paitent_name=False):
-        
-        if ask_for_paitent_name == True:
-            paitent_name = None
-            self.say_to_user('\nHey there!,Can I get your name first?')
-            while paitent_name == None:
-                paitent_name = input('\nEnter your name here : ')
-                if paitent_name != None:
-                    self.say_to_user(f'\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
-                else:
-                    self.say_to_user('Please enter your name,So that we can continue')
-        self.say_to_user(f'\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+        try:
+            if ask_for_paitent_name == True:
+                paitent_name = None
+                self.say_to_user('\nHey there!,Can I get your name first?')
+                while paitent_name == None:
+                    paitent_name = input('\nEnter your name here : ')
+                    if paitent_name != None:
+                        self.say_to_user(f'\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+                        break
+                    else:
+                        self.say_to_user('Please enter your name,So that we can continue')
+            else:
+                self.say_to_user(f'\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let\'s start with your problem')
+        except Exception as introduction_error:
+            self.say_to_user('Sorry I think that you have done something wrong')
+            print('ERROR OCCRURED => {}'.format(introduction_error))
         
     
     def show_diseases(self,disease_dictionary,show_description=False,show_precautions=False):
