@@ -20,8 +20,7 @@ if __name__ == '__main__':
     paitient_name = input('\n[username] :: ')
     hiro.introduce(paitient_name)
     
-    while True:
-        
+    while True: 
         try:
             user_input = input(f'\n[{paitient_name}] : ')
             extracted_symptoms = hiro.extract_symptoms(user_input)
@@ -39,5 +38,5 @@ if __name__ == '__main__':
             hiro.type_text(f'ERROR OCCURED => {runtime_errors}')
         
         except KeyboardInterrupt:
-            hiro.say_to_user('''Oh Looks like you have interrupted the keyboard,
+            hiro.say_to_user('''Looks like you have interrupted the keyboard,
                     If you don\'t wanna continue then goodbye''')

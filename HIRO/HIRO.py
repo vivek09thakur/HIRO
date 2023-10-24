@@ -105,7 +105,7 @@ class HEALTHCARE_COMPANION:
                 'prediction_class': self.encoder.classes_
             }
         except Exception as e:
-            print('ERROR OCCURED WHILE COLLECTING SYMPTOMS DATA')
+            print(f'ERROR OCCURED WHILE COLLECTING SYMPTOMS DATA => {e}')
             
     # SUPPORTIVE FUNCTIONS
     def extract_symptoms(self,sentence):
