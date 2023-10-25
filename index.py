@@ -1,7 +1,4 @@
 from HIRO.HIRO import HEALTHCARE_COMPANION
-from warnings import filterwarnings
-
-filterwarnings('ignore')
 
 TRAINING_DATASET = './Notebook/dataset/Training.csv'
 TESTING_DATASET = './Notebook/dataset/Testing.csv'
@@ -29,9 +26,9 @@ if __name__ == '__main__':
                 hiros_response = hiro.talk_to_user(user_input)
                 hiro.say_to_user(f'\nHIRO : {hiros_response}')
                 
-        except Exception as runtime_errors:
-            hiro.type_text(f'ERROR OCCURED => {runtime_errors}')
-            
         except KeyboardInterrupt:
             hiro.say_to_user('''Looks like you have interrupted the keyboard,
                     If you don\'t wanna continue then goodbye''')
+            
+        except Exception as runtime_errors:
+            hiro.type_text(f'ERROR OCCURED => {runtime_errors}')

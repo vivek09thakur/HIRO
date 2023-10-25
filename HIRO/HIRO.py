@@ -15,6 +15,7 @@ from .support import support , chat_support
 
 import csv
 import pyttsx3
+from warnings import filterwarnings
 
 class HEALTHCARE_COMPANION:
     
@@ -177,10 +178,12 @@ class HEALTHCARE_COMPANION:
         try:
             return precautions_dict[disease]
         except Exception as e:
+            print(f'ERROR OCCURED WHILE GETTING PRECUATIONS => {e}')
             return 'Sorry I could not find the precautions of the disease'
         
     
     def process_training_data(self,show_models_stats=False):
+        filterwarnings('ignore')
         self.preprocess()
         self.train(show_accuracy=show_models_stats)
         
