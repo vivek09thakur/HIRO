@@ -24,7 +24,7 @@ if __name__ == '__main__':
                 hiro.show_diseases(disease,show_description=True,show_precautions=True)
             else:
                 hiros_response = hiro.talk_to_user(user_input)
-                hiro.say_to_user(f'\nHIRO : {hiros_response}')
+                hiro.say_to_user(f'{hiros_response}',speaker_name='HIRO')
                 
         except KeyboardInterrupt:
             hiro.say_to_user('''Looks like you have interrupted the keyboard,

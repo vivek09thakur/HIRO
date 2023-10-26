@@ -166,6 +166,7 @@ class HEALTHCARE_COMPANION:
         try:
             return disease_description_dict[disease]
         except Exception as e:
+            print('ERROR OCCURED WHILE GETTING DESRCIPTION => {}'.format(e))
             return 'Sorry I could not find the description of the disease'
         
         
@@ -246,9 +247,12 @@ class HEALTHCARE_COMPANION:
     def speak(self,text):
         engine = pyttsx3.init()
         engine.setProperty('Volume',1.0)
+        engine.setProperty('rate',160)
         engine.say(text)
         engine.runAndWait()
         
-    def say_to_user(self,question):
+    def say_to_user(self,question,speaker_name=None):
+        if speaker_name != None:
+            print(f'{speaker_name} => ',end='')
         self.type_text(question)
         self.speak(question)
