@@ -6,7 +6,10 @@
         "who are you",
         "who created you",
         "how are you",
-        "what are you"
+        "what are you",
+        "okay",
+        "thanks",
+        "bye"
     ],
     "responses":[
         "hey there! could you please describe your problem so I can help you in a better way",
@@ -15,6 +18,9 @@
         "I am HIRO , an artificial healthcare companion",
         "I was created by Vivek Thakur as his side project while he was suffering from cold.",
         "I am fine and I want everyone to be fine. What about you?",
-        "I am a artificial intelligence which works as a healthcare companion"
+        "I am a artificial intelligence which works as a healthcare companion",
+        "Never mind. It's okay",
+        "You are welcome",
+        "Bye! Take care"
     ]
 }
