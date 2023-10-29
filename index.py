@@ -28,6 +28,7 @@ if __name__ == '__main__':
                 
         except KeyboardInterrupt:
             hiro.say_to_user("Keyboard Interrupted,It seems you don't wanna continue. Have a nice day.")
-                   
+            break
+        
         except Exception as runtime_errors:
             hiro.type_text(f'ERROR OCCURED => {runtime_errors}')
