@@ -27,7 +27,8 @@ if __name__ == '__main__':
                 hiro.say_to_user(f'{hiros_response}',speaker_name='HIRO')
                 
         except KeyboardInterrupt:
-            hiro.say_to_user("Keyboard Interrupted,It seems you don't wanna continue. Have a nice day.")
+            hiro.say_to_user('''Keyboard Interrupted!
+                    It seems you don't wanna continue. Have a nice day.''')
             break
         
         except Exception as runtime_errors:
