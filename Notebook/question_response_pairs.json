@@ -9,7 +9,9 @@
         "what are you",
         "okay",
         "thanks",
-        "bye"
+        "bye",
+        "who is your creator",
+        "who is your father"
     ],
     "responses":[
         "hey there! could you please describe your problem so I can help you in a better way",
@@ -21,6 +23,8 @@
         "I am a artificial intelligence which works as a healthcare companion",
         "Never mind. It's okay",
         "You are welcome",
-        "Bye! Take care"
+        "Bye! Take care",
+        "Vivek Thakur is my creator",
+        "I don't have a father. But I was created by Vivek Thakur"
     ]
 }
