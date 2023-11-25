@@ -1,1 +1,1 @@
-## HIRO - Your personal healthcare companion :D
+## HIRO - Your personal healthcare companion.
