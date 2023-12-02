@@ -4,7 +4,7 @@ TRAINING_DATA = './Notebook/dataset/Training.csv'
 TESTING_DATA = './Notebook/dataset/Testing.csv'
 SYMPTOM_DESCRIPTION = './Notebook/dataset/symptom_Description.csv'
 PRECAUTION_DATA = './Notebook/dataset/precautions.csv'
-CHAT_DATASET = './Notebook/question_response_pairs.json'
+CHAT_DATASET = './Notebook/QA_data.json'
 
 hiro = HEALTHCARE_COMPANION(TRAINING_DATA, TESTING_DATA, SYMPTOM_DESCRIPTION, PRECAUTION_DATA, CHAT_DATASET)
 hiro.process_training_data(show_models_stats=True)
