@@ -6,7 +6,7 @@ SYMPTOM_DESCRIPTION = './Notebook/dataset/symptom_Description.csv'
 PRECAUTION_DATA = './Notebook/dataset/precautions.csv'
 CHAT_DATASET = './Notebook/QA_data.json'
 
-hiro = HEALTHCARE_COMPANION(TRAINING_DATA, TESTING_DATA, SYMPTOM_DESCRIPTION, PRECAUTION_DATA, CHAT_DATASET)
+hiro = HEALTHCARE_COMPANION(TRAINING_DATA,TESTING_DATA,SYMPTOM_DESCRIPTION,PRECAUTION_DATA, CHAT_DATASET)
 hiro.process_training_data(show_models_stats=True)
 hiro.build_robust_model()
 
@@ -25,10 +25,9 @@ if __name__ == '__main__':
                 hiros_response = hiro.talk_to_user(user_input)
                 hiro.say_to_user(f'{hiros_response}',speaker_name='HIRO')
                 
-        
         except KeyboardInterrupt:
-            hiro.say_to_user('''Keyboard Interrupted!,
-                             It seems you don't wanna continue.Have a nice day.''')
+            hiro.say_to_user("Keyboard Interrupted!,It seems you don't wanna continue.Have a nice day.")
             break
+        
         except Exception as runtime_errors:
             hiro.type_text(f'ERROR OCCURED => {runtime_errors}')
