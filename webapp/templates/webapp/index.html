@@ -1,72 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>HIRO - Your personal healthcare companion</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap" rel="stylesheet"/ >
-
-  {% load static %}
-  <link rel="stylesheet" href="{% static 'styles.css' %}" />
-</head>
-<body>
-  <h1>HIRO - Your personal healthcare companion</h1>
-  <div class="chat-window">
-    <div class="chat-window__messages">
-      <!-- Display user prompt -->
-      {% if user_prompt %}
-      <div class="message">
-        <div class="message__content">
-          <p>User: {{ user_prompt }}</p>
+  <head>
+    <meta charset="UTF-8" />
+    <title>HIRO - Your personal healthcare companion</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Description" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap"
+    rel="stylesheet"/ > {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}" />
+  </head>
+  <body>
+    <h1>HIRO - Your personal healthcare companion</h1>
+    <div class="chat-window">
+      <div class="chat-window__messages">
+        <!-- Display user prompt -->
+        {% if user_prompt %}
+        <div class="message">
+          <div class="message__content">
+            <p>User: {{ user_prompt }}</p>
+          </div>
         </div>
-      </div>
-      {% endif %}
-      <!-- End of user prompt -->
+        {% endif %}
+        <!-- End of user prompt -->
 
-      <!-- Display response from HIRO -->
-      {% if response %}
-      <div class="message">
-        <div class="message__content">
-          <p>HIRO: {{ response }}</p>
+        <!-- Display response from HIRO -->
+        {% if response %}
+        <div class="message">
+          <div class="message__content">
+            <p>HIRO: {{ response }}</p>
+          </div>
         </div>
-      </div>
-      {% endif %}
-      <!-- End of response -->
+        {% endif %}
+        <!-- End of response -->
 
-      <!-- Display disease information -->
-      {% if disease_description %}
-      <div class="message">
-        <div class="message__content">
-          <p>Disease Description: {{ disease_description }}</p>
+        <!-- Display Extracted Sypmtoms -->
+        {% if extracted_symptoms %}
+        <div class="message">
+          <div class="message__content">
+            <p>Extracted Symptoms: {{ extracted_symptoms }}</p>
+          </div>
         </div>
-      </div>
-      {% endif %}
+        {% endif %}
 
-      {% if disease_precaution %}
-      <div class="message">
-        <div class="message__content">
-          <p>Disease Precaution: {{ disease_precaution }}</p>
+        <!-- Test 1 -->
+        {% if disease_from_test1 %}
+        <div class="message">
+          <div class="message__content">
+            <p>Disease from Test 1: {{ disease_from_test1 }}</p>
+          </div>
         </div>
+        {% endif %}
+
+        <!-- Test 2 -->
+        {% if disease_from_test2 %}
+        <div class="message">
+          <div class="message__content">
+            <p>Disease from Test 2: {{ disease_from_test2 }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Test 3 -->
+        {% if disease_from_test3 %}
+        <div class="message">
+          <div class="message__content">
+            <p>Disease from Test 3: {{ disease_from_test3 }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Final Prediction -->
+        {% if final_prediction %}
+        <div class="message">
+          <div class="message__content">
+            <p>Final Prediction: {{ final_prediction }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Display disease information -->
+        {% if disease_description %}
+        <div class="message">
+          <div class="message__content">
+            <p>Disease Description: {{ disease_description }}</p>
+          </div>
+        </div>
+        {% endif %} {% if disease_precaution %}
+        <div class="message">
+          <div class="message__content">
+            <p>Disease Precaution: {{ disease_precaution }}</p>
+          </div>
+        </div>
+        {% endif %}
+        <!-- End of disease information -->
       </div>
-      {% endif %}
-      <!-- End of disease information -->
+      <div class="chat-window__input">
+        <form class="prompt_form" action="" method="post">
+          {% csrf_token %}
+          <input
+            type="text"
+            name="user_prompt"
+            id="prompt"
+            placeholder="Type your message here..."
+          />
+          <input type="submit" value="Send" />
+        </form>
+      </div>
     </div>
-    <div class="chat-window__input">
-      <form class="prompt_form" action="" method="post">
-        {% csrf_token %}
-        <input
-          type="text"
-          name="user_prompt"
-          id="prompt"
-          placeholder="Type your message here..."
-        />
-        <input type="submit" value="Send" />
-      </form>
-    </div>
-  </div>
-</body>
+  </body>
 </html>

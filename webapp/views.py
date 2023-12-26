@@ -24,9 +24,12 @@ def Homepage(request):
                 
                 return render(request, 'webapp/index.html', {
                     'user_prompt': user_prompt,
+                    'response': 'None',
+                    'extracted_symptoms': extracted_symptoms,
                     'disease_from_test1': disease_predicted['Random Forest'],
                     'disease_from_test2': disease_predicted['SVC'],
                     'disease_from_test3': disease_predicted['Naive Bayes'],
+                    'final_prediction': disease_predicted['Final Prediction'],
                     'disease_description': disease_description,
                     'disease_precaution': disease_precaution,
                 })
@@ -36,9 +39,11 @@ def Homepage(request):
                 return render(request, 'webapp/index.html', {
                         'user_prompt': user_prompt,
                         'response': response,
+                        'extracted_symptoms': 'None',
                         'disease_from_test1': 'None',
                         'disease_from_test2': 'None',
                         'disease_from_test3': 'None',
+                        'final_prediction': 'None',
                         'disease_description': 'None',
                         'disease_precaution': 'None',
                     })
@@ -47,9 +52,11 @@ def Homepage(request):
         return render(request, 'webapp/index.html', {
             'user_prompt': 'None',
             'response': 'None',
+            'extracted_symptoms': 'None',
             'disease_from_test1': 'None',
             'disease_from_test2': 'None',
             'disease_from_test3': 'None',
+            'final_prediction': 'None',
             'disease_description': 'None',
             'disease_precaution': 'None',
         })
