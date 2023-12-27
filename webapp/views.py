@@ -94,16 +94,22 @@ def Login(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        if email != None and password != None:
-            account = find_account(email)
-            if account != None:
-                if account["password"] == password:
-                    messages.success(request, "Logged in successfully!")
-                    return redirect("homepage")
-                else:
-                    messages.error(request, "Incorrect password!")
-            else:
-                messages.error(request, "Account not found!")
+        if email == None or password == None:
+            messages.error(request, "Please fill in all the fields!")
+            return render(request, "webapp/login.html")
+
+        account = find_account(email)
+
+        if account == None:
+            messages.error(request, "Account not found!")
+            return render(request, "webapp/login.html")
+
+        if account["password"] != password:
+            messages.error(request, "Incorrect password!")
+            return render(request, "webapp/login.html")
+
+        messages.success(request, "Logged in successfully!")
+        return redirect("homepage")
 
     return render(request, "webapp/login.html")
 
@@ -113,6 +119,16 @@ def Register(request):
         username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm-password")
+
+        account = find_account(email)
+        if account != None:
+            messages.error(request, "Email already in use!")
+            return render(request, "webapp/register.html")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match!")
+            return render(request, "webapp/register.html")
 
         if username != None and email != None and password != None:
             create_account(username, email, password)

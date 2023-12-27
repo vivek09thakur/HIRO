@@ -63,11 +63,20 @@ body {
     cursor: pointer;
 }
 
-.messages {
+.messages .success {
     background-color: rgb(181, 206, 207);
     max-width: 520px;
     margin: 20px auto;
     padding: 10px 20px;
     border: solid thin rgb(130, 197, 200);
+    border-radius: 5px; 
+}
+
+.messages .error {
+    background-color: rgb(254, 213, 213);
+    max-width: 520px;
+    margin: 20px auto;
+    padding: 10px 20px;
+    border: solid thin rgb(200, 130, 130);
     border-radius: 5px; 
 }
