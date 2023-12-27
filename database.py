@@ -8,8 +8,6 @@ load_dotenv()
 MONGODB_URI = os.getenv("MONGODB_URI")
 DATABASE_NAME = os.getenv("DATABASE_NAME")
 
-print(MONGODB_URI)
-
 client = MongoClient(MONGODB_URI, server_api=ServerApi("1"))
 
 try:

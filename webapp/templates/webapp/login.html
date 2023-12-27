@@ -20,17 +20,28 @@
     
     <h1 class="title">Login</h1>
 
-    <form action="#" class="login__form">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="POST" class="login__form">
+       {% csrf_token %}
         <div class="email-field">
             <label for="email">Email</label>
             <input type="email" name="email" placeholder="Enter your email" required>
         </div>
         <div class="password-field">
             <label for="password">Password</label>
-            <input type="password" name="email" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
         </div>
         <input type="submit" value="Login">
-        <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+        <p>Don't have an account? <a href="/register">Sign up</a></p>
     </form>
 
 
