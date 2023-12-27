@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.contrib import messages
+from database import create_account, find_account
 from HIRO.HIRO import HEALTHCARE_COMPANION
 
 TRAINING_DATA = "./Notebook/dataset/Training.csv"
@@ -88,11 +90,31 @@ def Homepage(request):
 
 
 def Login(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        if email != None and password != None:
+            account = find_account(email)
+            if account != None:
+                if account["password"] == password:
+                    messages.success(request, "Logged in successfully!")
+                else:
+                    messages.error(request, "Incorrect password!")
+            else:
+                messages.error(request, "Account not found!")
+
     return render(request, "webapp/login.html")
 
 
 def Register(request):
     if request.method == "POST":
+        username = request.POST.get("username")
         email = request.POST.get("email")
         password = request.POST.get("password")
+
+        if username != None and email != None and password != None:
+            create_account(username, email, password)
+            messages.success(request, "Account created successfully!")
+
     return render(request, "webapp/register.html")

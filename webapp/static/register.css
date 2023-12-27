@@ -17,7 +17,7 @@ body {
 .title {
     font-size: 2rem;
     text-align: center;
-    padding: 5rem .5rem;
+    padding: 2rem .5rem;
     font-weight: 900;
 }
 
@@ -31,13 +31,19 @@ body {
     margin: auto;
 }
 
-.login__form .email-field, .login__form .password-field, .login__form .confirm-password-field {
+.login__form .email-field, 
+.login__form .password-field, 
+.login__form .confirm-password-field, 
+.login__form .username-field {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.login__form .email-field input, .login__form .password-field input, .login__form .confirm-password-field input {
+.login__form .email-field input, 
+.login__form .password-field input, 
+.login__form .confirm-password-field input, 
+.login__form .username-field input {
     height: 2rem;
     margin: .5rem 0;
     padding: .5rem;
@@ -55,4 +61,13 @@ body {
     color: #fffdfd;
     font-weight: 600;
     cursor: pointer;
+}
+
+.messages {
+    background-color: rgb(181, 206, 207);
+    max-width: 520px;
+    margin: 20px auto;
+    padding: 10px 20px;
+    border: solid thin rgb(130, 197, 200);
+    border-radius: 5px; 
 }

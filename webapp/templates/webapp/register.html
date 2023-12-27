@@ -20,8 +20,22 @@
     
     <h1 class="title">Register</h1>
 
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <form method="POST" class="login__form">
         {% csrf_token %}
+        <div class="username-field">
+          <label for="username">Username</label>
+          <input type="text" name="username" placeholder="Enter your email" required>
+      </div>
         <div class="email-field">
             <label for="email">Email</label>
             <input type="email" name="email" placeholder="Enter your email" required>
