@@ -31,3 +31,11 @@ def create_account(username, email, password):
     }
 
     return collection.insert_one(user)
+
+
+def find_account(email):
+    COLLECTION_NAME = "user_accounts"
+    db = client[DATABASE_NAME]
+    collection = db[COLLECTION_NAME]
+
+    return collection.find_one({"email": email})
