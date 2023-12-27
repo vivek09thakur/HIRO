@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from database import create_account, find_account
 from HIRO.HIRO import HEALTHCARE_COMPANION
@@ -99,6 +99,7 @@ def Login(request):
             if account != None:
                 if account["password"] == password:
                     messages.success(request, "Logged in successfully!")
+                    return redirect("homepage")
                 else:
                     messages.error(request, "Incorrect password!")
             else:
