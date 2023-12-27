@@ -92,4 +92,7 @@ def Login(request):
 
 
 def Register(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
     return render(request, "webapp/register.html")

@@ -20,7 +20,8 @@
     
     <h1 class="title">Register</h1>
 
-    <form action="#" class="login__form">
+    <form method="POST" class="login__form">
+        {% csrf_token %}
         <div class="email-field">
             <label for="email">Email</label>
             <input type="email" name="email" placeholder="Enter your email" required>
