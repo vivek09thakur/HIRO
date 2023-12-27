@@ -89,3 +89,7 @@ def Homepage(request):
 
 def Login(request):
     return render(request, "webapp/login.html")
+
+
+def Register(request):
+    return render(request, "webapp/register.html")
