@@ -137,8 +137,8 @@ class HEALTHCARE_COMPANION:
                 print("\nSYMPTOMS FOUNDED => None")
         return extracted_symptoms
 
-    def talk_to_user(self, user_input):
-       return self.chat_support.generate_response(user_input)
+    def talk_to_user(self,user_input):
+       return self.chat_support.get_response(str(user_input))
 
     def predict_disease_from_symptoms(self, user_input):
         try:

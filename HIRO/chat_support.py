@@ -50,6 +50,7 @@ class CHAT_SUPPORT:
             output_row = list(self.output_empty)
             output_row[self.classes.index(doc[1])] = 1
             self.training_labels.append(output_row)
+            
         self.training_labels = np.array(self.training_labels)
         
         
@@ -79,23 +80,19 @@ class CHAT_SUPPORT:
             self.model = tf.keras.models.load_model(self.model_path)
         else:
             self.train_model()
+        
+        
             
-            
-    def generate_response(self,user_input):
-        self.user_input = user_input.lower().split()
-        self.bag = [1 if word in self.user_input else 0 for word in self.words]
-        self.bag = np.array(self.bag)
-        print("self.words shape:", len(self.words))
-        print("self.bag shape:", self.bag.shape)
-
-        self.predictions = self.model.predict(np.array([self.bag]))[0]
-        self.predictions_index = np.argmax(self.predictions)
-        self.tag = self.classes[self.predictions_index]
-        self.confidence = self.predictions[self.predictions_index]
-        if self.confidence > 0.5:
+    def get_response(self,user_input):
+        input_words = user_input.lower().split()
+        input_bag = [1 if word in input_words else 0 for word in self.words]
+        input_bag = np.array(input_bag)
+        results = self.model.predict(np.array([input_bag]))[0]
+        results_index = np.argmax(results)
+        tag = self.classes[results_index]
+        if results[results_index] > 0.7:
             for intent in self.intent:
-                if intent['tag'] == self.tag:
-                    self.response = intent['responses']
-            return np.random.choice(self.response)
+                if intent['tag'] == tag:
+                    return np.random.choice(intent['responses'])
         else:
             return np.random.choice(self.failure_responses)
