@@ -1,6 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import json
+import os.path
 
 class CHAT_SUPPORT:
     
@@ -53,11 +54,12 @@ class CHAT_SUPPORT:
         self.model.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
         
     def train_model(self):
-        self.model.fit(self.train_x,self.train_y,epochs=100,batch_size=8)
+        self.model.fit(self.train_x,self.train_y,epochs=500,batch_size=8)
         self.model.save(self.model_path)
         
     def load_model(self):
         self.model = tf.keras.models.load_model(self.model_path)
+        
         
     def generate_response(self,prompt):
         input_words = prompt.lower().split()
@@ -78,12 +80,8 @@ class CHAT_SUPPORT:
     
     def build_robust_model(self):
         self.process_training_data()
-        self.build_model()
-        self.train_model()
-        
-        
-# if __name__ == '__main__':
-#     chatbot = CHAT_SUPPORT('Notebook/intents.json','HIRO/chat_hiro.h5')
-#     chatbot.build_robust_model()
-    
-#     print(chatbot.generate_response('hello'))
+        if os.path.exists(self.model_path):
+            self.load_model()
+        else:
+            self.build_model()
+            self.train_model()
