@@ -37,8 +37,9 @@ class HEALTHCARE_COMPANION:
         self.test_data = pd.read_csv(self.training_data_path)
         self.disease_list = self.data["prognosis"].unique()
         self.supportive_module = support(self.test_data_path)
+        
         self.chat_support = CHAT_SUPPORT(
-            intent_data=self.chat_log_path, modeL_path="HIRO/chat_model.h5"
+            intent_data=self.chat_log_path, model_path="./HIRO/chat_model.h5"
         )
         self.chat_support.train_or_load_model()
 
