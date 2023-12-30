@@ -138,11 +138,7 @@ class HEALTHCARE_COMPANION:
         return extracted_symptoms
 
     def talk_to_user(self, user_input):
-        try:
-            response = self.chat_support.generate_response(user_input)
-            return response
-        except Exception as e:
-            print(f"ERROR OCCURED WHILE TALKING TO USER => {e}")
+       return self.chat_support.generate_response(user_input)
 
     def predict_disease_from_symptoms(self, user_input):
         try:

@@ -85,6 +85,9 @@ class CHAT_SUPPORT:
         self.user_input = user_input.lower().split()
         self.bag = [1 if word in self.user_input else 0 for word in self.words]
         self.bag = np.array(self.bag)
+        print("self.words shape:", len(self.words))
+        print("self.bag shape:", self.bag.shape)
+
         self.predictions = self.model.predict(np.array([self.bag]))[0]
         self.predictions_index = np.argmax(self.predictions)
         self.tag = self.classes[self.predictions_index]

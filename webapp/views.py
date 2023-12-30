@@ -7,7 +7,7 @@ TRAINING_DATA = "./Notebook/dataset/Training.csv"
 TESTING_DATA = "./Notebook/dataset/Testing.csv"
 SYMPTOM_DESCRIPTION = "./Notebook/dataset/symptom_Description.csv"
 PRECAUTION_DATA = "./Notebook/dataset/precautions.csv"
-CHAT_DATASET = "./Notebook/QA_data.json"
+CHAT_DATASET = "./Notebook/intents.json"
 
 hiro = HEALTHCARE_COMPANION(
     TRAINING_DATA, TESTING_DATA, SYMPTOM_DESCRIPTION, PRECAUTION_DATA, CHAT_DATASET
@@ -74,7 +74,7 @@ def Homepage(request):
             request,
             "webapp/index.html",
             {
-                "user_prompt": "None",
+                "user_prompt": user_prompt,
                 "response": "None",
                 "extracted_symptoms": "None",
                 "disease_from_test1": "None",

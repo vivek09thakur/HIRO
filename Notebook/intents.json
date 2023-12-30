@@ -33,6 +33,16 @@
         "Thanks for helping me"
       ],
       "responses": ["Happy to help!", "Any time!", "My pleasure"]
+    },
+
+    {
+      "tag": "noanswer",
+      "patterns": [],
+      "responses": [
+        "Sorry, can't understand you",
+        "Please give me more info",
+        "Not sure I understand"
+      ]
     }
   ]
 }
