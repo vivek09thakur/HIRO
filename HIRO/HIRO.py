@@ -38,10 +38,8 @@ class HEALTHCARE_COMPANION:
         self.disease_list = self.data["prognosis"].unique()
         self.supportive_module = support(self.test_data_path)
         
-        self.chat_support = CHAT_SUPPORT(
-            intent_data=self.chat_log_path, model_path="./HIRO/chat_model.h5"
-        )
-        self.chat_support.train_or_load_model()
+        self.chat_support = CHAT_SUPPORT(self.chat_log_path,'./HIRO/chat_model/chat_model.h5')
+        self.chat_support.build_robust_model()
 
     def preprocess(self):
         self.encoder = LabelEncoder()
@@ -139,7 +137,7 @@ class HEALTHCARE_COMPANION:
         return extracted_symptoms
 
     def talk_to_user(self,user_input):
-       return self.chat_support.get_response(str(user_input))
+       return self.chat_support.generate_response(user_input)
 
     def predict_disease_from_symptoms(self, user_input):
         try:

@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'hiro_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'HIRO_CHAT_DATA.db',
+        'NAME': BASE_DIR / 'hiro_backend/database/chatdata.db',
     }
 }
 

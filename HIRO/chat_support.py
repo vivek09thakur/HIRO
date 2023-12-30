@@ -75,3 +75,15 @@ class CHAT_SUPPORT:
         for intent in self.intents['intents']:
             if intent['tag'] == tag:
                 return np.random.choice(intent['responses'])
+    
+    def build_robust_model(self):
+        self.process_training_data()
+        self.build_model()
+        self.train_model()
+        
+        
+# if __name__ == '__main__':
+#     chatbot = CHAT_SUPPORT('Notebook/intents.json','HIRO/chat_hiro.h5')
+#     chatbot.build_robust_model()
+    
+#     print(chatbot.generate_response('hello'))
