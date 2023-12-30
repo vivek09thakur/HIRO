@@ -11,7 +11,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
 
-from .support import support, chat_support
+from .support import support
+from .chat_support import CHAT_SUPPORT
 
 import csv
 import pyttsx3
@@ -36,7 +37,10 @@ class HEALTHCARE_COMPANION:
         self.test_data = pd.read_csv(self.training_data_path)
         self.disease_list = self.data["prognosis"].unique()
         self.supportive_module = support(self.test_data_path)
-        self.chat_support = chat_support(self.chat_log_path)
+        self.chat_support = CHAT_SUPPORT(
+            intent_data=self.chat_log_path, modeL_path="HIRO/model.h5"
+        )
+        self.chat_support.train_or_load_model()
 
     def preprocess(self):
         self.encoder = LabelEncoder()
@@ -134,7 +138,11 @@ class HEALTHCARE_COMPANION:
         return extracted_symptoms
 
     def talk_to_user(self, user_input):
-        return self.chat_support.get_response(user_input)
+        try:
+            response = self.chat_support.generate_response(user_input)
+            return response
+        except Exception as e:
+            print(f"ERROR OCCURED WHILE TALKING TO USER => {e}")
 
     def predict_disease_from_symptoms(self, user_input):
         try:
