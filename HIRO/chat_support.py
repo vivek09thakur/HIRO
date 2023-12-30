@@ -83,13 +83,20 @@ class CHAT_SUPPORT:
         
         
             
-    def get_response(self,user_input):
-        input_words = user_input.lower().split()
-        input_bag = [1 if word in input_words else 0 for word in self.words]
-        input_bag = np.array(input_bag)
-        results = self.model.predict(np.array([input_bag]))[0]
+    def get_response(self, user_input):
+        bag_of_words = [0] * len(self.words)
+        user_input_words = user_input.lower().split()
+        for word in user_input_words:
+            for i,w in enumerate(self.words):
+                if w == word:
+                    bag_of_words[i] = 1
+        bag_of_words = np.array(bag_of_words)
+        bag_of_words = np.reshape(bag_of_words,(1,len(bag_of_words)))
+        
+        results = self.model.predict(bag_of_words)[0]
         results_index = np.argmax(results)
         tag = self.classes[results_index]
+        
         if results[results_index] > 0.7:
             for intent in self.intent:
                 if intent['tag'] == tag:
