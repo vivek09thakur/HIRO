@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from database import create_account, find_account
+from django.http import HttpResponse
+from database import (
+    create_account,
+    find_account,
+    create_session_id,
+    check_session_id,
+    delete_session_id,
+)
 from HIRO.HIRO import HEALTHCARE_COMPANION
 
 TRAINING_DATA = "./Notebook/dataset/Training.csv"
@@ -86,6 +93,15 @@ def Homepage(request):
             },
         )
 
+    # Authentication
+    session_id = request.session.get("session_id")
+    if session_id == None:
+        return redirect("login")
+    if session_id != None:
+        account = check_session_id(session_id)
+        if account == None:
+            return redirect("login")
+
     return render(request, "webapp/index.html")
 
 
@@ -108,8 +124,17 @@ def Login(request):
             messages.error(request, "Incorrect password!")
             return render(request, "webapp/login.html")
 
+        session_id = create_session_id(email, password)
+        request.session["session_id"] = session_id
+
         messages.success(request, "Logged in successfully!")
         return redirect("homepage")
+
+    session_id = request.session.get("session_id")
+    if session_id != None:
+        account = check_session_id(session_id)
+        if account != None:
+            return redirect("homepage")
 
     return render(request, "webapp/login.html")
 
@@ -135,3 +160,12 @@ def Register(request):
             messages.success(request, "Account created successfully!")
 
     return render(request, "webapp/register.html")
+
+
+def Logout(request):
+    session_id = request.session.get("session_id")
+    if session_id != None:
+        delete_session_id(session_id)
+        del request.session["session_id"]
+
+    return redirect("login")
