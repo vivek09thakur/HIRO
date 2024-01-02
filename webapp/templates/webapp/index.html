@@ -9,24 +9,42 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0"
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap"
-    rel="stylesheet"/ > {% load static %}
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    <link rel="stylesheet" href="../../static/styles.css" />
   </head>
   <body>
-    
-    <h1 class="title">HIRO - Your personal healthcare companion</h1>
+    <nav class="navbar bg-body-tertiary">
+      <div class="container-fluid">
+        <h1 class="title navbar-brand">
+          HIRO -
+          <span class="small-text robotic headline"
+            >Your personal healthcare companion</span
+          >
+        </h1>
+      </div>
+    </nav>
 
     <div class="chat-window">
       <div class="chat-window__messages">
+
         <!-- Display user prompt -->
+        <h3 class="robotic uppercase disease-title">
+          Convo between you and hiro
+        </h3>
+        <hr />
         {% if user_prompt %}
         <div class="message">
           <div class="message__content">
-            <p>User: {{ user_prompt }}</p>
+            <p>
+              <span class="robotic uppercase">User :</span> {{ user_prompt }}
+            </p>
           </div>
         </div>
         {% endif %}
@@ -36,26 +54,41 @@
         {% if response %}
         <div class="message">
           <div class="message__content">
-            <p>HIRO: {{ response }}</p>
+            <p>
+              <span class="robotic uppercase">hiro : </span>
+              <span class="robotic">{{ response }}</span>
+            </p>
           </div>
         </div>
         {% endif %}
+
         <!-- End of response -->
 
-        <!-- Display Extracted Sypmtoms -->
         {% if extracted_symptoms %}
         <div class="message">
           <div class="message__content">
-            <p>Extracted Symptoms: {{ extracted_symptoms }}</p>
+            <p>
+              <span class="robotic uppercase">Extracted Symptoms : </span>
+              <span class="robotic">{{ extracted_symptoms }}</span>
+            </p>
           </div>
         </div>
         {% endif %}
+
+        <!-- Display Extracted Sypmtoms -->
+        <h3 class="robotic uppercase disease-title">Disease Prediction</h3>
+        <hr />
 
         <!-- Test 1 -->
         {% if disease_from_test1 %}
         <div class="message">
           <div class="message__content">
-            <p>Disease from Test 1: {{ disease_from_test1 }}</p>
+            <p>
+              <span class="small-text robotic uppercase"
+                >Predicted disease from test 1 ->
+              </span>
+              <span class="small-text robotic">{{ disease_from_test1 }}</span>
+            </p>
           </div>
         </div>
         {% endif %}
@@ -64,7 +97,12 @@
         {% if disease_from_test2 %}
         <div class="message">
           <div class="message__content">
-            <p>Disease from Test 2: {{ disease_from_test2 }}</p>
+            <p>
+              <span class="small-text robotic uppercase"
+                >Predicted disease from test 2 ->
+              </span>
+              <span class="small-text robotic">{{ disease_from_test2 }}</span>
+            </p>
           </div>
         </div>
         {% endif %}
@@ -73,34 +111,59 @@
         {% if disease_from_test3 %}
         <div class="message">
           <div class="message__content">
-            <p>Disease from Test 3: {{ disease_from_test3 }}</p>
+            <p>
+              <span class="small-text robotic uppercase"
+                >Predicted disease from test 3 ->
+              </span>
+              <span class="small-text robotic">{{ disease_from_test3 }}</span>
+            </p>
           </div>
         </div>
         {% endif %}
 
         <!-- Final Prediction -->
+        <h3 class="robotic uppercase disease-title">Final Prediction</h3>
+        <hr />
         {% if final_prediction %}
         <div class="message">
           <div class="message__content">
-            <p>Final Prediction: {{ final_prediction }}</p>
+            <p>
+              <span class="robotic uppercase">Final Prediction -> </span>
+              <span class="robotic"> {{ final_prediction }} </span>
+            </p>
           </div>
         </div>
         {% endif %}
 
         <!-- Display disease information -->
+        <h3 class="robotic uppercase disease-title">Disease Description</h3>
+        <hr />
         {% if disease_description %}
         <div class="message">
           <div class="message__content">
-            <p>Disease Description: {{ disease_description }}</p>
+            <p>
+              <b
+                ><span class="robotic uppercase">Disease Description :</span></b
+              >
+              <span class="robotic small-text">{{ disease_description }}</span>
+            </p>
           </div>
         </div>
-        {% endif %} {% if disease_precaution %}
+        {% endif %} 
+
+        {% if disease_precaution %}
+        <h3 class="robotic uppercase disease-title">Disease Precaution</h3>
+        <hr />
         <div class="message">
           <div class="message__content">
-            <p>Disease Precaution: {{ disease_precaution }}</p>
+            <p>
+              <span class="robotic uppercase">Disease Precaution : </span> {{
+              disease_precaution }}
+            </p>
           </div>
         </div>
         {% endif %}
+
         <!-- End of disease information -->
       </div>
       <div class="chat-window__input">
@@ -112,9 +175,14 @@
             id="prompt"
             placeholder="Type your message here..."
           />
-          <input type="submit" value="Send" />
+          <input type="submit" value="Send" class="btn btn-success" />
         </form>
       </div>
     </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
