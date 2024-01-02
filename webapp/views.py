@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import HttpResponse
 from database import (
     create_account,
     find_account,
@@ -92,6 +93,15 @@ def Homepage(request):
             },
         )
 
+    # Authentication
+    session_id = request.session.get("session_id")
+    if session_id == None:
+        return redirect("login")
+    if session_id != None:
+        account = check_session_id(session_id)
+        if account == None:
+            return redirect("login")
+
     return render(request, "webapp/index.html")
 
 
@@ -150,3 +160,12 @@ def Register(request):
             messages.success(request, "Account created successfully!")
 
     return render(request, "webapp/register.html")
+
+
+def Logout(request):
+    session_id = request.session.get("session_id")
+    if session_id != None:
+        delete_session_id(session_id)
+        del request.session["session_id"]
+
+    return redirect("login")

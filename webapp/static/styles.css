@@ -115,6 +115,20 @@ hr{
     cursor: pointer;
 }
 
+.log-out-btn {
+    padding: 5px 15px;
+    border-radius: 10px;
+    border: none;
+    background: #2da36e;
+    color: #fffdfd;
+}
+
+.log-out-btn:hover {
+    background: #2da36e;
+    color: #fffdfd;
+    box-shadow: 0 0 5px #2da36e;
+}
+
 @media screen and (max-width: 768px) {
     .message{
         height: auto;
