@@ -1,17 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:opsz,wght@6..12,400&display=swap');
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Nunito Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 html {
     color-scheme: light;
-    background: #f5f5f5;
+    background: #fefffe;
 }
 
 body {
-    background: #f5f5f5;
+    background: #fefffe;
 }
 
 .messages .success {
@@ -35,7 +38,9 @@ body {
 .title {
     font-size: 2rem;
     text-align: center;
-    padding: 5rem .5rem;
+    padding: 5rem 0;
+    color:#34495e;
+    font-weight: 700 !important;
 }
 
 .login__form {
@@ -44,7 +49,7 @@ body {
     justify-content: center;    
     padding: 0px 90px;
     gap: 20px;
-    max-width: 700px;
+    max-width: 600px;
     margin: auto;
 }
 
@@ -69,12 +74,12 @@ body {
 }
 
 .login__form input[type="submit"] {
-    height: 2rem;
+    height: 2.6rem;
     margin: .5rem 0;
     padding: .5rem;
     border: 1px solid #ccc;
     border-radius: 5px;
-    background: #117af2;
+    background: #43b982;
     color: #fffdfd;
     font-weight: 600;
     cursor: pointer;
