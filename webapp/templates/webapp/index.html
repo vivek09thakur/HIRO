@@ -40,7 +40,7 @@
         <h3 class="robotic uppercase disease-title">
           Convo between you and hiro
         </h3>
-        <hr />
+       
         {% if user_prompt %}
         <div class="message">
           <div class="message__content">
@@ -79,7 +79,6 @@
 
         <!-- Display Extracted Sypmtoms -->
         <h3 class="robotic uppercase disease-title">Disease Prediction</h3>
-        <hr />
 
         <!-- Test 1 -->
         {% if disease_from_test1 %}
@@ -125,7 +124,6 @@
 
         <!-- Final Prediction -->
         <h3 class="robotic uppercase disease-title">Final Prediction</h3>
-        <hr />
         {% if final_prediction %}
         <div class="message">
           <div class="message__content">
@@ -139,14 +137,10 @@
 
         <!-- Display disease information -->
         <h3 class="robotic uppercase disease-title">Disease Description</h3>
-        <hr />
         {% if disease_description %}
         <div class="message">
           <div class="message__content">
             <p>
-              <b
-                ><span class="robotic uppercase">Disease Description :</span></b
-              >
               <span class="robotic small-text">{{ disease_description }}</span>
             </p>
           </div>
@@ -155,7 +149,6 @@
 
         {% if disease_precaution %}
         <h3 class="robotic uppercase disease-title">Disease Precaution</h3>
-        <hr />
         <div class="message">
           <div class="message__content">
             <p>
