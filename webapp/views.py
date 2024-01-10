@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
-from database import (
+from hiro_backend.database import (
     create_account,
     find_account,
     create_session_id,

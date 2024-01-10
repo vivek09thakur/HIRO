@@ -1,7 +1,7 @@
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
-from utils import generate_random_string
+from .utils import generate_random_string
 import os
 
 load_dotenv()
