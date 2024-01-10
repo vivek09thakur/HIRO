@@ -10,11 +10,11 @@ from database import (
 )
 from HIRO.HIRO import HEALTHCARE_COMPANION
 
-TRAINING_DATA = "./Notebook/dataset/Training.csv"
-TESTING_DATA = "./Notebook/dataset/Testing.csv"
-SYMPTOM_DESCRIPTION = "./Notebook/dataset/symptom_Description.csv"
-PRECAUTION_DATA = "./Notebook/dataset/precautions.csv"
-CHAT_DATASET = "./Notebook/intents.json"
+TRAINING_DATA = "DATASET/Training.csv"
+TESTING_DATA = "DATASET/Testing.csv"
+SYMPTOM_DESCRIPTION = "DATASET/symptom_Description.csv"
+PRECAUTION_DATA = "DATASET/precautions.csv"
+CHAT_DATASET = "DATASET/intents.json"
 
 hiro = HEALTHCARE_COMPANION(
     TRAINING_DATA, TESTING_DATA, SYMPTOM_DESCRIPTION, PRECAUTION_DATA, CHAT_DATASET
