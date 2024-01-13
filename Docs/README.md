@@ -5,5 +5,5 @@
 ## Table of Content
 
 - [Introduction](#Introduction)
-- [Getting Started](#Getting Started)
+- [Getting Started](#GettingStarted)
   - [Requirements](#requirments)
