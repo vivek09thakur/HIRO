@@ -6,4 +6,7 @@
 
 - [Introduction](#Introduction)
 - [Getting Started](#GettingStarted)
-  - [Requirements](#requirments)
+  - [Requirements](#Requirments)
+  - [Installation](#Installation)
+  - [Running Locally](#Run)
+- [How to use](*)
