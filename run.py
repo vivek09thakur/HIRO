@@ -9,10 +9,9 @@ CHAT_DATASET = "DATASET/intents.json"
 hiro = HEALTHCARE_COMPANION(TRAINING_DATA,TESTING_DATA,SYMPTOM_DESCRIPTION,PRECAUTION_DATA, CHAT_DATASET)
 hiro.process_training_data(show_models_stats=True)
 hiro.build_robust_model()
+hiro.introduce(ask_for_paitent_name=True)
 
 if __name__ == '__main__': 
-    hiro.introduce(ask_for_paitent_name=True)
-    
     while True: 
         try:
             user_input = input(f'\nUSER : ')
