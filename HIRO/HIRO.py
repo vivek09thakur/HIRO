@@ -20,14 +20,7 @@ from warnings import filterwarnings
 
 
 class HEALTHCARE_COMPANION:
-    def __init__(
-        self,
-        training_data_path,
-        test_data_path,
-        description_data,
-        precaution_data,
-        chat_log_path,
-    ):
+    def __init__(self,training_data_path,test_data_path,description_data,precaution_data,chat_log_path):
         self.training_data_path = training_data_path
         self.test_data_path = test_data_path
         self.description_data = description_data
@@ -47,9 +40,7 @@ class HEALTHCARE_COMPANION:
         self.data["prognosis"] = self.encoder.fit_transform(self.data["prognosis"])
         self.X = self.data.iloc[:, :-1]
         self.Y = self.data.iloc[:, -1]
-        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(
-            self.X, self.Y, test_size=0.2, random_state=24
-        )
+        self.X_train, self.X_test, self.Y_train, self.Y_test = train_test_split(self.X, self.Y, test_size=0.2, random_state=24)
 
     def train(self, show_accuracy=False):
         def vc_scoring(estimator, X, Y):
@@ -60,17 +51,11 @@ class HEALTHCARE_COMPANION:
             "Naive Bayes": GaussianNB(),
             "Random Forest": RandomForestClassifier(),
         }
-
         for model_name in models:
             model = models[model_name]
-            scores = cross_val_score(
-                model, self.X, self.Y, cv=10, n_jobs=-1, scoring=vc_scoring
-            )
-
+            scores = cross_val_score(model, self.X, self.Y, cv=10, n_jobs=-1, scoring=vc_scoring)
             if show_accuracy == True:
-                self.type_text(
-                    f"(model loaded) MODEL NAME => {model_name} \\ Accuracy => {scores.mean()}\n"
-                )
+                self.type_text(f"(model loaded) MODEL NAME => {model_name} \\ Accuracy => {scores.mean()}\n")
 
     def build_model(self):
         # TRAINING AND TESTING SVC MODEL
@@ -102,10 +87,13 @@ class HEALTHCARE_COMPANION:
         self.nb_pred = self.nb_model.predict(self.test_X)
         self.rf_pred = self.rf_model.predict(self.test_X)
 
-        self.final_pred = [
-            mode([self.svc_pred[i], self.nb_pred[i], self.rf_pred[i]])[0][0]
-            for i in range(len(self.svc_pred))
-        ]
+        self.final_pred = []
+        for i in range(len(self.svc_pred)):
+            predictions = [np.array(self.svc_pred[i]), np.array(self.nb_pred[i]), np.array(self.rf_pred[i])]
+            predictions = [p if isinstance(p, list) else [p] for p in predictions]
+            unique, counts = np.unique(predictions, return_counts=True)
+            mode_value = unique[np.argmax(counts)]
+            self.final_pred.append(mode_value[0] if isinstance(mode_value, list) else mode_value)
 
         return self.final_pred
 
@@ -129,9 +117,7 @@ class HEALTHCARE_COMPANION:
         extracted_symptoms = self.supportive_module.extract_symptoms(sentence)
         if show_extracted_symptoms == True:
             if extracted_symptoms:
-                self.say_to_user(
-                    f"\nOkay I have founded these following symptoms : {extracted_symptoms}"
-                )
+                self.say_to_user(f"\nOkay I have founded these following symptoms : {extracted_symptoms}")
             else:
                 print("\nSYMPTOMS FOUNDED => None")
         return extracted_symptoms
@@ -150,17 +136,13 @@ class HEALTHCARE_COMPANION:
             input_data = np.array(input_data).reshape(1, -1)
 
             # Generate the prediction individually
-            rf_pred = self.data_dict["prediction_class"][
-                self.rf_model.predict(input_data)[0]
-            ]
-            svc_pred = self.data_dict["prediction_class"][
-                self.svc_model.predict(input_data)[0]
-            ]
-            nb_pred = self.data_dict["prediction_class"][
-                self.nb_model.predict(input_data)[0]
-            ]
+            rf_pred = self.data_dict["prediction_class"][self.rf_model.predict(input_data)[0]]
+            svc_pred = self.data_dict["prediction_class"][self.svc_model.predict(input_data)[0]]
+            nb_pred = self.data_dict["prediction_class"][self.nb_model.predict(input_data)[0]]
 
-            final_pred = mode([rf_pred, svc_pred, nb_pred])[0][0]
+            # final_pred = mode([rf_pred, svc_pred, nb_pred])[0][0]
+            unique, counts = np.unique([rf_pred, svc_pred, nb_pred], return_counts=True)
+            final_pred = unique[np.argmax(counts)]
 
             all_predictions = {
                 "Random Forest": rf_pred,
@@ -171,11 +153,7 @@ class HEALTHCARE_COMPANION:
 
             return all_predictions
         except Exception as e:
-            print(
-                "ERROR OCCURED WHILE PREDICTING DISEASE FROM SYMPTOMS\n ERROR =>{}".format(
-                    e
-                )
-            )
+            print("\nERROR OCCURED WHILE PREDICTING DISEASE FROM SYMPTOMS\nERROR =>{}".format(e))
 
     def get_description(self, disease):
         disease_description_dict = {}
@@ -219,54 +197,37 @@ class HEALTHCARE_COMPANION:
                 while paitent_name == None:
                     paitent_name = input("\nEnter your name here : ")
                     if paitent_name != None:
-                        self.say_to_user(
-                            f"\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem"
-                        )
+                        self.say_to_user( f"\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
                         break
                     else:
-                        self.say_to_user(
-                            "Please enter your name,So that we can continue"
-                        )
+                        self.say_to_user("Please enter your name,So that we can continue")
             else:
-                self.say_to_user(
-                    f"\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem"
-                )
+                self.say_to_user(f"\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
+                
         except Exception as introduction_error:
             self.say_to_user("Sorry I think that you have done something wrong")
             print("ERROR OCCRURED => {}".format(introduction_error))
 
-    def show_diseases(
-        self, disease_dictionary, show_description=False, show_precautions=False
-    ):
+    def show_diseases(self, disease_dictionary, show_description=False, show_precautions=False):
         self.say_to_user("\nOkay just wait for a second!, Let me analyze your symptoms")
         self.type_text(f'\nTEST 1 => {disease_dictionary["Random Forest"]}')
         self.type_text(f'\nTEST 2 => {disease_dictionary["SVC"]}')
         self.type_text(f'\nTEST 3 => {disease_dictionary["Naive Bayes"]}')
-        self.say_to_user(
-            f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}'
-        )
+        self.say_to_user(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
 
         if show_description == True:
-            disease_description = self.get_description(
-                disease_dictionary["Final Prediction"]
-            )
+            disease_description = self.get_description(disease_dictionary["Final Prediction"])
             if disease_description != None:
                 self.say_to_user(f"\n\nDisease Description : {disease_description}")
             else:
-                self.say_to_user(
-                    "\n\nSorry I could not find the description of the disease"
-                )
+                self.say_to_user("\n\nSorry I could not find the description of the disease")
 
         if show_precautions == True:
-            disease_precautions = self.get_precautions(
-                disease_dictionary["Final Prediction"]
-            )
+            disease_precautions = self.get_precautions(disease_dictionary["Final Prediction"])
             if disease_precautions != None:
                 self.say_to_user(f"\n\nDisease Precautions : {disease_precautions}\n")
             else:
-                self.say_to_user(
-                    "\n\nSorry I could not find the precautions of the disease\n"
-                )
+                self.say_to_user("\n\nSorry I could not find the precautions of the disease\n")
 
     def get_diseases(self, disease_dictionary):
         test1 = disease_dictionary["Random Forest"]
