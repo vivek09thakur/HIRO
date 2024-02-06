@@ -14,7 +14,7 @@ hiro.introduce(ask_for_paitent_name=True)
 if __name__ == '__main__': 
     while True: 
         try:
-            user_input = input(f'\nUSER : ')
+            user_input = input(f'\nUSER -- ')
             extracted_symptoms = hiro.extract_symptoms(user_input,show_extracted_symptoms=True)
             
             if extracted_symptoms:
@@ -22,11 +22,11 @@ if __name__ == '__main__':
                 hiro.show_diseases(disease,show_description=True,show_precautions=True)
             else:
                 hiros_response = hiro.talk_to_user(user_input)
-                hiro.say_to_user(f'{hiros_response}',speaker_name='HIRO')
+                print(f'HIRO -- {hiros_response}')
                 
         except KeyboardInterrupt:
-            hiro.say_to_user("Keyboard Interrupted!,It seems you don't wanna continue.Have a nice day.")
+            print("Keyboard Interrupted!,It seems you don't wanna continue.Have a nice day.")
             break
         
         except Exception as runtime_errors:
-            hiro.type_text(f'ERROR OCCURED => {runtime_errors}')
+            print(f'ERROR OCCURED => {runtime_errors}')

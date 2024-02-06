@@ -1,22 +1,16 @@
-import sys
-import time
-
+import csv
 import numpy as np
 import pandas as pd
-from scipy.stats import mode
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
-
 from .support import support
 from .chat_support import CHAT_SUPPORT
-
-import csv
-import pyttsx3
 from warnings import filterwarnings
+
 
 
 class HEALTHCARE_COMPANION:
@@ -55,7 +49,7 @@ class HEALTHCARE_COMPANION:
             model = models[model_name]
             scores = cross_val_score(model, self.X, self.Y, cv=10, n_jobs=-1, scoring=vc_scoring)
             if show_accuracy == True:
-                self.type_text(f"(model loaded) MODEL NAME => {model_name} \\ Accuracy => {scores.mean()}\n")
+                print(f"(model loaded) MODEL NAME => {model_name} \\ Accuracy => {scores.mean()}\n")
 
     def build_model(self):
         # TRAINING AND TESTING SVC MODEL
@@ -117,7 +111,7 @@ class HEALTHCARE_COMPANION:
         extracted_symptoms = self.supportive_module.extract_symptoms(sentence)
         if show_extracted_symptoms == True:
             if extracted_symptoms:
-                self.say_to_user(f"\nOkay I have founded these following symptoms : {extracted_symptoms}")
+                print(f"\nOkay I have founded these following symptoms : {extracted_symptoms}")
             else:
                 print("\nSYMPTOMS FOUNDED => None")
         return extracted_symptoms
@@ -193,47 +187,46 @@ class HEALTHCARE_COMPANION:
         try:
             if ask_for_paitent_name == True:
                 paitent_name = None
-                self.say_to_user("\nHey there!,Can I get your name first?")
+                print("\nHey there!,Can I get your name first?")
                 while paitent_name == None:
                     paitent_name = input("\nEnter your name here : ")
                     if paitent_name != None:
-                        self.say_to_user( f"\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
+                        print( f"\nHello {paitent_name}, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
                         break
                     else:
-                        self.say_to_user("Please enter your name,So that we can continue")
+                        print("Please enter your name,So that we can continue")
             else:
-                self.say_to_user(f"\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
+                print(f"\nHello there!, I am HIRO, your healthcare chatbot.I can help you diagnose your disease based on your symptoms. Let's start with your problem")
                 
         except Exception as introduction_error:
-            self.say_to_user("Sorry I think that you have done something wrong")
             print("ERROR OCCRURED => {}".format(introduction_error))
 
     def show_diseases(self, disease_dictionary, show_description=False, show_precautions=False):
-        self.say_to_user("\nOkay just wait for a second!, Let me analyze your symptoms")
-        self.type_text(f'\nTEST 1 => {disease_dictionary["Random Forest"]}')
-        self.type_text(f'\nTEST 2 => {disease_dictionary["SVC"]}')
-        self.type_text(f'\nTEST 3 => {disease_dictionary["Naive Bayes"]}')
-        self.say_to_user(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
+        print(
+            "\nOkay just wait for a second!, Let me analyze your symptoms" + 
+              f'\nTEST 1 => {disease_dictionary["Random Forest"]}' + 
+              f'\nTEST 2 => {disease_dictionary["SVC"]}' + 
+              f'\nTEST 3 => {disease_dictionary["Naive Bayes"]}'
+            )
+        
+        print(f'\nAfter examining everything I found that you might have : {disease_dictionary["Final Prediction"]}')
 
         if show_description == True:
             disease_description = self.get_description(disease_dictionary["Final Prediction"])
             if disease_description != None:
-                self.say_to_user(f"\n\nDisease Description : {disease_description}")
+                print(f"\n\nDisease Description : {disease_description}")
             else:
-                self.say_to_user("\n\nSorry I could not find the description of the disease")
+                print("\n\nSorry I could not find the description of the disease")
 
         if show_precautions == True:
             disease_precautions = self.get_precautions(disease_dictionary["Final Prediction"])
             if disease_precautions != None:
-                self.say_to_user(f"\n\nDisease Precautions : {disease_precautions}\n")
+                print(f"\n\nDisease Precautions : {disease_precautions}\n")
             else:
-                self.say_to_user("\n\nSorry I could not find the precautions of the disease\n")
+                print("\n\nSorry I could not find the precautions of the disease\n")
 
     def get_diseases(self, disease_dictionary):
-        test1 = disease_dictionary["Random Forest"]
-        test2 = disease_dictionary["SVC"]
-        test3 = disease_dictionary["Naive Bayes"]
-        final_prediction = disease_dictionary["Final Prediction"]
+        test1, test2, test3, final_prediction = disease_dictionary["Random Forest"], disease_dictionary["SVC"], disease_dictionary["Naive Bayes"], disease_dictionary["Final Prediction"]
         disease_description = self.get_description(final_prediction)
 
         return {
@@ -243,22 +236,3 @@ class HEALTHCARE_COMPANION:
             "final_prediction": final_prediction,
             "disease_description": disease_description,
         }
-
-    def type_text(self, text):
-        for char in text:
-            sys.stdout.write(char)
-            sys.stdout.flush()
-            time.sleep(0.004)
-
-    def speak(self, text):
-        engine = pyttsx3.init()
-        engine.setProperty("Volume", 1.0)
-        engine.setProperty("rate", 160)
-        engine.say(text)
-        engine.runAndWait()
-
-    def say_to_user(self, question, speaker_name=None):
-        if speaker_name != None:
-            print(f"{speaker_name} => ", end="")
-        self.type_text(question)
-        self.speak(question)

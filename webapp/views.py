@@ -19,7 +19,7 @@ CHAT_DATASET = "DATASET/intents.json"
 hiro = HEALTHCARE_COMPANION(
     TRAINING_DATA, TESTING_DATA, SYMPTOM_DESCRIPTION, PRECAUTION_DATA, CHAT_DATASET
 )
-hiro.process_training_data(show_models_stats=True)
+hiro.process_training_data(show_models_stats=False)
 hiro.build_robust_model()
 
 
@@ -28,19 +28,11 @@ def Homepage(request):
     try:
         user_prompt = request.POST.get("user_prompt")
         if user_prompt != None:
-            extracted_symptoms = hiro.extract_symptoms(
-                user_prompt, show_extracted_symptoms=True
-            )
+            extracted_symptoms = hiro.extract_symptoms(user_prompt, show_extracted_symptoms=True)
             if extracted_symptoms:
-                disease_predicted = hiro.predict_disease_from_symptoms(
-                    extracted_symptoms
-                )
-                disease_description = hiro.get_description(
-                    disease_predicted["Final Prediction"]
-                )
-                disease_precaution = hiro.get_precautions(
-                    disease_predicted["Final Prediction"]
-                )
+                disease_predicted = hiro.predict_disease_from_symptoms(extracted_symptoms)
+                disease_description = hiro.get_description(disease_predicted["Final Prediction"])
+                disease_precaution = hiro.get_precautions(disease_predicted["Final Prediction"])
 
                 return render(
                     request,
