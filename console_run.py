@@ -12,7 +12,7 @@ hiro.process_training_data(show_models_stats=True)
 hiro.build_robust_model()
 hiro.introduce(ask_for_paitent_name=False) 
 
-def app():
+if __name__ == "__main__":
     while True: 
         try:
             user_input = input(f'\n<user> ')
@@ -26,7 +26,7 @@ def app():
                 print(f'<hiro> {hiros_response}')
                 
         except KeyboardInterrupt:
-            print("Keyboard Interrupted!,It seems you don't wanna continue.Have a nice day.")
+            print("Keyboard Interrupted! Exiting...")
             break
         
         except Exception as runtime_errors:

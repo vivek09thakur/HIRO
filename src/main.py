@@ -25,7 +25,7 @@ class HEALTHCARE_COMPANION:
         self.disease_list = self.data["prognosis"].unique()
         self.supportive_module = support(self.test_data_path)
         
-        self.chat_support = CHAT_SUPPORT(self.chat_log_path,'./HIRO/chat_model/chat_model.h5')
+        self.chat_support = CHAT_SUPPORT(self.chat_log_path,'.src/saved_chat_model/chat_model.h5')
         self.chat_support.build_robust_model()
 
     def preprocess(self):
