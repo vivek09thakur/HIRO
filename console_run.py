@@ -7,7 +7,7 @@ DESCRIPTION = "src/data/description.csv"
 INTENTS = "src/data/intents.json"
 MODEL_PATH = "src/model/chat_model.h5"
 
-hiro = HEALTHCARE_COMPANION(TRAINING_DATA,TESTING_DATA,DESCRIPTION,PRECAUTION,INTENTS)
+hiro = HEALTHCARE_COMPANION(TRAINING_DATA,TESTING_DATA,DESCRIPTION,PRECAUTION,INTENTS,MODEL_PATH)
 hiro.process_training_data(show_models_stats=True)
 hiro.build_robust_model()
 hiro.introduce(ask_for_paitent_name=False) 

@@ -14,18 +14,25 @@ from warnings import filterwarnings
 
 
 class HEALTHCARE_COMPANION:
-    def __init__(self,training_data_path,test_data_path,description_data,precaution_data,chat_log_path):
+    def __init__(self,
+                 training_data_path,
+                 test_data_path,
+                 description_data,
+                 precaution_data,
+                 chat_log_path,
+                 model_path=None):
         self.training_data_path = training_data_path
         self.test_data_path = test_data_path
         self.description_data = description_data
         self.precaution_data = precaution_data
         self.chat_log_path = chat_log_path
+        self.model_path = model_path
         self.data = pd.read_csv(self.training_data_path)
         self.test_data = pd.read_csv(self.training_data_path)
         self.disease_list = self.data["prognosis"].unique()
         self.supportive_module = support(self.test_data_path)
         
-        self.chat_support = CHAT_SUPPORT(self.chat_log_path,'.src/saved_chat_model/chat_model.h5')
+        self.chat_support = CHAT_SUPPORT(self.chat_log_path, self.model_path)
         self.chat_support.build_robust_model()
 
     def preprocess(self):
