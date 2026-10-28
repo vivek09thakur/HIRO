@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# HIRO derived artifacts
+server/model/*.joblib
+
 # C extensions
 *.so
 

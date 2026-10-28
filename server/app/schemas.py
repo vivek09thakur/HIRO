@@ -42,3 +42,15 @@ class DiagnosisReply(BaseModel):
     description: str
     precautions: list[str]
     state: ConversationState
+
+
+class Hospital(BaseModel):
+    name: str
+    kind: str
+    distance_km: float
+    address: str | None = None
+    phone: str | None = None
+    emergency: bool = False
+    lat: float
+    lon: float
+    directions_url: str

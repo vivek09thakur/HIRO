@@ -7,11 +7,9 @@ const inputEl = $('message-input');
 const sendEl = $('send-button');
 const statusEl = $('status');
 const statusBarEl = $('status-bar');
-const heroHintEl = $('hero-hint');
 const historyEl = $('history');
 const historyEmptyEl = $('history-empty');
 const consentsEl = $('consents');
-const chipsEl = $('chips');
 const sidebarEl = $('sidebar');
 const backdropEl = $('backdrop');
 const menuToggleEl = $('menu-toggle');
@@ -21,6 +19,13 @@ const modalBodyEl = $('modal-body');
 const modalAgreeEl = $('modal-agree');
 const diagnosisTpl = $('tpl-diagnosis');
 const quickRepliesTpl = $('tpl-quick-replies');
+const hospitalTpl = $('tpl-hospital');
+const hospitalsEl = $('hospitals');
+const hospitalsToggleEl = $('hospitals-toggle');
+const hospitalsListEl = $('hospitals-list');
+const hospitalsStatusEl = $('hospitals-status');
+const locateEl = $('locate');
+const radiusEl = $('radius');
 
 const CONSENT_KEY = 'hiro.consents';
 const HISTORY_KEY = 'hiro.history';
@@ -48,7 +53,8 @@ const CONSENTS = {
     title: 'Privacy',
     body: [
       'Your messages are sent only to the local HIRO server to generate a reply. The server keeps nothing between requests; the state of this assessment travels with each message.',
-      'Your assessment history is saved in this browser only (local storage) so you can revisit it. Clear it at any time with your browser settings. Nothing is sent to third parties.',
+      'Your assessment history is saved in this browser only (local storage) so you can revisit it. Clear it at any time with your browser settings.',
+      'If you choose "Use my location" in the Nearby hospitals panel, your approximate coordinates are sent through the local server to the OpenStreetMap Overpass API to look up hospitals. They are not stored. The interface font is loaded from Google Fonts, which receives a standard web request when the page loads.',
     ],
   },
   terms: {
@@ -121,17 +127,12 @@ function updateGate() {
   const locked = busy || !online || !allAgreed();
   inputEl.disabled = locked;
   sendEl.disabled = locked;
-  chipsEl.classList.toggle('chips-row--disabled', locked);
 
   if (!online) {
-    heroHintEl.textContent = 'Connecting to the HIRO server.';
     inputEl.placeholder = 'Waiting for the server';
   } else if (!allAgreed()) {
-    const remaining = Object.keys(CONSENTS).length - agreed.length;
-    heroHintEl.textContent = `Open and agree to the ${remaining === 4 ? 'four' : remaining} remaining notice${remaining === 1 ? '' : 's'} in the sidebar to begin.`;
     inputEl.placeholder = 'Agree to the notices in the sidebar to start';
   } else {
-    heroHintEl.textContent = 'Describe your symptoms in plain language. HIRO will ask a few questions before suggesting a possible condition.';
     inputEl.placeholder = 'Describe your symptoms, e.g. headache and mild fever';
   }
   if (!locked && document.activeElement !== inputEl && !modalEl.open) inputEl.focus();
@@ -146,8 +147,90 @@ function setDrawer(open) {
 }
 
 menuToggleEl.addEventListener('click', () => setDrawer(!sidebarEl.classList.contains('sidebar--open')));
-backdropEl.addEventListener('click', () => setDrawer(false));
+backdropEl.addEventListener('click', () => {
+  setDrawer(false);
+  setHospitalsDrawer(false);
+});
 $('sidebar-close').addEventListener('click', () => setDrawer(false));
+
+/* Nearby hospitals */
+
+let lastPosition = null;
+
+function setHospitalsDrawer(open) {
+  hospitalsEl.classList.toggle('hospitals--open', open);
+  backdropEl.hidden = !open && !sidebarEl.classList.contains('sidebar--open');
+  hospitalsToggleEl.setAttribute('aria-expanded', String(open));
+}
+
+hospitalsToggleEl.addEventListener('click', () => setHospitalsDrawer(!hospitalsEl.classList.contains('hospitals--open')));
+$('hospitals-close').addEventListener('click', () => setHospitalsDrawer(false));
+
+function renderHospitals(list) {
+  hospitalsListEl.replaceChildren(
+    ...list.map((h) => {
+      const node = hospitalTpl.content.firstElementChild.cloneNode(true);
+      node.querySelector('.hospital__name').textContent = h.name;
+      node.querySelector('.hospital__distance').textContent = `${h.distance_km} km`;
+      const meta = [h.kind === 'clinic' ? 'Clinic' : 'Hospital', h.emergency ? 'Emergency' : null, h.address]
+        .filter(Boolean)
+        .join(' \u00b7 ');
+      node.querySelector('.hospital__meta').textContent = meta;
+      node.querySelector('.hospital__directions').href = h.directions_url;
+      const call = node.querySelector('.hospital__call');
+      if (h.phone) {
+        call.hidden = false;
+        call.href = `tel:${h.phone.replace(/[^+\d]/g, '')}`;
+      }
+      return node;
+    }),
+  );
+}
+
+async function loadHospitals() {
+  if (!lastPosition) return;
+  const { lat, lon } = lastPosition;
+  hospitalsStatusEl.textContent = 'Searching OpenStreetMap';
+  hospitalsListEl.replaceChildren();
+  try {
+    const params = new URLSearchParams({ lat, lon, radius: radiusEl.value });
+    const res = await fetch(`/api/hospitals?${params}`);
+    const data = await readJson(res);
+    if (!res.ok || !Array.isArray(data)) throw new Error(data?.detail ?? `HTTP ${res.status}`);
+    renderHospitals(data);
+    hospitalsStatusEl.textContent = data.length
+      ? `${data.length} place${data.length === 1 ? '' : 's'} within ${radiusEl.value / 1000} km`
+      : `Nothing found within ${radiusEl.value / 1000} km. Try a larger radius.`;
+  } catch (err) {
+    hospitalsStatusEl.textContent = `Could not load hospitals: ${err.message}`;
+  }
+}
+
+locateEl.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    hospitalsStatusEl.textContent = 'Location is not supported by this browser.';
+    return;
+  }
+  locateEl.disabled = true;
+  hospitalsStatusEl.textContent = 'Requesting your location';
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      locateEl.disabled = false;
+      lastPosition = { lat: pos.coords.latitude.toFixed(5), lon: pos.coords.longitude.toFixed(5) };
+      loadHospitals();
+    },
+    (err) => {
+      locateEl.disabled = false;
+      hospitalsStatusEl.textContent =
+        err.code === err.PERMISSION_DENIED
+          ? 'Location permission was denied. Allow it in your browser to find hospitals.'
+          : 'Could not determine your location.';
+    },
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
+  );
+});
+
+radiusEl.addEventListener('change', loadHospitals);
 
 /* Modal */
 
@@ -477,11 +560,6 @@ messagesEl.addEventListener('click', (event) => {
   if (button) sendMessage(button.textContent.trim());
 });
 
-chipsEl.addEventListener('click', (event) => {
-  const button = event.target.closest('button');
-  if (button && !inputEl.disabled) sendMessage(`I have ${button.textContent.trim().toLowerCase()}`);
-});
-
 $('new-chat').addEventListener('click', () => {
   setDrawer(false);
   startNew();
@@ -532,7 +610,7 @@ async function connect() {
     await sleep(Math.min(1000 * attempt, 5000));
   }
   setStatus('Server unavailable', 'error');
-  heroHintEl.textContent = 'The HIRO server on port 8000 is not reachable. Start it and reload this page.';
+  inputEl.placeholder = 'The HIRO server on port 8000 is not reachable. Start it and reload this page.';
 }
 
 renderConsents();

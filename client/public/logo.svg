@@ -1,41 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HIRO logo">
-  <defs>
-    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#b6ef9f"/>
-      <stop offset="0.45" stop-color="#5cb85c"/>
-      <stop offset="1" stop-color="#3f8f7e"/>
-    </linearGradient>
-    <radialGradient id="bulb" cx="0.4" cy="0.35" r="0.8">
-      <stop offset="0" stop-color="#b6ef9f"/>
-      <stop offset="1" stop-color="#4fae4f"/>
-    </radialGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#6fc3ae" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#6fc3ae" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-
-  <circle cx="32" cy="32" r="32" fill="url(#glow)">
-    <animate attributeName="r" values="28;32;28" dur="3s" repeatCount="indefinite"/>
-  </circle>
-
-  <circle cx="32" cy="32" r="25" fill="none" stroke="url(#ring)" stroke-width="5" stroke-linecap="round" stroke-dasharray="118 40">
-    <animateTransform attributeName="transform" type="rotate" from="0 32 32" to="360 32 32" dur="7s" repeatCount="indefinite"/>
-  </circle>
-  <circle cx="32" cy="32" r="25" fill="none" stroke="#6fc3ae" stroke-opacity="0.35" stroke-width="5" stroke-linecap="round" stroke-dasharray="20 138">
-    <animateTransform attributeName="transform" type="rotate" from="180 32 32" to="-180 32 32" dur="11s" repeatCount="indefinite"/>
-  </circle>
-
-  <g>
-    <animateTransform attributeName="transform" type="translate" values="0 0;0 -1.2;0 0" dur="3s" repeatCount="indefinite"/>
-    <path d="M32 40 V30" stroke="#6fc3ae" stroke-width="3" stroke-linecap="round"/>
-    <path d="M32 31 C33 24 38 20 45 21 C44 28 39 32 32 31 Z" fill="url(#bulb)"/>
-    <path d="M32 34 C31 28 26 24 19 25 C20 32 25 35 32 34 Z" fill="#5cb85c"/>
-    <path d="M32 31 L41 23" stroke="#e8f3ef" stroke-opacity="0.7" stroke-width="1.2" stroke-linecap="round"/>
-    <path d="M32 34 L23 27" stroke="#e8f3ef" stroke-opacity="0.6" stroke-width="1.2" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="18" fill="#f7a8c9"/>
+  <path d="M9 20 L15 7 L23 17 Z" fill="#e88fb5" stroke="#e88fb5" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M55 20 L49 7 L41 17 Z" fill="#e88fb5" stroke="#e88fb5" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M13 17 L15.5 11 L19 16 Z" fill="#c4588a"/>
+  <path d="M51 17 L48.5 11 L45 16 Z" fill="#c4588a"/>
+  <g transform="translate(23 35)">
+    <g>
+      <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.5s" repeatCount="indefinite"/>
+      <rect x="-6" y="-8" width="12" height="16" rx="6" fill="#3fa9b7"/>
+      <rect x="-4" y="-6.5" width="4" height="5.5" rx="2" fill="#ffffff"/>
+    </g>
   </g>
-
-  <polyline points="17,46 25,46 28,41 32,51 35,46 47,46" fill="none" stroke="#e8f3ef" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="48" stroke-dashoffset="48">
-    <animate attributeName="stroke-dashoffset" values="48;0;0;-48" keyTimes="0;0.45;0.7;1" dur="2.6s" repeatCount="indefinite"/>
-  </polyline>
+  <g transform="translate(41 35)">
+    <g>
+      <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.5s" repeatCount="indefinite"/>
+      <rect x="-6" y="-8" width="12" height="16" rx="6" fill="#3fa9b7"/>
+      <rect x="-4" y="-6.5" width="4" height="5.5" rx="2" fill="#ffffff"/>
+    </g>
+  </g>
+  <rect x="11" y="41" width="7" height="3.5" rx="1.75" fill="#fbcfe0"/>
+  <rect x="46" y="41" width="7" height="3.5" rx="1.75" fill="#fbcfe0"/>
+  <path d="M29.5 48 Q32 50.5 34.5 48" fill="none" stroke="#c4588a" stroke-width="2" stroke-linecap="round"/>
 </svg>

@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HIRO - Symptom Checker</title>
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="theme-color" content="#0d1614" />
+    <meta name="theme-color" content="#fdeef5" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -53,56 +56,12 @@
           <ul id="history" class="history__list"></ul>
           <p id="history-empty" class="history__empty">Your assessments will appear here.</p>
         </section>
-
-        <footer class="sidebar__footer">
-          <h2>Before you begin</h2>
-          <ul id="consents" class="consents">
-            <li>
-              <button class="consent" type="button" data-consent="advice" aria-pressed="false">
-                <span class="consent__box" aria-hidden="true"></span>
-                <span>Not medical advice</span>
-              </button>
-            </li>
-            <li>
-              <button class="consent" type="button" data-consent="emergency" aria-pressed="false">
-                <span class="consent__box" aria-hidden="true"></span>
-                <span>Emergencies</span>
-              </button>
-            </li>
-            <li>
-              <button class="consent" type="button" data-consent="privacy" aria-pressed="false">
-                <span class="consent__box" aria-hidden="true"></span>
-                <span>Privacy</span>
-              </button>
-            </li>
-            <li>
-              <button class="consent" type="button" data-consent="terms" aria-pressed="false">
-                <span class="consent__box" aria-hidden="true"></span>
-                <span>Terms of use</span>
-              </button>
-            </li>
-          </ul>
-          <div id="status-bar" class="status" data-state="connecting">
-            <span class="status-dot" aria-hidden="true"></span>
-            <span id="status">Connecting</span>
-          </div>
-        </footer>
       </aside>
 
       <main id="chat" class="chat chat--empty">
-        <header class="topbar">
-          <button id="menu-toggle" class="icon-button" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-              <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg>
-          </button>
-          <span class="topbar__title">HIRO</span>
-        </header>
-
         <div class="hero">
           <img class="hero__logo" src="/logo.svg" alt="" width="72" height="72" />
           <h1>How are you feeling today?</h1>
-          <p id="hero-hint" class="hero__hint">Open and agree to the four notices in the sidebar to begin.</p>
         </div>
 
         <section id="messages" class="messages" aria-live="polite"></section>
@@ -133,13 +92,80 @@
           </div>
         </form>
 
-        <div id="chips" class="chips-row" aria-label="Common starting points">
-          <button type="button">Itching and skin rash</button>
-          <button type="button">High fever, headache and vomiting</button>
-          <button type="button">Chest pain and breathlessness</button>
-          <button type="button">Stomach pain and diarrhoea</button>
-        </div>
+        <footer class="bottombar">
+          <button id="menu-toggle" class="icon-button bottombar__menu" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+
+          <nav class="bottombar__nav" aria-label="Before you begin">
+            <span class="bottombar__label">Before you begin</span>
+            <ul id="consents" class="consents">
+              <li>
+                <button class="consent" type="button" data-consent="advice" aria-pressed="false">
+                  <span class="consent__box" aria-hidden="true"></span>
+                  <span>Not medical advice</span>
+                </button>
+              </li>
+              <li>
+                <button class="consent" type="button" data-consent="emergency" aria-pressed="false">
+                  <span class="consent__box" aria-hidden="true"></span>
+                  <span>Emergencies</span>
+                </button>
+              </li>
+              <li>
+                <button class="consent" type="button" data-consent="privacy" aria-pressed="false">
+                  <span class="consent__box" aria-hidden="true"></span>
+                  <span>Privacy</span>
+                </button>
+              </li>
+              <li>
+                <button class="consent" type="button" data-consent="terms" aria-pressed="false">
+                  <span class="consent__box" aria-hidden="true"></span>
+                  <span>Terms of use</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+
+          <div id="status-bar" class="status" data-state="connecting">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="status">Connecting</span>
+          </div>
+
+          <button id="hospitals-toggle" class="icon-button bottombar__hospitals" type="button" aria-label="Nearby hospitals" aria-controls="hospitals" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M4 21V8l8-5 8 5v13H4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+              <path d="M12 10v6M9 13h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
+        </footer>
       </main>
+
+      <aside id="hospitals" class="hospitals">
+        <div class="hospitals__top">
+          <h2>Nearby hospitals</h2>
+          <button id="hospitals-close" class="icon-button" type="button" aria-label="Close hospitals">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <p class="hospitals__hint">Uses your device location and OpenStreetMap data. Your location is not stored.</p>
+        <div class="hospitals__controls">
+          <button id="locate" class="button button--primary" type="button">Use my location</button>
+          <select id="radius" class="select" aria-label="Search radius">
+            <option value="2000">2 km</option>
+            <option value="5000" selected>5 km</option>
+            <option value="10000">10 km</option>
+            <option value="20000">20 km</option>
+          </select>
+        </div>
+        <p id="hospitals-status" class="hospitals__status"></p>
+        <ul id="hospitals-list" class="hospitals__list"></ul>
+        <p class="hospitals__footer">In an emergency call your local emergency number first.</p>
+      </aside>
     </div>
 
     <dialog id="modal" class="modal">
@@ -158,6 +184,20 @@
         </footer>
       </div>
     </dialog>
+
+    <template id="tpl-hospital">
+      <li class="hospital">
+        <div class="hospital__head">
+          <strong class="hospital__name"></strong>
+          <span class="hospital__distance"></span>
+        </div>
+        <p class="hospital__meta"></p>
+        <div class="hospital__actions">
+          <a class="hospital__directions" target="_blank" rel="noopener noreferrer">Directions</a>
+          <a class="hospital__call" hidden>Call</a>
+        </div>
+      </li>
+    </template>
 
     <template id="tpl-quick-replies">
       <div class="quick-replies">

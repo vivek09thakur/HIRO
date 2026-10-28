@@ -1,16 +1,20 @@
 import csv
+import hashlib
 import re
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import joblib
 import pandas as pd
 
 from .core.companion import HEALTHCARE_COMPANION
+from .nlp import SymptomExtractor
 
 SERVER_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = SERVER_DIR / "data"
 MODEL_PATH = SERVER_DIR / "model" / "chat_model.h5"
+CACHE_PATH = SERVER_DIR / "model" / "disease_models.joblib"
 
 INTRO_MESSAGE = (
     "Hello, I am HIRO, a symptom checker. Describe what you are feeling and I will ask a few "
@@ -80,6 +84,13 @@ def leading_answer(text: str) -> str | None:
     return None
 
 
+def dataset_fingerprint() -> str:
+    digest = hashlib.sha256()
+    for name in ("train.csv", "test.csv"):
+        digest.update((DATA_DIR / name).read_bytes())
+    return digest.hexdigest()
+
+
 class HiroEngine:
     """Runs the legacy models behind a multi-turn symptom interview."""
 
@@ -92,19 +103,54 @@ class HiroEngine:
             str(DATA_DIR / "intents.json"),
             str(MODEL_PATH),
         )
-        # process_training_data() also runs 10-fold CV on three models purely to print scores.
-        self.hiro.preprocess()
-        self.hiro.build_robust_model()
         # Legacy predict passes a bare ndarray to models fitted on a DataFrame.
         warnings.filterwarnings("ignore", message="X does not have valid feature names")
+
+        fingerprint = dataset_fingerprint()
+        cached = self._load_cache(fingerprint)
+        if cached:
+            self.hiro.encoder = cached["encoder"]
+            self.hiro.svc_model = cached["svc"]
+            self.hiro.nb_model = cached["nb"]
+            self.hiro.rf_model = cached["rf"]
+            self.hiro.data_dict = cached["data_dict"]
+            self.profiles = cached["profiles"]
+        else:
+            # process_training_data() also runs 10-fold CV on three models purely to print scores.
+            self.hiro.preprocess()
+            self.hiro.build_robust_model()
+            self.profiles = self._build_profiles()
+            self._save_cache(fingerprint)
 
         self.labels: dict[str, str] = {
             key: " ".join(key.split()).lower() for key in self.hiro.data_dict["symptoms_index"]
         }
-        self.patterns = {
-            key: re.compile(rf"\b{re.escape(label)}\b") for key, label in self.labels.items()
+        self.extractor = SymptomExtractor(self.labels)
+
+    @staticmethod
+    def _load_cache(fingerprint: str) -> dict | None:
+        if not CACHE_PATH.exists():
+            return None
+        try:
+            bundle = joblib.load(CACHE_PATH)
+        except Exception:
+            return None
+        return bundle if bundle.get("fingerprint") == fingerprint else None
+
+    def _save_cache(self, fingerprint: str) -> None:
+        bundle = {
+            "fingerprint": fingerprint,
+            "encoder": self.hiro.encoder,
+            "svc": self.hiro.svc_model,
+            "nb": self.hiro.nb_model,
+            "rf": self.hiro.rf_model,
+            "data_dict": self.hiro.data_dict,
+            "profiles": self.profiles,
         }
-        self.profiles = self._build_profiles()
+        try:
+            joblib.dump(bundle, CACHE_PATH, compress=3)
+        except OSError:
+            pass
 
     def _build_profiles(self) -> dict[str, set[str]]:
         df = pd.read_csv(DATA_DIR / "train.csv").dropna(axis=1)
@@ -133,14 +179,8 @@ class HiroEngine:
         conv.questions_asked = max(0, min(int(state.get("questions_asked", 0)), MAX_QUESTIONS))
         return conv
 
-    def extract(self, text: str) -> list[str]:
-        matched = [key for key, pattern in self.patterns.items() if pattern.search(text)]
-        # Drop "joint pain" when "hip joint pain" also matched.
-        return [
-            key
-            for key in matched
-            if not any(other != key and self.labels[key] in self.labels[other] for other in matched)
-        ]
+    def extract(self, text: str) -> tuple[list[str], list[str]]:
+        return self.extractor.extract(text)
 
     def respond(self, conv: Conversation, user_input: str) -> dict:
         result = self._turn(conv, user_input)
@@ -160,7 +200,13 @@ class HiroEngine:
             conv.denied.add(asked)
             conv.pending = None
 
-        new_keys = [key for key in self.extract(text) if conv.add(key)]
+        reported, denied = self.extract(text)
+        new_keys = [key for key in reported if conv.add(key)]
+        for key in denied:
+            if key not in conv.symptoms:
+                conv.denied.add(key)
+                if key == conv.pending:
+                    conv.pending = None
         if new_keys:
             conv.pending = None
 
