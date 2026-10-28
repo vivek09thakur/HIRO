@@ -21,11 +21,14 @@ if (-not (Test-Path "$root\client\node_modules")) {
 }
 
 $env:TF_CPP_MIN_LOG_LEVEL = '2'
+$healthUrl = 'http://127.0.0.1:8000/api/health'
+$client = $null
 
-$server = Start-Process -FilePath $python -ArgumentList '-m', 'uvicorn', 'server.app.main:app', '--reload', '--port', '8000' `
-    -WorkingDirectory $root -NoNewWindow -PassThru
-$client = Start-Process -FilePath $npm.Source -ArgumentList 'run', 'dev' `
-    -WorkingDirectory "$root\client" -NoNewWindow -PassThru
+foreach ($port in 8000, 5173) {
+    if (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue) {
+        throw "Port $port is already in use. Stop the other HIRO instance (or process) first."
+    }
+}
 
 function Stop-Tree($proc) {
     if ($proc -and -not $proc.HasExited) {
@@ -33,7 +36,26 @@ function Stop-Tree($proc) {
     }
 }
 
+function Test-Server {
+    try { return (Invoke-WebRequest -UseBasicParsing $healthUrl -TimeoutSec 2).StatusCode -eq 200 }
+    catch { return $false }
+}
+
+$server = Start-Process -FilePath $python -ArgumentList '-m', 'uvicorn', 'server.app.main:app', '--reload', '--reload-dir', 'server', '--port', '8000' `
+    -WorkingDirectory $root -NoNewWindow -PassThru
+
 try {
+    Write-Host ""
+    Write-Host "Starting HIRO server on http://127.0.0.1:8000 ..."
+    while (-not (Test-Server)) {
+        if ($server.HasExited) { throw "Server exited before becoming healthy (exit code $($server.ExitCode))." }
+        Start-Sleep -Milliseconds 500
+    }
+    Write-Host "Server is online. Starting client..."
+
+    $client = Start-Process -FilePath $npm.Source -ArgumentList 'run', 'dev' `
+        -WorkingDirectory "$root\client" -NoNewWindow -PassThru
+
     Write-Host ""
     Write-Host "HIRO server  -> http://127.0.0.1:8000"
     Write-Host "HIRO client  -> http://localhost:5173"
@@ -44,6 +66,6 @@ try {
     }
 }
 finally {
-    Stop-Tree $server
     Stop-Tree $client
+    Stop-Tree $server
 }

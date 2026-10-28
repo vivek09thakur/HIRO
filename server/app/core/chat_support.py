@@ -1,7 +1,8 @@
 import numpy as np
-import tensorflow as tf
 import json
 import os.path
+
+from .intent_model import IntentModel
 
 class CHAT_SUPPORT:
     
@@ -43,6 +44,8 @@ class CHAT_SUPPORT:
         
         
     def build_model(self):
+        import tensorflow as tf  # only needed when retraining
+
         self.model = tf.keras.Sequential([
             tf.keras.layers.Dense(128,input_shape=(len(self.train_x[0]),),activation='relu'),
             tf.keras.layers.Dropout(0.5),
@@ -58,7 +61,7 @@ class CHAT_SUPPORT:
         self.model.save(self.model_path)
         
     def load_model(self):
-        self.model = tf.keras.models.load_model(self.model_path)
+        self.model = IntentModel.from_h5(self.model_path)
         
         
     def generate_response(self,prompt):
@@ -76,7 +79,7 @@ class CHAT_SUPPORT:
         
         for intent in self.intents['intents']:
             if intent['tag'] == tag:
-                return np.random.choice(intent['responses'])
+                return str(np.random.choice(intent['responses']))
     
     def build_robust_model(self):
         self.process_training_data()

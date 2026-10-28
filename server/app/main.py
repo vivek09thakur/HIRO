@@ -5,7 +5,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from .engine import HiroEngine
-from .schemas import ChatReply, ChatRequest, DiagnosisReply, IntroResponse
+from .schemas import ChatReply, ChatRequest, DiagnosisReply, IntroResponse, QuestionReply
 
 
 @asynccontextmanager
@@ -34,12 +34,19 @@ def intro(request: Request) -> dict:
     return {"message": request.app.state.engine.introduce()}
 
 
-@app.post("/api/chat", response_model=ChatReply | DiagnosisReply)
+@app.get("/api/symptoms", response_model=list[str])
+def symptoms(request: Request) -> list[str]:
+    return sorted(request.app.state.engine.labels.values())
+
+
+@app.post("/api/chat", response_model=ChatReply | QuestionReply | DiagnosisReply)
 async def chat(payload: ChatRequest, request: Request) -> dict:
     message = payload.message.strip()
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
+    engine = request.app.state.engine
+    conv = engine.load_state(payload.state.model_dump() if payload.state else None)
     try:
-        return await run_in_threadpool(request.app.state.engine.respond, message)
+        return await run_in_threadpool(engine.respond, conv, message)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"ERROR OCCURED => {exc}") from exc

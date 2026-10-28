@@ -3,50 +3,201 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HIRO - Healthcare Companion</title>
+    <title>HIRO - Symptom Checker</title>
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="theme-color" content="#0d1614" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <main class="app">
-      <header class="app__header">
-        <div class="avatar" aria-hidden="true">H</div>
-        <div>
-          <h1>HIRO</h1>
-          <p id="status" class="status">Connecting…</p>
+    <div class="app">
+      <div id="backdrop" class="backdrop" hidden></div>
+
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar__top">
+          <a class="brand" href="/" aria-label="HIRO home">
+            <img class="brand__mark" src="/logo.svg" alt="" width="36" height="36" />
+            <span class="brand__name">HIRO</span>
+          </a>
+          <button id="sidebar-close" class="icon-button" type="button" aria-label="Close menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
         </div>
-      </header>
 
-      <section id="messages" class="messages" aria-live="polite"></section>
+        <nav class="nav" aria-label="Primary">
+          <button id="new-chat" class="nav__item" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>New assessment</span>
+            <kbd>Ctrl+Shift+O</kbd>
+          </button>
+          <button id="how-it-works" class="nav__item" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 11v5M12 8h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>How it works</span>
+          </button>
+          <button id="symptom-index" class="nav__item" type="button">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+            <span>Recognised symptoms</span>
+          </button>
+        </nav>
 
-      <form id="chat-form" class="composer" autocomplete="off">
-        <input
-          id="message-input"
-          type="text"
-          placeholder="Describe your symptoms or say hello…"
-          maxlength="2000"
-          required
-          disabled
-        />
-        <button id="send-button" type="submit" disabled>Send</button>
-      </form>
-    </main>
+        <section class="history" aria-labelledby="history-heading">
+          <h2 id="history-heading">History</h2>
+          <ul id="history" class="history__list"></ul>
+          <p id="history-empty" class="history__empty">Your assessments will appear here.</p>
+        </section>
+
+        <footer class="sidebar__footer">
+          <h2>Before you begin</h2>
+          <ul id="consents" class="consents">
+            <li>
+              <button class="consent" type="button" data-consent="advice" aria-pressed="false">
+                <span class="consent__box" aria-hidden="true"></span>
+                <span>Not medical advice</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="emergency" aria-pressed="false">
+                <span class="consent__box" aria-hidden="true"></span>
+                <span>Emergencies</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="privacy" aria-pressed="false">
+                <span class="consent__box" aria-hidden="true"></span>
+                <span>Privacy</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="terms" aria-pressed="false">
+                <span class="consent__box" aria-hidden="true"></span>
+                <span>Terms of use</span>
+              </button>
+            </li>
+          </ul>
+          <div id="status-bar" class="status" data-state="connecting">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="status">Connecting</span>
+          </div>
+        </footer>
+      </aside>
+
+      <main id="chat" class="chat chat--empty">
+        <header class="topbar">
+          <button id="menu-toggle" class="icon-button" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+          <span class="topbar__title">HIRO</span>
+        </header>
+
+        <div class="hero">
+          <img class="hero__logo" src="/logo.svg" alt="" width="72" height="72" />
+          <h1>How are you feeling today?</h1>
+          <p id="hero-hint" class="hero__hint">Open and agree to the four notices in the sidebar to begin.</p>
+        </div>
+
+        <section id="messages" class="messages" aria-live="polite"></section>
+
+        <form id="chat-form" class="composer" autocomplete="off">
+          <input
+            id="message-input"
+            type="text"
+            placeholder="Describe your symptoms, e.g. headache and mild fever"
+            maxlength="2000"
+            required
+            disabled
+          />
+          <div class="composer__row">
+            <button id="composer-new" class="composer__icon" type="button" aria-label="New assessment">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+            <div class="composer__right">
+              <span id="composer-mode" class="composer__mode">Symptom check</span>
+              <button id="send-button" class="composer__send" type="submit" aria-label="Send" disabled>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <div id="chips" class="chips-row" aria-label="Common starting points">
+          <button type="button">Itching and skin rash</button>
+          <button type="button">High fever, headache and vomiting</button>
+          <button type="button">Chest pain and breathlessness</button>
+          <button type="button">Stomach pain and diarrhoea</button>
+        </div>
+      </main>
+    </div>
+
+    <dialog id="modal" class="modal">
+      <div class="modal__card">
+        <header class="modal__header">
+          <h3 id="modal-title"></h3>
+          <button id="modal-close" class="icon-button" type="button" aria-label="Close">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </header>
+        <div id="modal-body" class="modal__body"></div>
+        <footer class="modal__footer">
+          <button id="modal-agree" class="button button--primary" type="button">I have read this and agree</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <template id="tpl-quick-replies">
+      <div class="quick-replies">
+        <button type="button">Yes</button>
+        <button type="button">No</button>
+        <button type="button">That's all</button>
+      </div>
+    </template>
 
     <template id="tpl-diagnosis">
-      <div class="diagnosis">
-        <p class="diagnosis__intro">Okay just wait for a second!, Let me analyze your symptoms</p>
-        <ul class="diagnosis__tests"></ul>
-        <p class="diagnosis__final">
-          After examining everything I found that you might have :
-          <strong class="diagnosis__disease"></strong>
+      <div class="result">
+        <header class="result__header">
+          <h3>Assessment result</h3>
+          <span class="result__confidence"></span>
+        </header>
+
+        <div class="result__section">
+          <h4>Symptoms reviewed</h4>
+          <ul class="result__symptoms chips"></ul>
+        </div>
+
+        <div class="result__section">
+          <h4>Possible condition</h4>
+          <p class="result__disease"></p>
+          <p class="result__description"></p>
+        </div>
+
+        <div class="result__section">
+          <h4>Model agreement</h4>
+          <ul class="result__tests"></ul>
+        </div>
+
+        <div class="result__section">
+          <h4>Suggested precautions</h4>
+          <ol class="result__precautions"></ol>
+        </div>
+
+        <p class="result__disclaimer">
+          This is a model prediction, not a medical diagnosis. Please consult a doctor to confirm.
         </p>
-        <div class="diagnosis__section">
-          <h4>Disease Description</h4>
-          <p class="diagnosis__description"></p>
-        </div>
-        <div class="diagnosis__section">
-          <h4>Disease Precautions</h4>
-          <ul class="diagnosis__precautions"></ul>
-        </div>
       </div>
     </template>
 

@@ -4,4 +4,6 @@ pydantic>=2.9
 numpy>=1.26
 pandas>=2.2
 scikit-learn>=1.5
-tensorflow>=2.16
+h5py>=3.10
+# Only needed to retrain server/model/chat_model.h5; inference runs on NumPy.
+# tensorflow>=2.16
