@@ -1,96 +1,228 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --bg: #0f172a;
+  --panel: #111c33;
+  --panel-border: #1f2b47;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #22c55e;
+  --accent-dark: #15803d;
+  --user: #2563eb;
+  --hiro: #1e293b;
+  --danger: #ef4444;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+* {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #1e293b 0%, var(--bg) 60%);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.app {
+  width: min(720px, 100vw);
+  height: min(860px, 100vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--panel-border);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
+.app__header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
 }
 
-.card {
-  padding: 2em;
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: var(--accent-dark);
+  color: white;
 }
 
-.read-the-docs {
-  color: #888;
+.status {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
-button {
+.status--online {
+  color: var(--accent);
+}
+
+.status--error {
+  color: var(--danger);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.bubble__label {
+  display: block;
+  font-size: 0.7rem;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.bubble--user {
+  align-self: flex-end;
+  background: var(--user);
+  border-bottom-right-radius: 4px;
+}
+
+.bubble--user .bubble__label {
+  color: #bfdbfe;
+}
+
+.bubble--hiro {
+  align-self: flex-start;
+  background: var(--hiro);
+  border-bottom-left-radius: 4px;
+}
+
+.typing {
+  letter-spacing: 0.2em;
+  color: var(--muted);
+}
+
+.diagnosis {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diagnosis__intro {
+  color: var(--muted);
+}
+
+.diagnosis__tests {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.diagnosis__tests li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 10px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.9rem;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.diagnosis__tests span {
+  color: var(--muted);
+}
+
+.diagnosis__final {
+  padding: 10px 12px;
+  border-left: 3px solid var(--accent);
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 6px;
+}
+
+.diagnosis__disease {
+  color: var(--accent);
+}
+
+.diagnosis__section h4 {
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.diagnosis__precautions {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.diagnosis__precautions li {
+  text-transform: capitalize;
+}
+
+.composer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.composer input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: #0b1427;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.composer input:focus {
+  outline: 2px solid var(--accent-dark);
+  outline-offset: 1px;
+}
+
+.composer button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.composer button:disabled,
+.composer input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

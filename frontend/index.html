@@ -1,39 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>HIRO - Healthcare Companion</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <div id="auth">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username" />
-        <input type="password" id="password" placeholder="Password" />
-        <button id="login">Login</button>
-        <p id="signup-link">Don't have an account? Sign up</p>
+    <main class="app">
+      <header class="app__header">
+        <div class="avatar" aria-hidden="true">H</div>
+        <div>
+          <h1>HIRO</h1>
+          <p id="status" class="status">Connecting…</p>
+        </div>
+      </header>
+
+      <section id="messages" class="messages" aria-live="polite"></section>
+
+      <form id="chat-form" class="composer" autocomplete="off">
+        <input
+          id="message-input"
+          type="text"
+          placeholder="Describe your symptoms or say hello…"
+          maxlength="2000"
+          required
+          disabled
+        />
+        <button id="send-button" type="submit" disabled>Send</button>
+      </form>
+    </main>
+
+    <template id="tpl-diagnosis">
+      <div class="diagnosis">
+        <p class="diagnosis__intro">Okay just wait for a second!, Let me analyze your symptoms</p>
+        <ul class="diagnosis__tests"></ul>
+        <p class="diagnosis__final">
+          After examining everything I found that you might have :
+          <strong class="diagnosis__disease"></strong>
+        </p>
+        <div class="diagnosis__section">
+          <h4>Disease Description</h4>
+          <p class="diagnosis__description"></p>
+        </div>
+        <div class="diagnosis__section">
+          <h4>Disease Precautions</h4>
+          <ul class="diagnosis__precautions"></ul>
+        </div>
       </div>
+    </template>
 
-      <div id="chat" class="hidden">
-        <aside id="sidebar">
-          <h3>Chat History</h3>
-          <ul id="chat-history"></ul>
-        </aside>
-
-        <main id="chatbox">
-          <div id="messages"></div>
-          <input
-            type="text"
-            id="message-input"
-            placeholder="Type a message..."
-          />
-          <button id="send-message">Send</button>
-        </main>
-      </div>
-    </div>
-
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
