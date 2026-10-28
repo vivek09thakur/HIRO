@@ -1,24 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HIRO logo">
-  <rect width="64" height="64" rx="18" fill="#f7a8c9"/>
-  <path d="M9 20 L15 7 L23 17 Z" fill="#e88fb5" stroke="#e88fb5" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M55 20 L49 7 L41 17 Z" fill="#e88fb5" stroke="#e88fb5" stroke-width="3" stroke-linejoin="round"/>
-  <path d="M13 17 L15.5 11 L19 16 Z" fill="#c4588a"/>
-  <path d="M51 17 L48.5 11 L45 16 Z" fill="#c4588a"/>
-  <g transform="translate(23 35)">
-    <g>
-      <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.5s" repeatCount="indefinite"/>
-      <rect x="-6" y="-8" width="12" height="16" rx="6" fill="#3fa9b7"/>
-      <rect x="-4" y="-6.5" width="4" height="5.5" rx="2" fill="#ffffff"/>
-    </g>
-  </g>
-  <g transform="translate(41 35)">
-    <g>
-      <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.9;0.94;0.98;1" dur="4.5s" repeatCount="indefinite"/>
-      <rect x="-6" y="-8" width="12" height="16" rx="6" fill="#3fa9b7"/>
-      <rect x="-4" y="-6.5" width="4" height="5.5" rx="2" fill="#ffffff"/>
-    </g>
-  </g>
-  <rect x="11" y="41" width="7" height="3.5" rx="1.75" fill="#fbcfe0"/>
-  <rect x="46" y="41" width="7" height="3.5" rx="1.75" fill="#fbcfe0"/>
-  <path d="M29.5 48 Q32 50.5 34.5 48" fill="none" stroke="#c4588a" stroke-width="2" stroke-linecap="round"/>
+  <rect x="29" y="4" width="6" height="10" rx="3" fill="#0b57d0"/>
+  <rect x="8" y="12" width="48" height="40" rx="12" fill="#0b57d0"/>
+  <rect x="20" y="25" width="7" height="13" rx="3.5" fill="#ffffff"/>
+  <rect x="37" y="25" width="7" height="13" rx="3.5" fill="#ffffff"/>
+  <path d="M25 44 Q32 50 39 44" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
 </svg>

@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
 
-import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from .engine import HiroEngine
-from .hospitals import nearby_hospitals
+from .hospitals import LookupUnavailable, nearby_hospitals
 from .schemas import ChatReply, ChatRequest, DiagnosisReply, Hospital, IntroResponse, QuestionReply
 
 
@@ -49,8 +48,8 @@ async def hospitals(
 ) -> list[dict]:
     try:
         return await nearby_hospitals(lat, lon, radius)
-    except (httpx.HTTPError, ValueError) as exc:
-        raise HTTPException(status_code=502, detail="Hospital lookup is unavailable right now.") from exc
+    except LookupUnavailable as exc:
+        raise HTTPException(status_code=502, detail=f"Hospital lookup is unavailable right now ({exc}).") from exc
 
 
 @app.post("/api/chat", response_model=ChatReply | QuestionReply | DiagnosisReply)

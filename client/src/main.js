@@ -1,3 +1,6 @@
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
 const $ = (id) => document.getElementById(id);
 
 const chatEl = $('chat');
@@ -22,8 +25,10 @@ const quickRepliesTpl = $('tpl-quick-replies');
 const hospitalTpl = $('tpl-hospital');
 const hospitalsEl = $('hospitals');
 const hospitalsToggleEl = $('hospitals-toggle');
-const hospitalsListEl = $('hospitals-list');
 const hospitalsStatusEl = $('hospitals-status');
+const hospitalsMessageEl = $('hospitals-message');
+const mapEl = $('map');
+const mapPlaceholderEl = $('map-placeholder');
 const locateEl = $('locate');
 const radiusEl = $('radius');
 
@@ -54,7 +59,7 @@ const CONSENTS = {
     body: [
       'Your messages are sent only to the local HIRO server to generate a reply. The server keeps nothing between requests; the state of this assessment travels with each message.',
       'Your assessment history is saved in this browser only (local storage) so you can revisit it. Clear it at any time with your browser settings.',
-      'If you choose "Use my location" in the Nearby hospitals panel, your approximate coordinates are sent through the local server to the OpenStreetMap Overpass API to look up hospitals. They are not stored. The interface font is loaded from Google Fonts, which receives a standard web request when the page loads.',
+      'If you choose "Use my location" in the Nearby hospitals panel, your approximate coordinates are sent through the local server to the OpenStreetMap Overpass API to look up hospitals, and map tiles are loaded from OpenStreetMap. They are not stored. Fonts are bundled with the app; no font requests leave your device.',
     ],
   },
   terms: {
@@ -138,6 +143,28 @@ function updateGate() {
   if (!locked && document.activeElement !== inputEl && !modalEl.open) inputEl.focus();
 }
 
+/* Theme (class on <html>, seeded before paint by the inline script in index.html) */
+
+const THEME_KEY = 'hiro.theme';
+const themeToggleEl = $('theme-toggle');
+
+function syncThemeIcon() {
+  const dark = document.documentElement.classList.contains('dark');
+  themeToggleEl.querySelector('[data-icon]').textContent = dark ? 'light_mode' : 'dark_mode';
+}
+
+themeToggleEl.addEventListener('click', () => {
+  const dark = document.documentElement.classList.toggle('dark');
+  try {
+    localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
+  } catch {
+    /* storage unavailable */
+  }
+  syncThemeIcon();
+});
+
+syncThemeIcon();
+
 /* Drawer */
 
 function setDrawer(open) {
@@ -153,45 +180,90 @@ backdropEl.addEventListener('click', () => {
 });
 $('sidebar-close').addEventListener('click', () => setDrawer(false));
 
-/* Nearby hospitals */
+/* Nearby hospitals (map) */
 
 let lastPosition = null;
+let map = null;
+let markersLayer = null;
+let userMarker = null;
 
 function setHospitalsDrawer(open) {
   hospitalsEl.classList.toggle('hospitals--open', open);
   backdropEl.hidden = !open && !sidebarEl.classList.contains('sidebar--open');
   hospitalsToggleEl.setAttribute('aria-expanded', String(open));
+  if (open && map) setTimeout(() => map.invalidateSize(), 220);
 }
 
 hospitalsToggleEl.addEventListener('click', () => setHospitalsDrawer(!hospitalsEl.classList.contains('hospitals--open')));
 $('hospitals-close').addEventListener('click', () => setHospitalsDrawer(false));
 
+function markerIcon(kind) {
+  return L.divIcon({ className: `map-pin map-pin--${kind}`, iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -10] });
+}
+
+function ensureMap() {
+  if (map) return map;
+  mapPlaceholderEl.remove();
+  map = L.map(mapEl, { zoomControl: true, attributionControl: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+  return map;
+}
+
+function popupFor(h) {
+  const node = hospitalTpl.content.firstElementChild.cloneNode(true);
+  node.querySelector('.hospital__name').textContent = h.name;
+  node.querySelector('.hospital__distance').textContent = `${h.distance_km} km`;
+  const meta = [h.kind === 'clinic' ? 'Clinic' : 'Hospital', h.emergency ? 'Emergency' : null, h.address]
+    .filter(Boolean)
+    .join(' \u00b7 ');
+  node.querySelector('.hospital__meta').textContent = meta;
+  node.querySelector('.hospital__directions').href = h.directions_url;
+  const call = node.querySelector('.hospital__call');
+  if (h.phone) {
+    call.hidden = false;
+    call.href = `tel:${h.phone.replace(/[^+\d]/g, '')}`;
+  }
+  return node;
+}
+
 function renderHospitals(list) {
-  hospitalsListEl.replaceChildren(
-    ...list.map((h) => {
-      const node = hospitalTpl.content.firstElementChild.cloneNode(true);
-      node.querySelector('.hospital__name').textContent = h.name;
-      node.querySelector('.hospital__distance').textContent = `${h.distance_km} km`;
-      const meta = [h.kind === 'clinic' ? 'Clinic' : 'Hospital', h.emergency ? 'Emergency' : null, h.address]
-        .filter(Boolean)
-        .join(' \u00b7 ');
-      node.querySelector('.hospital__meta').textContent = meta;
-      node.querySelector('.hospital__directions').href = h.directions_url;
-      const call = node.querySelector('.hospital__call');
-      if (h.phone) {
-        call.hidden = false;
-        call.href = `tel:${h.phone.replace(/[^+\d]/g, '')}`;
-      }
-      return node;
-    }),
-  );
+  const { lat, lon } = lastPosition;
+  ensureMap();
+  markersLayer.clearLayers();
+
+  if (userMarker) userMarker.remove();
+  userMarker = L.marker([lat, lon], { icon: markerIcon('you'), zIndexOffset: 1000, title: 'You' })
+    .bindPopup('You are here')
+    .addTo(map);
+
+  const points = [[Number(lat), Number(lon)]];
+  list.forEach((h) => {
+    L.marker([h.lat, h.lon], { icon: markerIcon(h.kind), title: h.name })
+      .bindPopup(popupFor(h), { maxWidth: 230, minWidth: 200 })
+      .addTo(markersLayer);
+    points.push([h.lat, h.lon]);
+  });
+
+  if (points.length > 1) {
+    map.fitBounds(points, { padding: [24, 24], maxZoom: 15 });
+  } else {
+    map.setView(points[0], 13);
+  }
+  setTimeout(() => map.invalidateSize(), 50);
 }
 
 async function loadHospitals() {
   if (!lastPosition) return;
+  if (!online) {
+    hospitalsStatusEl.textContent = 'Waiting for server';
+    return;
+  }
   const { lat, lon } = lastPosition;
   hospitalsStatusEl.textContent = 'Searching OpenStreetMap';
-  hospitalsListEl.replaceChildren();
   try {
     const params = new URLSearchParams({ lat, lon, radius: radiusEl.value });
     const res = await fetch(`/api/hospitals?${params}`);
@@ -202,34 +274,67 @@ async function loadHospitals() {
       ? `${data.length} place${data.length === 1 ? '' : 's'} within ${radiusEl.value / 1000} km`
       : `Nothing found within ${radiusEl.value / 1000} km. Try a larger radius.`;
   } catch (err) {
+    renderHospitals([]);
     hospitalsStatusEl.textContent = `Could not load hospitals: ${err.message}`;
   }
 }
 
-locateEl.addEventListener('click', () => {
+function setHospitalsState(state, message = '') {
+  hospitalsEl.dataset.state = state;
+  hospitalsMessageEl.textContent = message;
+  if (mapPlaceholderEl.isConnected) {
+    mapPlaceholderEl.textContent = state === 'locating' ? 'Finding your location' : '';
+  }
+}
+
+function requestLocation() {
   if (!navigator.geolocation) {
-    hospitalsStatusEl.textContent = 'Location is not supported by this browser.';
+    setHospitalsState('denied', 'Location is not supported by this browser.');
     return;
   }
+  setHospitalsState('locating');
   locateEl.disabled = true;
-  hospitalsStatusEl.textContent = 'Requesting your location';
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       locateEl.disabled = false;
       lastPosition = { lat: pos.coords.latitude.toFixed(5), lon: pos.coords.longitude.toFixed(5) };
+      setHospitalsState('ready');
       loadHospitals();
     },
     (err) => {
       locateEl.disabled = false;
-      hospitalsStatusEl.textContent =
+      setHospitalsState(
+        'denied',
         err.code === err.PERMISSION_DENIED
-          ? 'Location permission was denied. Allow it in your browser to find hospitals.'
-          : 'Could not determine your location.';
+          ? 'Location permission was denied. Allow it for this site in your browser settings, then try again.'
+          : 'Could not determine your location. Check that location services are on and try again.',
+      );
     },
     { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
   );
-});
+}
 
+// Ask on startup; only show the manual controls if the browser will not give us a position.
+async function initLocation() {
+  if (!navigator.geolocation) {
+    setHospitalsState('denied', 'Location is not supported by this browser.');
+    return;
+  }
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    if (status.state === 'denied') {
+      setHospitalsState('denied', 'Location permission was denied. Allow it for this site in your browser settings, then try again.');
+      status.onchange = () => status.state !== 'denied' && requestLocation();
+      return;
+    }
+    status.onchange = () => status.state === 'denied' && setHospitalsState('denied', 'Location permission was denied.');
+  } catch {
+    /* Permissions API unavailable: fall through and just ask. */
+  }
+  requestLocation();
+}
+
+locateEl.addEventListener('click', requestLocation);
 radiusEl.addEventListener('change', loadHospitals);
 
 /* Modal */
@@ -273,6 +378,7 @@ function renderConsents() {
     const done = agreed.includes(button.dataset.consent);
     button.setAttribute('aria-pressed', String(done));
     button.classList.toggle('consent--done', done);
+    button.querySelector('input').checked = done;
   });
 }
 
@@ -351,24 +457,37 @@ historyEl.addEventListener('click', (event) => {
 
 /* Rendering */
 
-function scrollToBottom() {
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+const scrollEl = document.querySelector('.chat__scroll');
+
+function scrollToBottom(smooth = true) {
+  // Wait a frame so newly appended content (and its enter animation) has a layout size.
+  requestAnimationFrame(() => {
+    scrollEl.scrollTo({ top: scrollEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+  });
 }
 
 function bubble(role, content) {
   const wrapper = document.createElement('div');
-  wrapper.className = `bubble bubble--${role}`;
-  const label = document.createElement('span');
-  label.className = 'bubble__label';
-  label.textContent = role === 'user' ? 'You' : 'HIRO';
-  wrapper.appendChild(label);
+  wrapper.className = `msg msg--${role}`;
+  if (role === 'hiro') {
+    const avatar = document.createElement('span');
+    avatar.className = 'msg__avatar';
+    const icon = document.createElement('span');
+    icon.className = 'logo-icon logo-icon--sm';
+    icon.setAttribute('aria-hidden', 'true');
+    avatar.appendChild(icon);
+    wrapper.appendChild(avatar);
+  }
+  const body = document.createElement('div');
+  body.className = 'msg__body';
   if (typeof content === 'string') {
     const p = document.createElement('p');
     p.textContent = content;
-    wrapper.appendChild(p);
+    body.appendChild(p);
   } else {
-    wrapper.appendChild(content);
+    body.appendChild(content);
   }
+  wrapper.appendChild(body);
   return wrapper;
 }
 
@@ -383,7 +502,7 @@ function renderMessage(msg, withQuickReplies) {
     return bubble('hiro', body);
   }
   const node = bubble('hiro', msg.text);
-  if (msg.kind === 'error') node.classList.add('bubble--error');
+  if (msg.kind === 'error') node.classList.add('msg--error');
   return node;
 }
 
@@ -442,7 +561,7 @@ function renderConversation() {
   active.messages.forEach((msg, i) => {
     messagesEl.appendChild(renderMessage(msg, i === last));
   });
-  scrollToBottom();
+  scrollToBottom(false);
 }
 
 function appendMessage(msg) {
@@ -516,7 +635,13 @@ async function sendMessage(message) {
 
   busy = true;
   updateGate();
-  const typing = bubble('hiro', Object.assign(document.createElement('p'), { className: 'typing', textContent: 'Thinking' }));
+  const dots = document.createElement('span');
+  dots.className = 'thinking';
+  dots.setAttribute('role', 'status');
+  dots.setAttribute('aria-label', 'HIRO is thinking');
+  dots.append(document.createElement('i'), document.createElement('i'), document.createElement('i'));
+  const typing = bubble('hiro', dots);
+  typing.classList.add('msg--thinking');
   messagesEl.appendChild(typing);
   scrollToBottom();
 
@@ -604,6 +729,7 @@ async function connect() {
       online = true;
       setStatus('Online', 'online');
       updateGate();
+      if (lastPosition && !markersLayer) loadHospitals();
       return;
     }
     setStatus(`Waiting for server (${attempt})`, 'connecting');
@@ -618,3 +744,4 @@ renderHistory();
 renderConversation();
 updateGate();
 connect();
+initLocation();

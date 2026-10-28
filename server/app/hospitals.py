@@ -1,4 +1,4 @@
-"""Nearby hospital lookup via the OpenStreetMap Overpass API."""
+"""Nearby hospital lookup via OpenStreetMap (Overpass mirrors, Nominatim as fallback)."""
 
 import asyncio
 import math
@@ -9,10 +9,12 @@ import httpx
 import truststore
 
 OVERPASS_URLS = (
+    "https://overpass.openstreetmap.fr/api/interpreter",
     "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
     "https://overpass.private.coffee/api/interpreter",
 )
+NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 USER_AGENT = "HIRO symptom checker (educational, local)"
 REQUEST_TIMEOUT = 12.0
 CACHE_TTL_SECONDS = 600
@@ -21,6 +23,10 @@ CACHE_MAX_ENTRIES = 200
 SSL_CONTEXT = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 
 _cache: dict[tuple[float, float, int], tuple[float, list[dict]]] = {}
+
+
+class LookupUnavailable(Exception):
+    """Every upstream source failed."""
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -35,27 +41,64 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 async def _query_mirror(client: httpx.AsyncClient, url: str, query: str) -> list[dict]:
     response = await client.post(url, data={"data": query})
     response.raise_for_status()
-    return response.json().get("elements", [])
+    body = response.json()
+    # Overpass reports server-side timeouts as HTTP 200 with a remark and no elements.
+    if not body.get("elements") and "remark" in body:
+        raise httpx.HTTPError(f"{url}: {body['remark']}")
+    return body.get("elements", [])
 
 
-async def _fetch_elements(query: str) -> list[dict]:
-    """Ask every mirror at once and return the first successful answer."""
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers={"User-Agent": USER_AGENT}, verify=SSL_CONTEXT) as client:
-        tasks = [asyncio.create_task(_query_mirror(client, url, query)) for url in OVERPASS_URLS]
-        last_error: Exception = httpx.HTTPError("Overpass unavailable")
-        try:
-            pending = set(tasks)
-            while pending:
-                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
-                for task in done:
-                    try:
-                        return task.result()
-                    except (httpx.HTTPError, ValueError) as exc:
-                        last_error = exc
-        finally:
-            for task in tasks:
-                task.cancel()
-        raise last_error
+async def _fetch_elements(client: httpx.AsyncClient, query: str) -> list[dict]:
+    """Race the mirrors; return the first non-empty answer, or [] once all have answered empty."""
+    tasks = [asyncio.create_task(_query_mirror(client, url, query)) for url in OVERPASS_URLS]
+    last_error: Exception = httpx.HTTPError("Overpass unavailable")
+    saw_empty = False
+    try:
+        pending = set(tasks)
+        while pending:
+            done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+            for task in done:
+                try:
+                    elements = task.result()
+                except (httpx.HTTPError, ValueError) as exc:
+                    last_error = exc
+                    continue
+                if elements:
+                    return elements
+                saw_empty = True
+    finally:
+        for task in tasks:
+            task.cancel()
+    if saw_empty:
+        return []
+    raise last_error
+
+
+async def _fetch_nominatim(client: httpx.AsyncClient, lat: float, lon: float, radius_m: int) -> list[dict]:
+    """Fallback: bounded Nominatim searches for hospitals and clinics, mapped to Overpass-like elements."""
+    dlat = radius_m / 111_000
+    dlon = radius_m / (111_000 * max(math.cos(math.radians(lat)), 0.2))
+    viewbox = f"{lon - dlon},{lat + dlat},{lon + dlon},{lat - dlat}"
+    elements: list[dict] = []
+    for amenity in ("hospital", "clinic"):
+        response = await client.get(
+            NOMINATIM_URL,
+            params={"q": amenity, "format": "jsonv2", "limit": 25, "bounded": 1, "viewbox": viewbox},
+        )
+        response.raise_for_status()
+        for place in response.json():
+            elements.append(
+                {
+                    "lat": float(place["lat"]),
+                    "lon": float(place["lon"]),
+                    "tags": {
+                        "name": place.get("name") or place.get("display_name", "").split(",")[0],
+                        "amenity": place.get("type") if place.get("type") in ("hospital", "clinic") else amenity,
+                        "addr:city": place.get("address", {}).get("city"),
+                    },
+                }
+            )
+    return elements
 
 
 async def nearby_hospitals(lat: float, lon: float, radius_m: int, limit: int = 20) -> list[dict]:
@@ -71,7 +114,16 @@ async def nearby_hospitals(lat: float, lon: float, radius_m: int, limit: int = 2
         f'nwr["amenity"~"^(hospital|clinic)$"](around:{radius_m},{lat},{lon});'
         f'out center tags;'
     )
-    elements = await _fetch_elements(query)
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT, headers={"User-Agent": USER_AGENT}, verify=SSL_CONTEXT) as client:
+        try:
+            elements = await _fetch_elements(client, query)
+        except (httpx.HTTPError, ValueError) as overpass_error:
+            try:
+                elements = await _fetch_nominatim(client, lat, lon, radius_m)
+            except (httpx.HTTPError, ValueError, KeyError) as nominatim_error:
+                raise LookupUnavailable(
+                    f"Overpass: {type(overpass_error).__name__}; Nominatim: {type(nominatim_error).__name__}"
+                ) from nominatim_error
 
     seen: set[str] = set()
     results: list[dict] = []
