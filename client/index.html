@@ -3,273 +3,189 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HIRO - Symptom Checker</title>
+    <title>HIRO - Symptom checker</title>
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <meta name="theme-color" content="#ffffff" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Google+Sans:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/style.css" />
-    <script>
-      // Seed .dark before first paint so the theme does not flash (stored choice wins over the OS setting).
-      try {
-        var stored = localStorage.getItem('hiro.theme');
-        if (stored === 'dark' || (!stored && matchMedia('(prefers-color-scheme: dark)').matches)) {
-          document.documentElement.classList.add('dark');
-        }
-      } catch (e) {}
-    </script>
   </head>
   <body>
+    <a class="skip" href="#main">Skip to content</a>
+
     <div class="app">
       <div id="backdrop" class="scrim" hidden></div>
 
-      <!-- Left column: brand, nav, history -->
-      <aside id="sidebar" class="sidebar md-drawer">
+      <!-- Sidebar: start or reopen an assessment -->
+      <aside id="sidebar" class="sidebar" aria-label="Assessments">
         <div class="sidebar__top">
-          <a class="brand" href="/" aria-label="HIRO home">
-            <span class="brand__mark"><span class="logo-icon" aria-hidden="true"></span></span>
-            <span class="brand__text">
-              <span class="title-md">HIRO</span>
-              <span class="body-sm">Symptom checker</span>
-            </span>
-          </a>
-          <button id="theme-toggle" class="md-icon-btn" type="button" aria-label="Toggle theme">
-            <span class="material-symbols-rounded" data-icon>dark_mode</span>
-          </button>
-          <button id="sidebar-close" class="md-icon-btn sidebar__close" type="button" aria-label="Close menu">
-            <span class="material-symbols-rounded">close</span>
-          </button>
+          <a class="brand" href="/"><span class="logo-icon" aria-hidden="true"></span>HIRO</a>
+          <button id="sidebar-close" class="btn btn-secondary btn-sm sidebar__close" type="button">Close</button>
         </div>
 
-        <div class="sidebar__body">
-          <button id="new-chat" class="md-btn md-btn-tonal sidebar__new" type="button">
-            <span class="material-symbols-rounded">edit_square</span>
-            <span>New assessment</span>
-          </button>
+        <button id="new-chat" class="btn btn-secondary sidebar__new" type="button">New assessment</button>
 
-          <nav class="nav" aria-label="Primary">
-            <button id="how-it-works" class="md-list-item nav__item" type="button">
-              <span class="material-symbols-rounded">info</span>
-              <span class="label-lg">How it works</span>
-            </button>
-            <button id="symptom-index" class="md-list-item nav__item" type="button">
-              <span class="material-symbols-rounded">list_alt</span>
-              <span class="label-lg">Recognised symptoms</span>
-            </button>
-          </nav>
+        <nav class="sidebar__nav" aria-label="Help">
+          <button id="how-it-works" class="navlink" type="button">How it works</button>
+          <button id="symptom-index" class="navlink" type="button">Recognised symptoms</button>
+        </nav>
 
-          <section class="history" aria-labelledby="history-heading">
-            <h2 id="history-heading" class="label-md">History</h2>
-            <ul id="history" class="history__list"></ul>
-            <p id="history-empty" class="body-sm">Your assessments will appear here.</p>
-          </section>
-        </div>
+        <section class="history" aria-labelledby="history-title">
+          <h2 id="history-title" class="section-title">History</h2>
+          <ul id="history" class="rows rows--flat"></ul>
+          <p id="history-empty" class="muted">Your assessments will appear here.</p>
+        </section>
 
-        <div class="sidebar__foot body-sm">
-          <p>For information only. Not a substitute for professional medical advice.</p>
-        </div>
+        <p class="sidebar__foot muted">For information only. Not a substitute for professional medical advice.</p>
       </aside>
 
-      <!-- Centre column: conversation -->
-      <main id="chat" class="chat chat--empty">
-        <header class="md-top-bar topbar">
-          <button id="menu-toggle" class="md-icon-btn" type="button" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">
-            <span class="material-symbols-rounded">menu</span>
-          </button>
-          <h2 class="title-md">HIRO</h2>
-          <button id="hospitals-toggle" class="md-icon-btn topbar__hospitals" type="button" aria-label="Nearby hospitals" aria-controls="hospitals" aria-expanded="false">
-            <span class="material-symbols-rounded">local_hospital</span>
-          </button>
+      <!-- Chat: describe symptoms, answer follow-ups, get a result -->
+      <main id="main" class="chat">
+        <header class="topbar">
+          <button id="menu-toggle" class="btn btn-secondary btn-sm topbar__menu" type="button" aria-controls="sidebar" aria-expanded="false">Menu</button>
+          <span class="topbar__title">HIRO</span>
+          <button id="hospitals-toggle" class="btn btn-secondary btn-sm topbar__hospitals" type="button" aria-controls="hospitals" aria-expanded="false">Hospitals</button>
         </header>
 
-        <div class="chat__scroll">
-          <div class="hero">
-            <span class="hero__mark"><span class="logo-icon logo-icon--lg" aria-hidden="true"></span></span>
-            <h1 class="headline-sm">How are you feeling today?</h1>
-            <p class="body-md">Describe your symptoms in plain language. HIRO asks a few follow-up questions before suggesting a possible condition.</p>
+        <div id="chat-scroll" class="chat__scroll">
+          <div class="chat__inner">
+            <div class="hero">
+              <h1>How are you feeling today?</h1>
+              <p id="hero-hint" class="muted">
+                Describe your symptoms in plain language. HIRO asks a few follow-up questions before suggesting a
+                possible condition.
+              </p>
+            </div>
+            <section id="messages" class="messages" aria-label="Conversation" aria-live="polite"></section>
           </div>
-
-          <section id="messages" class="messages" aria-live="polite"></section>
         </div>
 
         <div class="chat__dock">
           <form id="chat-form" class="composer" autocomplete="off">
-            <button id="composer-new" class="md-icon-btn" type="button" aria-label="New assessment">
-              <span class="material-symbols-rounded">add</span>
-            </button>
-            <input
-              id="message-input"
-              class="composer__input"
-              type="text"
-              placeholder="Describe your symptoms, e.g. headache and mild fever"
-              maxlength="2000"
-              required
-              disabled
-            />
-            <button id="send-button" class="md-icon-btn composer__send" type="submit" aria-label="Send" disabled>
-              <span class="material-symbols-rounded filled">arrow_upward</span>
-            </button>
+            <label class="sr-only" for="message-input">Describe your symptoms</label>
+            <input id="message-input" type="text" placeholder="e.g. headache and mild fever" maxlength="2000" required disabled />
+            <button id="send-button" class="btn btn-primary" type="submit" disabled>Send</button>
           </form>
-
-          <footer class="bottombar">
-            <nav class="bottombar__nav" aria-label="Before you begin">
-              <ul id="consents" class="consents">
-                <li>
-                  <button class="consent" type="button" data-consent="advice" aria-pressed="false">
-                    <input type="checkbox" tabindex="-1" aria-hidden="true" />
-                    <span class="label-md">Not medical advice</span>
-                  </button>
-                </li>
-                <li>
-                  <button class="consent" type="button" data-consent="emergency" aria-pressed="false">
-                    <input type="checkbox" tabindex="-1" aria-hidden="true" />
-                    <span class="label-md">Emergencies</span>
-                  </button>
-                </li>
-                <li>
-                  <button class="consent" type="button" data-consent="privacy" aria-pressed="false">
-                    <input type="checkbox" tabindex="-1" aria-hidden="true" />
-                    <span class="label-md">Privacy</span>
-                  </button>
-                </li>
-                <li>
-                  <button class="consent" type="button" data-consent="terms" aria-pressed="false">
-                    <input type="checkbox" tabindex="-1" aria-hidden="true" />
-                    <span class="label-md">Terms of use</span>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-            <div id="status-bar" class="md-chip status" data-state="connecting">
-              <span class="status-dot" aria-hidden="true"></span>
-              <span id="status" class="label-md">Connecting</span>
-            </div>
-          </footer>
+          <p id="status" class="status" role="status"></p>
+          <ul id="consents" class="consents" aria-label="Before you begin">
+            <li>
+              <button class="consent" type="button" data-consent="advice" aria-pressed="false">
+                <input type="checkbox" tabindex="-1" aria-hidden="true" />
+                <span>Not medical advice</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="emergency" aria-pressed="false">
+                <input type="checkbox" tabindex="-1" aria-hidden="true" />
+                <span>Emergencies</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="privacy" aria-pressed="false">
+                <input type="checkbox" tabindex="-1" aria-hidden="true" />
+                <span>Privacy</span>
+              </button>
+            </li>
+            <li>
+              <button class="consent" type="button" data-consent="terms" aria-pressed="false">
+                <input type="checkbox" tabindex="-1" aria-hidden="true" />
+                <span>Terms of use</span>
+              </button>
+            </li>
+          </ul>
         </div>
       </main>
 
-      <!-- Right column: nearby hospitals map -->
-      <aside id="hospitals" class="hospitals" data-state="locating">
-        <div class="hospitals__fallback md-card-filled">
-          <span class="material-symbols-rounded hospitals__icon">location_off</span>
-          <h2 class="title-md">Nearby hospitals</h2>
-          <p class="body-md">
-            Allow location access to see hospitals and clinics around you. Your location is used only for this lookup and
-            is not stored.
-          </p>
-          <p id="hospitals-message" class="body-sm hospitals__message"></p>
-          <button id="locate" class="md-btn md-btn-filled" type="button">
-            <span class="material-symbols-rounded">my_location</span>
-            <span>Use my location</span>
-          </button>
+      <!-- Hospitals: find care nearby -->
+      <aside id="hospitals" class="hospitals" aria-labelledby="hospitals-title" data-state="locating">
+        <div class="hospitals__head">
+          <div class="hospitals__row">
+            <h2 id="hospitals-title" class="section-title">Nearby hospitals</h2>
+            <button id="hospitals-close" class="btn btn-secondary btn-sm hospitals__close" type="button">Close</button>
+          </div>
+          <div class="hospitals__row hospitals__controls">
+            <p class="field field--inline">
+              <label for="radius">Radius</label>
+              <select id="radius">
+                <option value="2000">2 km</option>
+                <option value="5000" selected>5 km</option>
+                <option value="10000">10 km</option>
+                <option value="20000">20 km</option>
+              </select>
+            </p>
+            <p id="hospitals-status" class="muted" role="status"></p>
+          </div>
         </div>
 
-        <div id="map" class="hospitals__map" role="region" aria-label="Map of nearby hospitals">
-          <p id="map-placeholder" class="hospitals__placeholder body-md">Finding your location</p>
+        <div class="hospitals__fallback">
+          <div class="message">
+            <p class="message__title">Location is not available</p>
+            <p id="hospitals-message" class="muted"></p>
+            <p class="muted">Your location is used only to look up hospitals on OpenStreetMap and is not stored.</p>
+            <button id="locate" class="btn btn-primary" type="button">Use my location</button>
+          </div>
         </div>
 
-        <div class="hospitals__overlay hospitals__overlay--top">
-          <button id="hospitals-close" class="md-icon-btn hospitals__close" type="button" aria-label="Close hospitals">
-            <span class="material-symbols-rounded">close</span>
-          </button>
-          <label class="md-field-label radius__label" for="radius">Radius</label>
-          <select id="radius" class="md-field md-field-sm radius" aria-label="Search radius">
-            <option value="2000">2 km</option>
-            <option value="5000" selected>5 km</option>
-            <option value="10000">10 km</option>
-            <option value="20000">20 km</option>
-          </select>
+        <div id="map" class="map" role="region" aria-label="Map of nearby hospitals">
+          <p id="map-placeholder" class="map__placeholder muted">Finding your location</p>
         </div>
-        <p id="hospitals-status" class="md-chip hospitals__overlay hospitals__overlay--bottom label-md"></p>
       </aside>
     </div>
 
-    <dialog id="modal" class="modal">
-      <div class="md-dialog modal__card">
-        <header class="modal__header">
-          <h3 id="modal-title" class="title-lg"></h3>
-          <button id="modal-close" class="md-icon-btn" type="button" aria-label="Close">
-            <span class="material-symbols-rounded">close</span>
-          </button>
-        </header>
-        <div id="modal-body" class="modal__body body-md"></div>
-        <footer class="modal__footer">
-          <button id="modal-agree" class="md-btn md-btn-filled" type="button">
-            <span class="material-symbols-rounded">check</span>
-            <span>I have read this and agree</span>
-          </button>
-        </footer>
+    <dialog id="modal" class="dialog">
+      <div class="dialog__card">
+        <h2 id="modal-title" class="dialog__title"></h2>
+        <div id="modal-body" class="dialog__body"></div>
+        <div class="dialog__foot">
+          <button id="modal-close" class="btn btn-secondary" type="button">Close</button>
+          <button id="modal-agree" class="btn btn-primary" type="button">Agree</button>
+        </div>
       </div>
     </dialog>
 
-    <template id="tpl-hospital">
-      <div class="hospital">
-        <div class="hospital__head">
-          <strong class="title-sm hospital__name"></strong>
-          <span class="label-sm hospital__distance"></span>
-        </div>
-        <p class="body-sm hospital__meta"></p>
-        <div class="hospital__actions">
-          <a class="md-btn md-btn-tonal hospital__directions" target="_blank" rel="noopener noreferrer">
-            <span class="material-symbols-rounded">directions</span>
-            <span>Directions</span>
-          </a>
-          <a class="md-btn md-btn-text hospital__call" hidden>
-            <span class="material-symbols-rounded">call</span>
-            <span>Call</span>
-          </a>
-        </div>
-      </div>
-    </template>
-
     <template id="tpl-quick-replies">
       <div class="quick-replies">
-        <button class="md-chip md-chip-action" type="button">Yes</button>
-        <button class="md-chip md-chip-action" type="button">No</button>
-        <button class="md-chip md-chip-action" type="button">That's all</button>
+        <button class="chip" type="button">Yes</button>
+        <button class="chip" type="button">No</button>
+        <button class="chip" type="button">That's all</button>
       </div>
     </template>
 
     <template id="tpl-diagnosis">
-      <div class="result md-card">
-        <header class="result__header">
-          <div class="result__title">
-            <span class="material-symbols-rounded result__icon">clinical_notes</span>
-            <h3 class="title-md">Assessment result</h3>
-          </div>
-          <span class="result__confidence label-md"></span>
+      <article class="card result">
+        <header class="card__head">
+          <h3>Assessment result</h3>
+          <span class="badge result__confidence"></span>
         </header>
-
-        <div class="result__section">
-          <h4 class="label-md">Symptoms reviewed</h4>
-          <ul class="result__symptoms chips"></ul>
-        </div>
-
-        <div class="result__section md-card-filled result__condition">
-          <h4 class="label-md">Possible condition</h4>
-          <p class="result__disease title-lg"></p>
-          <p class="result__description body-md"></p>
-        </div>
-
-        <div class="result__section">
-          <h4 class="label-md">Model agreement</h4>
+        <section>
+          <h4>Symptoms reviewed</h4>
+          <ul class="chips result__symptoms"></ul>
+        </section>
+        <section>
+          <h4>Possible condition</h4>
+          <p class="result__disease"></p>
+          <p class="result__description"></p>
+        </section>
+        <section>
+          <h4>Model agreement</h4>
           <ul class="result__tests"></ul>
-        </div>
+        </section>
+        <section>
+          <h4>Suggested precautions</h4>
+          <ol class="result__precautions"></ol>
+        </section>
+        <p class="notice">This is a model prediction, not a medical diagnosis. Please consult a doctor to confirm.</p>
+      </article>
+    </template>
 
-        <div class="result__section">
-          <h4 class="label-md">Suggested precautions</h4>
-          <ol class="result__precautions body-md"></ol>
-        </div>
-
-        <p class="result__disclaimer body-sm">
-          <span class="material-symbols-rounded">info</span>
-          This is a model prediction, not a medical diagnosis. Please consult a doctor to confirm.
+    <template id="tpl-hospital">
+      <div class="hospital">
+        <p class="hospital__name"></p>
+        <p class="hospital__meta muted"></p>
+        <p class="hospital__actions">
+          <a class="btn btn-secondary btn-sm hospital__directions" target="_blank" rel="noopener noreferrer">Directions</a>
+          <a class="btn btn-secondary btn-sm hospital__call" hidden>Call</a>
         </p>
       </div>
     </template>

@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HIRO logo">
-  <rect x="29" y="4" width="6" height="10" rx="3" fill="#0b57d0"/>
-  <rect x="8" y="12" width="48" height="40" rx="12" fill="#0b57d0"/>
-  <rect x="20" y="25" width="7" height="13" rx="3.5" fill="#ffffff"/>
-  <rect x="37" y="25" width="7" height="13" rx="3.5" fill="#ffffff"/>
-  <path d="M25 44 Q32 50 39 44" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="26" fill="#0b57d0"/>
+  <rect x="21" y="23" width="7" height="14" rx="3.5" fill="#ffffff"/>
+  <rect x="36" y="23" width="7" height="14" rx="3.5" fill="#ffffff"/>
+  <path d="M25 43 Q32 49 39 43" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
 </svg>

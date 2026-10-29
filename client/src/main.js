@@ -3,34 +3,45 @@ import 'leaflet/dist/leaflet.css';
 
 const $ = (id) => document.getElementById(id);
 
-const chatEl = $('chat');
+/* Elements */
+
+const chatEl = document.querySelector('.chat');
+const sidebarEl = $('sidebar');
+const backdropEl = $('backdrop');
+const menuToggleEl = $('menu-toggle');
+const hospitalsToggleEl = $('hospitals-toggle');
+
+const scrollEl = $('chat-scroll');
 const messagesEl = $('messages');
+const heroHintEl = $('hero-hint');
 const formEl = $('chat-form');
 const inputEl = $('message-input');
 const sendEl = $('send-button');
 const statusEl = $('status');
-const statusBarEl = $('status-bar');
-const historyEl = $('history');
-const historyEmptyEl = $('history-empty');
 const consentsEl = $('consents');
-const sidebarEl = $('sidebar');
-const backdropEl = $('backdrop');
-const menuToggleEl = $('menu-toggle');
-const modalEl = $('modal');
-const modalTitleEl = $('modal-title');
-const modalBodyEl = $('modal-body');
-const modalAgreeEl = $('modal-agree');
-const diagnosisTpl = $('tpl-diagnosis');
-const quickRepliesTpl = $('tpl-quick-replies');
-const hospitalTpl = $('tpl-hospital');
+
+const historyEl = $('history');
+const newChatEl = $('new-chat');
+
 const hospitalsEl = $('hospitals');
-const hospitalsToggleEl = $('hospitals-toggle');
 const hospitalsStatusEl = $('hospitals-status');
 const hospitalsMessageEl = $('hospitals-message');
 const mapEl = $('map');
 const mapPlaceholderEl = $('map-placeholder');
 const locateEl = $('locate');
 const radiusEl = $('radius');
+
+const modalEl = $('modal');
+const modalTitleEl = $('modal-title');
+const modalBodyEl = $('modal-body');
+const modalAgreeEl = $('modal-agree');
+const modalCloseEl = $('modal-close');
+
+const diagnosisTpl = $('tpl-diagnosis');
+const quickRepliesTpl = $('tpl-quick-replies');
+const hospitalTpl = $('tpl-hospital');
+
+/* Constants */
 
 const CONSENT_KEY = 'hiro.consents';
 const HISTORY_KEY = 'hiro.history';
@@ -59,7 +70,7 @@ const CONSENTS = {
     body: [
       'Your messages are sent only to the local HIRO server to generate a reply. The server keeps nothing between requests; the state of this assessment travels with each message.',
       'Your assessment history is saved in this browser only (local storage) so you can revisit it. Clear it at any time with your browser settings.',
-      'If you choose "Use my location" in the Nearby hospitals panel, your approximate coordinates are sent through the local server to the OpenStreetMap Overpass API to look up hospitals, and map tiles are loaded from OpenStreetMap. They are not stored. Fonts are bundled with the app; no font requests leave your device.',
+      'On the Hospitals screen your approximate coordinates are sent through the local server to OpenStreetMap to look up hospitals, and map tiles are loaded from OpenStreetMap. They are not stored. The Roboto font is loaded from Google Fonts, which receives a standard web request when the page loads.',
     ],
   },
   terms: {
@@ -85,11 +96,19 @@ const HOW_IT_WORKS = {
 const INTRO =
   'Hello, I am HIRO. Describe what you are feeling and I will ask a few follow-up questions before suggesting a possible condition. This is not a medical diagnosis. Say "that\'s all" at any time to see the result.';
 
+const HINTS = {
+  offline: 'Connecting to the HIRO server.',
+  consent: 'Read and agree to the four notices below the box to begin.',
+  ready: 'Describe your symptoms in plain language. HIRO asks a few follow-up questions before suggesting a possible condition.',
+};
+
+/* State */
+
 let online = false;
 let busy = false;
 let agreed = loadJson(CONSENT_KEY, []);
 let history = loadJson(HISTORY_KEY, []);
-let active = null; // current conversation object or null when on the empty screen
+let active = null; // current conversation, or null for the empty state
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -119,13 +138,56 @@ async function readJson(res) {
   return type.includes('application/json') ? res.json() : null;
 }
 
-function setStatus(text, state) {
-  statusEl.textContent = text;
-  statusBarEl.dataset.state = state;
+/* Drawers (sidebar below 768 px, hospitals below 1200 px) */
+
+function syncBackdrop() {
+  backdropEl.hidden = !sidebarEl.classList.contains('sidebar--open') && !hospitalsEl.classList.contains('hospitals--open');
 }
+
+function setSidebar(open) {
+  sidebarEl.classList.toggle('sidebar--open', open);
+  menuToggleEl.setAttribute('aria-expanded', String(open));
+  syncBackdrop();
+  if (open) $('sidebar-close').focus();
+}
+
+function setHospitals(open) {
+  hospitalsEl.classList.toggle('hospitals--open', open);
+  hospitalsToggleEl.setAttribute('aria-expanded', String(open));
+  syncBackdrop();
+  if (open) $('hospitals-close').focus();
+}
+
+menuToggleEl.addEventListener('click', () => setSidebar(!sidebarEl.classList.contains('sidebar--open')));
+$('sidebar-close').addEventListener('click', () => {
+  setSidebar(false);
+  menuToggleEl.focus();
+});
+hospitalsToggleEl.addEventListener('click', () => setHospitals(!hospitalsEl.classList.contains('hospitals--open')));
+$('hospitals-close').addEventListener('click', () => {
+  setHospitals(false);
+  hospitalsToggleEl.focus();
+});
+backdropEl.addEventListener('click', () => {
+  setSidebar(false);
+  setHospitals(false);
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !modalEl.open) {
+    setSidebar(false);
+    setHospitals(false);
+  }
+});
+
+/* Gate: input is usable only when online and every notice is agreed */
 
 function allAgreed() {
   return Object.keys(CONSENTS).every((id) => agreed.includes(id));
+}
+
+function setStatus(text, state) {
+  statusEl.dataset.state = state;
+  statusEl.textContent = state === 'online' ? '' : text;
 }
 
 function updateGate() {
@@ -134,210 +196,20 @@ function updateGate() {
   sendEl.disabled = locked;
 
   if (!online) {
+    heroHintEl.textContent = HINTS.offline;
     inputEl.placeholder = 'Waiting for the server';
   } else if (!allAgreed()) {
-    inputEl.placeholder = 'Agree to the notices in the sidebar to start';
+    heroHintEl.textContent = HINTS.consent;
+    inputEl.placeholder = 'Agree to the notices below to start';
   } else {
-    inputEl.placeholder = 'Describe your symptoms, e.g. headache and mild fever';
+    heroHintEl.textContent = HINTS.ready;
+    inputEl.placeholder = 'e.g. headache and mild fever';
   }
-  if (!locked && document.activeElement !== inputEl && !modalEl.open) inputEl.focus();
+
+  if (!locked && document.activeElement === document.body) inputEl.focus();
 }
 
-/* Theme (class on <html>, seeded before paint by the inline script in index.html) */
-
-const THEME_KEY = 'hiro.theme';
-const themeToggleEl = $('theme-toggle');
-
-function syncThemeIcon() {
-  const dark = document.documentElement.classList.contains('dark');
-  themeToggleEl.querySelector('[data-icon]').textContent = dark ? 'light_mode' : 'dark_mode';
-}
-
-themeToggleEl.addEventListener('click', () => {
-  const dark = document.documentElement.classList.toggle('dark');
-  try {
-    localStorage.setItem(THEME_KEY, dark ? 'dark' : 'light');
-  } catch {
-    /* storage unavailable */
-  }
-  syncThemeIcon();
-});
-
-syncThemeIcon();
-
-/* Drawer */
-
-function setDrawer(open) {
-  sidebarEl.classList.toggle('sidebar--open', open);
-  backdropEl.hidden = !open;
-  menuToggleEl.setAttribute('aria-expanded', String(open));
-}
-
-menuToggleEl.addEventListener('click', () => setDrawer(!sidebarEl.classList.contains('sidebar--open')));
-backdropEl.addEventListener('click', () => {
-  setDrawer(false);
-  setHospitalsDrawer(false);
-});
-$('sidebar-close').addEventListener('click', () => setDrawer(false));
-
-/* Nearby hospitals (map) */
-
-let lastPosition = null;
-let map = null;
-let markersLayer = null;
-let userMarker = null;
-
-function setHospitalsDrawer(open) {
-  hospitalsEl.classList.toggle('hospitals--open', open);
-  backdropEl.hidden = !open && !sidebarEl.classList.contains('sidebar--open');
-  hospitalsToggleEl.setAttribute('aria-expanded', String(open));
-  if (open && map) setTimeout(() => map.invalidateSize(), 220);
-}
-
-hospitalsToggleEl.addEventListener('click', () => setHospitalsDrawer(!hospitalsEl.classList.contains('hospitals--open')));
-$('hospitals-close').addEventListener('click', () => setHospitalsDrawer(false));
-
-function markerIcon(kind) {
-  return L.divIcon({ className: `map-pin map-pin--${kind}`, iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -10] });
-}
-
-function ensureMap() {
-  if (map) return map;
-  mapPlaceholderEl.remove();
-  map = L.map(mapEl, { zoomControl: true, attributionControl: true });
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
-  }).addTo(map);
-  markersLayer = L.layerGroup().addTo(map);
-  return map;
-}
-
-function popupFor(h) {
-  const node = hospitalTpl.content.firstElementChild.cloneNode(true);
-  node.querySelector('.hospital__name').textContent = h.name;
-  node.querySelector('.hospital__distance').textContent = `${h.distance_km} km`;
-  const meta = [h.kind === 'clinic' ? 'Clinic' : 'Hospital', h.emergency ? 'Emergency' : null, h.address]
-    .filter(Boolean)
-    .join(' \u00b7 ');
-  node.querySelector('.hospital__meta').textContent = meta;
-  node.querySelector('.hospital__directions').href = h.directions_url;
-  const call = node.querySelector('.hospital__call');
-  if (h.phone) {
-    call.hidden = false;
-    call.href = `tel:${h.phone.replace(/[^+\d]/g, '')}`;
-  }
-  return node;
-}
-
-function renderHospitals(list) {
-  const { lat, lon } = lastPosition;
-  ensureMap();
-  markersLayer.clearLayers();
-
-  if (userMarker) userMarker.remove();
-  userMarker = L.marker([lat, lon], { icon: markerIcon('you'), zIndexOffset: 1000, title: 'You' })
-    .bindPopup('You are here')
-    .addTo(map);
-
-  const points = [[Number(lat), Number(lon)]];
-  list.forEach((h) => {
-    L.marker([h.lat, h.lon], { icon: markerIcon(h.kind), title: h.name })
-      .bindPopup(popupFor(h), { maxWidth: 230, minWidth: 200 })
-      .addTo(markersLayer);
-    points.push([h.lat, h.lon]);
-  });
-
-  if (points.length > 1) {
-    map.fitBounds(points, { padding: [24, 24], maxZoom: 15 });
-  } else {
-    map.setView(points[0], 13);
-  }
-  setTimeout(() => map.invalidateSize(), 50);
-}
-
-async function loadHospitals() {
-  if (!lastPosition) return;
-  if (!online) {
-    hospitalsStatusEl.textContent = 'Waiting for server';
-    return;
-  }
-  const { lat, lon } = lastPosition;
-  hospitalsStatusEl.textContent = 'Searching OpenStreetMap';
-  try {
-    const params = new URLSearchParams({ lat, lon, radius: radiusEl.value });
-    const res = await fetch(`/api/hospitals?${params}`);
-    const data = await readJson(res);
-    if (!res.ok || !Array.isArray(data)) throw new Error(data?.detail ?? `HTTP ${res.status}`);
-    renderHospitals(data);
-    hospitalsStatusEl.textContent = data.length
-      ? `${data.length} place${data.length === 1 ? '' : 's'} within ${radiusEl.value / 1000} km`
-      : `Nothing found within ${radiusEl.value / 1000} km. Try a larger radius.`;
-  } catch (err) {
-    renderHospitals([]);
-    hospitalsStatusEl.textContent = `Could not load hospitals: ${err.message}`;
-  }
-}
-
-function setHospitalsState(state, message = '') {
-  hospitalsEl.dataset.state = state;
-  hospitalsMessageEl.textContent = message;
-  if (mapPlaceholderEl.isConnected) {
-    mapPlaceholderEl.textContent = state === 'locating' ? 'Finding your location' : '';
-  }
-}
-
-function requestLocation() {
-  if (!navigator.geolocation) {
-    setHospitalsState('denied', 'Location is not supported by this browser.');
-    return;
-  }
-  setHospitalsState('locating');
-  locateEl.disabled = true;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      locateEl.disabled = false;
-      lastPosition = { lat: pos.coords.latitude.toFixed(5), lon: pos.coords.longitude.toFixed(5) };
-      setHospitalsState('ready');
-      loadHospitals();
-    },
-    (err) => {
-      locateEl.disabled = false;
-      setHospitalsState(
-        'denied',
-        err.code === err.PERMISSION_DENIED
-          ? 'Location permission was denied. Allow it for this site in your browser settings, then try again.'
-          : 'Could not determine your location. Check that location services are on and try again.',
-      );
-    },
-    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
-  );
-}
-
-// Ask on startup; only show the manual controls if the browser will not give us a position.
-async function initLocation() {
-  if (!navigator.geolocation) {
-    setHospitalsState('denied', 'Location is not supported by this browser.');
-    return;
-  }
-  try {
-    const status = await navigator.permissions.query({ name: 'geolocation' });
-    if (status.state === 'denied') {
-      setHospitalsState('denied', 'Location permission was denied. Allow it for this site in your browser settings, then try again.');
-      status.onchange = () => status.state !== 'denied' && requestLocation();
-      return;
-    }
-    status.onchange = () => status.state === 'denied' && setHospitalsState('denied', 'Location permission was denied.');
-  } catch {
-    /* Permissions API unavailable: fall through and just ask. */
-  }
-  requestLocation();
-}
-
-locateEl.addEventListener('click', requestLocation);
-radiusEl.addEventListener('change', loadHospitals);
-
-/* Modal */
+/* Dialog */
 
 let modalConsentId = null;
 
@@ -351,8 +223,7 @@ function openModal({ title, body }, consentId = null) {
       return p;
     }),
   );
-  const alreadyAgreed = consentId && agreed.includes(consentId);
-  modalAgreeEl.hidden = !consentId || alreadyAgreed;
+  modalAgreeEl.hidden = !consentId || agreed.includes(consentId);
   modalEl.showModal();
 }
 
@@ -366,7 +237,7 @@ modalAgreeEl.addEventListener('click', () => {
   modalEl.close();
 });
 
-$('modal-close').addEventListener('click', () => modalEl.close());
+modalCloseEl.addEventListener('click', () => modalEl.close());
 modalEl.addEventListener('click', (event) => {
   if (event.target === modalEl) modalEl.close();
 });
@@ -384,25 +255,23 @@ function renderConsents() {
 
 consentsEl.addEventListener('click', (event) => {
   const button = event.target.closest('.consent');
-  if (!button) return;
-  const id = button.dataset.consent;
-  openModal(CONSENTS[id], id);
+  if (button) openModal(CONSENTS[button.dataset.consent], button.dataset.consent);
 });
 
 $('how-it-works').addEventListener('click', () => {
-  setDrawer(false);
+  setSidebar(false);
   openModal(HOW_IT_WORKS);
 });
 
 $('symptom-index').addEventListener('click', async () => {
-  setDrawer(false);
+  setSidebar(false);
   try {
     const res = await fetch('/api/symptoms');
     const list = (await readJson(res)) ?? [];
     openModal({
       title: `Recognised symptoms (${list.length})`,
       body: [
-        'HIRO only understands the symptom names below. Use these words (or answer its yes / no questions) for the best results.',
+        'HIRO only understands the symptom names below. Use these words, or answer its yes / no questions, for the best results.',
         list.join(', '),
       ],
     });
@@ -415,7 +284,7 @@ $('symptom-index').addEventListener('click', async () => {
 
 function titleFor(text) {
   const clean = text.replace(/^i have\s+/i, '').trim();
-  return clean.length > 42 ? `${clean.slice(0, 42)}...` : clean;
+  return clean.length > 48 ? `${clean.slice(0, 48)}...` : clean;
 }
 
 function persistHistory() {
@@ -425,21 +294,26 @@ function persistHistory() {
 }
 
 function renderHistory() {
-  historyEmptyEl.hidden = history.length > 0;
   historyEl.replaceChildren(
     ...history.map((conv) => {
       const li = document.createElement('li');
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.id = conv.id;
-      button.className = conv.id === active?.id ? 'history__item history__item--active' : 'history__item';
-      button.textContent = conv.title;
-      if (conv.result) {
-        const meta = document.createElement('span');
-        meta.className = 'history__meta';
-        meta.textContent = conv.result;
-        button.appendChild(meta);
-      }
+      button.className = conv.id === active?.id ? 'row row--active' : 'row';
+
+      const title = document.createElement('span');
+      title.className = 'row__title';
+      title.textContent = conv.title;
+      const meta = document.createElement('span');
+      meta.className = 'row__meta';
+      meta.textContent = conv.result ?? 'In progress';
+      const chevron = document.createElement('span');
+      chevron.className = 'row__chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '\u203a';
+
+      button.append(title, meta, chevron);
       li.appendChild(button);
       return li;
     }),
@@ -447,34 +321,35 @@ function renderHistory() {
 }
 
 historyEl.addEventListener('click', (event) => {
-  const button = event.target.closest('.history__item');
-  if (!button) return;
-  const conv = history.find((c) => c.id === button.dataset.id);
+  const button = event.target.closest('.row');
+  const conv = button && history.find((c) => c.id === button.dataset.id);
   if (!conv) return;
-  setDrawer(false);
   openConversation(conv);
+  setSidebar(false);
+});
+
+newChatEl.addEventListener('click', () => {
+  startNew();
+  setSidebar(false);
 });
 
 /* Rendering */
 
-const scrollEl = document.querySelector('.chat__scroll');
-
 function scrollToBottom(smooth = true) {
-  // Wait a frame so newly appended content (and its enter animation) has a layout size.
   requestAnimationFrame(() => {
     scrollEl.scrollTo({ top: scrollEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
   });
 }
 
-function bubble(role, content) {
+function messageNode(role, content) {
   const wrapper = document.createElement('div');
   wrapper.className = `msg msg--${role}`;
   if (role === 'hiro') {
     const avatar = document.createElement('span');
     avatar.className = 'msg__avatar';
+    avatar.setAttribute('aria-hidden', 'true');
     const icon = document.createElement('span');
-    icon.className = 'logo-icon logo-icon--sm';
-    icon.setAttribute('aria-hidden', 'true');
+    icon.className = 'logo-icon';
     avatar.appendChild(icon);
     wrapper.appendChild(avatar);
   }
@@ -492,16 +367,16 @@ function bubble(role, content) {
 }
 
 function renderMessage(msg, withQuickReplies) {
-  if (msg.role === 'user') return bubble('user', msg.text);
-  if (msg.kind === 'diagnosis') return bubble('hiro', renderDiagnosis(msg.data));
+  if (msg.role === 'user') return messageNode('user', msg.text);
+  if (msg.kind === 'diagnosis') return messageNode('hiro', renderDiagnosis(msg.data));
   if (msg.kind === 'question' && withQuickReplies) {
     const body = document.createElement('div');
     const p = document.createElement('p');
     p.textContent = msg.text;
     body.append(p, quickRepliesTpl.content.firstElementChild.cloneNode(true));
-    return bubble('hiro', body);
+    return messageNode('hiro', body);
   }
-  const node = bubble('hiro', msg.text);
+  const node = messageNode('hiro', msg.text);
   if (msg.kind === 'error') node.classList.add('msg--error');
   return node;
 }
@@ -552,15 +427,10 @@ function renderDiagnosis(data) {
 
 function renderConversation() {
   messagesEl.replaceChildren();
-  if (!active) {
-    chatEl.classList.add('chat--empty');
-    return;
-  }
-  chatEl.classList.remove('chat--empty');
+  chatEl.classList.toggle('has-conversation', Boolean(active));
+  if (!active) return;
   const last = active.messages.length - 1;
-  active.messages.forEach((msg, i) => {
-    messagesEl.appendChild(renderMessage(msg, i === last));
-  });
+  active.messages.forEach((msg, i) => messagesEl.appendChild(renderMessage(msg, i === last)));
   scrollToBottom(false);
 }
 
@@ -598,7 +468,7 @@ function ensureActive(firstMessage) {
     messages: [{ role: 'hiro', kind: 'text', text: INTRO }],
   };
   history = [active, ...history];
-  chatEl.classList.remove('chat--empty');
+  chatEl.classList.add('has-conversation');
   messagesEl.replaceChildren(renderMessage(active.messages[0], false));
 }
 
@@ -613,9 +483,7 @@ async function postChat(message, state) {
       });
       const data = await readJson(res);
       if (res.ok && data) return data;
-      if (res.status === 400 || res.status === 422) {
-        throw new Error(data?.detail ?? 'The server rejected the message.');
-      }
+      if (res.status === 400 || res.status === 422) throw new Error(data?.detail ?? 'The server rejected the message.');
       lastError = new Error(data?.detail ?? `HTTP ${res.status}`);
     } catch (err) {
       if (err.message.startsWith('The server rejected')) throw err;
@@ -640,14 +508,14 @@ async function sendMessage(message) {
   dots.setAttribute('role', 'status');
   dots.setAttribute('aria-label', 'HIRO is thinking');
   dots.append(document.createElement('i'), document.createElement('i'), document.createElement('i'));
-  const typing = bubble('hiro', dots);
-  typing.classList.add('msg--thinking');
-  messagesEl.appendChild(typing);
+  const thinking = messageNode('hiro', dots);
+  thinking.classList.add('msg--thinking');
+  messagesEl.appendChild(thinking);
   scrollToBottom();
 
   try {
     const data = await postChat(message, active.state);
-    typing.remove();
+    thinking.remove();
     active.state = data.state;
     setStatus('Online', 'online');
 
@@ -660,7 +528,7 @@ async function sendMessage(message) {
       appendMessage({ role: 'hiro', kind: 'text', text: data.reply });
     }
   } catch (err) {
-    typing.remove();
+    thinking.remove();
     appendMessage({ role: 'hiro', kind: 'error', text: `Something went wrong: ${err.message}. Please try again.` });
     checkHealth();
   } finally {
@@ -669,8 +537,6 @@ async function sendMessage(message) {
     updateGate();
   }
 }
-
-/* Events */
 
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -685,16 +551,11 @@ messagesEl.addEventListener('click', (event) => {
   if (button) sendMessage(button.textContent.trim());
 });
 
-$('new-chat').addEventListener('click', () => {
-  setDrawer(false);
-  startNew();
-});
-$('composer-new').addEventListener('click', startNew);
-
 document.addEventListener('keydown', (event) => {
   if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'o') {
     event.preventDefault();
     startNew();
+    inputEl.focus();
   }
 });
 
@@ -722,22 +583,186 @@ async function checkHealth() {
 
 // The server binds its port only after the ML models finish loading, so keep retrying.
 async function connect() {
-  setStatus('Connecting', 'connecting');
+  setStatus('Connecting to server', 'connecting');
   updateGate();
   for (let attempt = 1; attempt <= MAX_CONNECT_ATTEMPTS; attempt++) {
     if (await healthy()) {
       online = true;
       setStatus('Online', 'online');
       updateGate();
-      if (lastPosition && !markersLayer) loadHospitals();
+      if (lastPosition && !map) loadHospitals();
       return;
     }
     setStatus(`Waiting for server (${attempt})`, 'connecting');
     await sleep(Math.min(1000 * attempt, 5000));
   }
-  setStatus('Server unavailable', 'error');
-  inputEl.placeholder = 'The HIRO server on port 8000 is not reachable. Start it and reload this page.';
+  setStatus('The HIRO server on port 8000 is not reachable. Start it and reload this page.', 'error');
 }
+
+/* Hospitals */
+
+let lastPosition = null;
+let map = null;
+let markersLayer = null;
+let userMarker = null;
+let radiusCircle = null;
+let lastBounds = null;
+
+function setHospitalsState(state, message = '') {
+  hospitalsEl.dataset.state = state;
+  hospitalsMessageEl.textContent = message;
+  if (mapPlaceholderEl.isConnected) mapPlaceholderEl.textContent = state === 'locating' ? 'Finding your location' : '';
+}
+
+function markerIcon(kind) {
+  return L.divIcon({ className: `map-pin map-pin--${kind}`, iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10] });
+}
+
+function ensureMap() {
+  if (map) return map;
+  mapPlaceholderEl.remove();
+  map = L.map(mapEl, { zoomControl: true, attributionControl: true });
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+  }).addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+  // The column resizes with the viewport and the drawer; keep tiles and bounds in step.
+  new ResizeObserver(() => fitMap()).observe(mapEl);
+  return map;
+}
+
+function popupFor(h) {
+  const node = hospitalTpl.content.firstElementChild.cloneNode(true);
+  node.querySelector('.hospital__name').textContent = h.name;
+  node.querySelector('.hospital__meta').textContent = [
+    h.kind === 'clinic' ? 'Clinic' : 'Hospital',
+    `${h.distance_km} km`,
+    h.emergency ? 'Emergency' : null,
+    h.address,
+  ]
+    .filter(Boolean)
+    .join(' \u00b7 ');
+  node.querySelector('.hospital__directions').href = h.directions_url;
+  const call = node.querySelector('.hospital__call');
+  if (h.phone) {
+    call.hidden = false;
+    call.href = `tel:${h.phone.replace(/[^+\d]/g, '')}`;
+  }
+  return node;
+}
+
+function fitMap() {
+  if (!map || !lastBounds) return;
+  map.invalidateSize({ animate: false });
+  map.fitBounds(lastBounds, { padding: [16, 16], animate: false });
+}
+
+function renderHospitals(list) {
+  const { lat, lon } = lastPosition;
+  ensureMap();
+  markersLayer.clearLayers();
+  // Circle bounds can only be projected once the map has a view.
+  if (!map._loaded) map.setView([lat, lon], 13, { animate: false });
+
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
+  if (radiusCircle) radiusCircle.remove();
+  radiusCircle = L.circle([lat, lon], {
+    radius: Number(radiusEl.value),
+    color: accent,
+    weight: 1,
+    fillColor: accent,
+    fillOpacity: 0.06,
+    interactive: false,
+  }).addTo(map);
+
+  if (userMarker) userMarker.remove();
+  userMarker = L.marker([lat, lon], { icon: markerIcon('you'), zIndexOffset: 1000, title: 'You' })
+    .bindPopup('You are here')
+    .addTo(map);
+
+  list.forEach((h) => {
+    L.marker([h.lat, h.lon], { icon: markerIcon(h.kind), title: h.name })
+      .bindPopup(popupFor(h), { maxWidth: 260, minWidth: 220 })
+      .addTo(markersLayer);
+  });
+  lastBounds = radiusCircle.getBounds();
+  setTimeout(fitMap, 0);
+}
+
+async function loadHospitals() {
+  if (!lastPosition) return;
+  if (!online) {
+    hospitalsStatusEl.textContent = 'Waiting for the server';
+    return;
+  }
+  const { lat, lon } = lastPosition;
+  hospitalsStatusEl.textContent = 'Searching OpenStreetMap';
+  try {
+    const params = new URLSearchParams({ lat, lon, radius: radiusEl.value });
+    const res = await fetch(`/api/hospitals?${params}`);
+    const data = await readJson(res);
+    if (!res.ok || !Array.isArray(data)) throw new Error(data?.detail ?? `HTTP ${res.status}`);
+    renderHospitals(data);
+    hospitalsStatusEl.textContent = data.length
+      ? `${data.length} place${data.length === 1 ? '' : 's'} within ${radiusEl.value / 1000} km`
+      : `Nothing found within ${radiusEl.value / 1000} km. Try a larger radius.`;
+  } catch (err) {
+    renderHospitals([]);
+    hospitalsStatusEl.textContent = `Could not load hospitals: ${err.message}`;
+  }
+}
+
+function requestLocation() {
+  if (!navigator.geolocation) {
+    setHospitalsState('denied', 'Location is not supported by this browser.');
+    return;
+  }
+  setHospitalsState('locating');
+  locateEl.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      locateEl.disabled = false;
+      lastPosition = { lat: pos.coords.latitude.toFixed(5), lon: pos.coords.longitude.toFixed(5) };
+      setHospitalsState('ready');
+      loadHospitals();
+    },
+    (err) => {
+      locateEl.disabled = false;
+      setHospitalsState(
+        'denied',
+        err.code === err.PERMISSION_DENIED
+          ? 'Location permission was denied. Allow it for this site in your browser settings, then try again.'
+          : 'Could not determine your location. Check that location services are on and try again.',
+      );
+    },
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
+  );
+}
+
+// Ask on startup; the manual button only appears when the browser will not give a position.
+async function initLocation() {
+  if (!navigator.geolocation) {
+    setHospitalsState('denied', 'Location is not supported by this browser.');
+    return;
+  }
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    if (status.state === 'denied') {
+      setHospitalsState('denied', 'Location permission was denied. Allow it for this site in your browser settings, then try again.');
+      status.onchange = () => status.state !== 'denied' && requestLocation();
+      return;
+    }
+  } catch {
+    /* Permissions API unavailable: just ask. */
+  }
+  requestLocation();
+}
+
+locateEl.addEventListener('click', requestLocation);
+radiusEl.addEventListener('change', loadHospitals);
+
+/* Boot */
 
 renderConsents();
 renderHistory();
