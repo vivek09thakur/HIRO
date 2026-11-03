@@ -66,6 +66,7 @@ export const STATUS = {
   connecting: 'Connecting to server',
   waiting: (n) => `Waiting for server (${n})`,
   reconnecting: (n) => `Reconnecting (${n})`,
+  busy: (n) => `HIRO is busy, retrying (${n})`,
   unreachable: 'The HIRO server is not reachable. Start it and reload this page.',
 };
 

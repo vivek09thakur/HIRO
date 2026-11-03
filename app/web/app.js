@@ -276,6 +276,8 @@ function ensureActive(firstMessage) {
 async function postChat(message, convState) {
   let lastError = null;
   for (let attempt = 1; attempt <= LIMITS.sendRetries; attempt++) {
+    let waitMs = 700 * attempt;
+    let label = STATUS.reconnecting(attempt);
     try {
       const res = await fetch(API.chat, {
         method: 'POST',
@@ -285,13 +287,17 @@ async function postChat(message, convState) {
       const data = await readJson(res);
       if (res.ok && data) return data;
       if (res.status === 400 || res.status === 422) throw new Error(data?.detail ?? 'The server rejected the message.');
+      if (res.status === 503) {
+        waitMs = Math.max(waitMs, Number(res.headers.get('Retry-After') ?? 0) * 1000);
+        label = STATUS.busy(attempt);
+      }
       lastError = new Error(data?.detail ?? `HTTP ${res.status}`);
     } catch (err) {
       if (err.message.startsWith('The server rejected')) throw err;
       lastError = err;
     }
-    setStatus(STATUS.reconnecting(attempt), 'connecting');
-    await sleep(700 * attempt);
+    setStatus(label, 'connecting');
+    await sleep(waitMs);
   }
   throw lastError ?? new Error('Unknown error');
 }
