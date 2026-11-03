@@ -1,0 +1,238 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hello", "Hi", "Hola", "Hey", "Hi there", "Hello there", "Hey there", "Heya", "Yo", "Hiya",
+        "Hello HIRO", "Hi HIRO", "Hey HIRO", "Greetings", "Good day", "Hello doctor", "Hi bot",
+        "Is anyone there?", "Hello, are you there?", "Hey, can you hear me?", "Sup", "What's up"
+      ],
+      "responses": [
+        "Hi there. Tell me what you are feeling and I will try to help.",
+        "Hello. Describe your symptoms in plain language and we can start.",
+        "Hi. What is bothering you today?"
+      ]
+    },
+    {
+      "tag": "morning_greeting",
+      "patterns": ["Good morning", "Morning", "Good morning!", "Morning HIRO", "Good morning doctor", "Top of the morning"],
+      "responses": [
+        "Good morning. How are you feeling today?",
+        "Good morning. Tell me what is bothering you."
+      ]
+    },
+    {
+      "tag": "afternoon_greeting",
+      "patterns": ["Good afternoon", "Afternoon", "Good afternoon!", "Afternoon HIRO"],
+      "responses": [
+        "Good afternoon. How are you feeling today?",
+        "Good afternoon. Tell me what is bothering you."
+      ]
+    },
+    {
+      "tag": "evening_greeting",
+      "patterns": ["Good evening", "Evening", "Good evening!", "Evening HIRO"],
+      "responses": [
+        "Good evening. How are you feeling today?",
+        "Good evening. Tell me what is bothering you."
+      ]
+    },
+    {
+      "tag": "goodnight",
+      "patterns": ["Good night", "Night", "Good night!", "Nighty night", "Off to bed", "Going to sleep now", "Sleep well"],
+      "responses": [
+        "Good night. Rest well and take care.",
+        "Good night. I hope you feel better tomorrow."
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "Bye", "Goodbye", "See you", "See ya", "Bye bye", "Talk later", "Catch you later", "I have to go",
+        "Gotta go", "That's all for now", "Later", "Take care", "Cya", "I'm leaving", "Exit", "Quit"
+      ],
+      "responses": [
+        "Goodbye. Take care of yourself, and see a doctor if things do not improve.",
+        "Bye. I hope you feel better soon."
+      ]
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Thanks", "Thank you", "Thank you so much", "Thanks a lot", "Thanks HIRO", "Cheers", "Much appreciated",
+        "That was helpful", "That helps", "Great, thanks", "Thank you very much", "Appreciate it", "Ty", "Thx"
+      ],
+      "responses": [
+        "You are welcome. Please consult a doctor to confirm anything I suggest.",
+        "Glad to help. Take care."
+      ]
+    },
+    {
+      "tag": "name",
+      "patterns": [
+        "What is your name?", "What should I call you?", "Who are you?", "What are you?", "Do you have a name?",
+        "Tell me your name", "Your name?", "Introduce yourself", "Who am I talking to?", "Are you a bot?",
+        "Are you a robot?", "Are you human?", "Are you a real doctor?", "Are you an AI?"
+      ],
+      "responses": [
+        "I am HIRO, an educational symptom checker. I am software, not a doctor.",
+        "My name is HIRO. I am an AI assistant that helps you think through your symptoms. I am not a medical professional."
+      ]
+    },
+    {
+      "tag": "capabilities",
+      "patterns": [
+        "What can you do?", "What are your capabilities?", "What are you able to do?", "How can you help me?",
+        "How can you help?", "How can you help me with my health issues?", "What do you do?", "Help", "Help me",
+        "What is this?", "What is this app?", "How does this work?", "How do you work?", "Explain yourself",
+        "What are you for?", "Can you diagnose me?", "Can you tell me what I have?", "Can you help with my health?"
+      ],
+      "responses": [
+        "Describe what you are feeling, for example \"headache and mild fever\". I pick out the symptoms I recognise, ask a few yes or no questions, and then suggest a possible condition with precautions. It is not a diagnosis.",
+        "I listen to your symptoms, ask follow-up questions and suggest a possible condition using machine-learning models trained on a public dataset. Use the result as a starting point for a conversation with a doctor."
+      ]
+    },
+    {
+      "tag": "how_are_you",
+      "patterns": [
+        "How are you?", "How are you doing?", "How do you do?", "How is it going?", "How's it going?",
+        "You good?", "How are things?", "Are you okay?", "How have you been?", "Doing well?"
+      ],
+      "responses": [
+        "I am doing fine, thank you. More importantly, how are you feeling?",
+        "All good here. Tell me how you are feeling."
+      ]
+    },
+    {
+      "tag": "creator",
+      "patterns": [
+        "Who created you?", "Who is your creator?", "Who made you?", "Who built you?", "Who developed you?",
+        "Who programmed you?", "Who designed you?", "Where do you come from?", "Who is behind HIRO?"
+      ],
+      "responses": [
+        "I was created by Vivek Thakur with help from Rahul Raj and Dainwi Choudhary."
+      ]
+    },
+    {
+      "tag": "ml_model",
+      "patterns": [
+        "What machine learning model do you use?", "What model do you use to predict the disease?",
+        "Which algorithm do you use?", "How do you predict diseases?", "What is your model?",
+        "Are you using AI?", "What technology is behind you?", "How accurate are you?", "Is this accurate?",
+        "Can I trust your results?", "How reliable are you?"
+      ],
+      "responses": [
+        "Three classifiers vote on your symptoms: a Random Forest, a Support Vector Machine and a Naive Bayes model, all trained on a small public dataset. Because the data is limited, treat my result as a hint, not a diagnosis.",
+        "I combine a Random Forest, an SVM and Naive Bayes. They agree most of the time on the training data, but real symptoms are messier, so always confirm with a doctor."
+      ]
+    },
+    {
+      "tag": "disclaimer",
+      "patterns": [
+        "Are you a doctor?", "Is this medical advice?", "Can I rely on this?", "Should I trust you?",
+        "Is this a real diagnosis?", "Do I still need to see a doctor?", "Can you replace my doctor?",
+        "Can you prescribe medicine?", "Can you give me a prescription?", "What medicine should I take?",
+        "Which tablet should I take?", "Give me medication", "Can you treat me?"
+      ],
+      "responses": [
+        "I am not a doctor and cannot prescribe or diagnose. I can help you organise your symptoms so your conversation with a doctor is easier.",
+        "No. What I suggest is for information only. Please see a qualified healthcare professional for diagnosis and treatment."
+      ]
+    },
+    {
+      "tag": "emergency",
+      "patterns": [
+        "This is an emergency", "I need help now", "I think I am dying", "Call an ambulance", "Someone collapsed",
+        "I can't breathe at all", "Severe chest pain and I am sweating", "I am bleeding heavily",
+        "My friend is unconscious", "Someone is having a seizure", "I took too many pills", "Overdose",
+        "Suicidal thoughts", "I want to hurt myself", "Heart attack right now", "Stroke symptoms right now"
+      ],
+      "responses": [
+        "If this is an emergency, stop using HIRO and call your local emergency number right now. I cannot assess how serious your condition is.",
+        "Please contact emergency services immediately or go to the nearest emergency department. HIRO cannot help in an emergency."
+      ]
+    },
+    {
+      "tag": "start_assessment",
+      "patterns": [
+        "I am not feeling well", "I feel sick", "I am ill", "I am unwell", "I don't feel good", "I feel bad",
+        "Something is wrong with me", "I have a problem", "I need a checkup", "Check my symptoms",
+        "I want to describe my symptoms", "Let's start", "Start", "Begin", "I have some symptoms", "I am in pain",
+        "I think I am sick", "Can you check what is wrong with me?", "I feel off today", "I am not okay"
+      ],
+      "responses": [
+        "I am sorry to hear that. Tell me exactly what you are feeling, for example \"fever, sore throat and a cough\", and I will take it from there.",
+        "Let us work through it. Which symptoms do you have? Name as many as you can in one message."
+      ]
+    },
+    {
+      "tag": "symptom_help",
+      "patterns": [
+        "What symptoms do you know?", "Which symptoms can you recognise?", "What should I type?",
+        "How should I describe my symptoms?", "Give me an example", "Show me an example",
+        "What can I ask you?", "What words do you understand?", "I don't know how to describe it",
+        "What do you need from me?", "List of symptoms", "Which symptoms are supported?"
+      ],
+      "responses": [
+        "Use everyday words: \"I have a headache, mild fever and I feel dizzy.\" You can also say what you do not have, like \"no cough\". The Recognised symptoms link in the sidebar lists everything I understand.",
+        "Just describe how you feel in a sentence or two. For example: \"stomach pain and vomiting since yesterday\". Say \"that's all\" when you have nothing to add."
+      ]
+    },
+    {
+      "tag": "hospital",
+      "patterns": [
+        "Where is the nearest hospital?", "Find a hospital near me", "I need a doctor", "Nearest clinic",
+        "Hospitals nearby", "Where can I get treatment?", "Find a doctor near me", "Is there a hospital close by?",
+        "Show me hospitals", "I need to see a doctor", "Where should I go?", "Emergency room near me"
+      ],
+      "responses": [
+        "I cannot look up hospitals, but your phone's maps app can: search for \"hospital near me\". If this is urgent, call your local emergency number.",
+        "Searching \"hospitals near me\" in a maps app is the quickest way. In an emergency, call your local emergency number instead."
+      ]
+    },
+    {
+      "tag": "affirmation",
+      "patterns": ["Yes", "Yeah", "Yep", "Sure", "Okay", "Ok", "Alright", "Of course", "Correct", "Right", "Fine", "Indeed", "Absolutely"],
+      "responses": [
+        "Okay. Tell me which symptoms you are experiencing.",
+        "Alright. Describe what you are feeling and I will take it from there."
+      ]
+    },
+    {
+      "tag": "negation",
+      "patterns": ["No", "Nope", "Nah", "Not really", "No thanks", "Never mind", "Forget it", "Nothing", "No I don't"],
+      "responses": [
+        "No problem. Whenever you are ready, tell me what you are feeling.",
+        "Okay. If something comes up, describe it and I will help."
+      ]
+    },
+    {
+      "tag": "joke",
+      "patterns": ["Tell me a joke", "Say something funny", "Make me laugh", "Do you know any jokes?", "Cheer me up"],
+      "responses": [
+        "I only know one: my training data. Jokes aside, how are you feeling?",
+        "I am better at symptoms than punchlines. What is bothering you today?"
+      ]
+    },
+    {
+      "tag": "complaint",
+      "patterns": [
+        "You are wrong", "That is not right", "This is useless", "You don't understand", "That makes no sense",
+        "You are not helping", "Bad answer", "This is incorrect", "You misunderstood me", "Wrong"
+      ],
+      "responses": [
+        "Sorry about that. I only recognise specific symptom names, so try rephrasing with simpler words, or check the Recognised symptoms list.",
+        "Apologies. Try describing one symptom at a time, for example \"I have a sore throat\"."
+      ]
+    },
+    {
+      "tag": "fallback",
+      "patterns": [],
+      "responses": [
+        "I did not catch any symptoms in that. Tell me how you are feeling, for example \"headache and nausea\".",
+        "I am not sure I understood. Describe what you are feeling in plain words and I will do my best.",
+        "I can only help with symptoms right now. What are you experiencing?"
+      ]
+    }
+  ]
+}

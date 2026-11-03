@@ -1,0 +1,10 @@
+venv
+client
+server
+model/data/raw
+model/tests
+model/scripts
+__pycache__
+*.pyc
+.git
+PrototypeDesignSkills.md

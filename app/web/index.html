@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HIRO - Symptom checker</title>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'media',
+        theme: {
+          screens: { md: '768px', xl: '1200px' },
+          fontFamily: { sans: ['Roboto', 'system-ui', 'sans-serif'] },
+          fontSize: {
+            xs: ['12px', '1.5'],
+            sm: ['14px', '1.5'],
+            base: ['16px', '1.5'],
+            lg: ['20px', '1.25'],
+            xl: ['26px', '1.25'],
+          },
+          borderRadius: { none: '0', sm: '8px', DEFAULT: '8px', md: '12px' },
+          extend: {
+            colors: {
+              bg: 'var(--color-bg)',
+              surface: 'var(--color-surface)',
+              text: 'var(--color-text)',
+              muted: 'var(--color-muted)',
+              border: 'var(--color-border)',
+              accent: 'var(--color-accent)',
+              'accent-hover': 'var(--color-accent-hover)',
+              'accent-soft': 'var(--color-accent-soft)',
+              'on-accent': 'var(--color-on-accent)',
+              success: 'var(--color-success)',
+              'success-bg': 'var(--color-success-bg)',
+              error: 'var(--color-error)',
+              'error-bg': 'var(--color-error-bg)',
+              warning: 'var(--color-warning)',
+              'warning-bg': 'var(--color-warning-bg)',
+              scrim: 'var(--color-scrim)',
+            },
+            height: { control: '40px' },
+            maxWidth: { content: '680px' },
+            transitionDuration: { DEFAULT: '160ms' },
+            transitionTimingFunction: { DEFAULT: 'cubic-bezier(0.2, 0, 0, 1)' },
+          },
+        },
+      };
+    </script>
+    <style type="text/tailwindcss">
+      :root {
+        --color-bg: #ffffff;
+        --color-surface: #f6f8fa;
+        --color-text: #1f1f1f;
+        --color-muted: #5f6368;
+        --color-border: #dadce0;
+        --color-accent: #0b57d0;
+        --color-accent-hover: #0842a0;
+        --color-accent-soft: #e8f0fe;
+        --color-on-accent: #ffffff;
+        --color-success: #146c2e;
+        --color-success-bg: #e6f4ea;
+        --color-error: #b3261e;
+        --color-error-bg: #fce8e6;
+        --color-warning: #8a5100;
+        --color-warning-bg: #fef7e0;
+        --color-scrim: rgba(0, 0, 0, 0.4);
+        --color-chart-1: #0b57d0;
+        --color-chart-2: #0f9d58;
+        --color-chart-3: #7c4dff;
+        --color-chart-4: #f29900;
+        --color-chart-5: #d93025;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #131314;
+          --color-surface: #1e1f20;
+          --color-text: #e3e3e3;
+          --color-muted: #a8abae;
+          --color-border: #3c4043;
+          --color-accent: #a8c7fa;
+          --color-accent-hover: #8ab4f8;
+          --color-accent-soft: #1b2a41;
+          --color-on-accent: #062e6f;
+          --color-success: #6dd58c;
+          --color-success-bg: #0f5223;
+          --color-error: #f2b8b5;
+          --color-error-bg: #5c1a16;
+          --color-warning: #f5c343;
+          --color-warning-bg: #4a3600;
+          --color-scrim: rgba(0, 0, 0, 0.6);
+          --color-chart-1: #a8c7fa;
+          --color-chart-2: #6dd58c;
+          --color-chart-3: #c4b5fd;
+          --color-chart-4: #fdd663;
+          --color-chart-5: #f28b82;
+        }
+      }
+
+      @layer base {
+        body { @apply h-dvh bg-bg text-text font-sans text-base antialiased; }
+        h1, h2, h3, h4 { @apply font-medium leading-tight; }
+        :focus-visible { @apply outline outline-2 outline-offset-2 outline-accent; }
+        a { @apply text-accent; }
+      }
+
+      @layer components {
+        .muted { @apply text-sm text-muted; }
+        .section-title { @apply text-sm text-muted font-medium; }
+        .btn { @apply inline-flex items-center justify-center h-control px-4 rounded border border-transparent text-sm font-medium whitespace-nowrap no-underline transition-colors; }
+        .btn-primary { @apply bg-accent text-on-accent hover:enabled:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed; }
+        .btn-secondary { @apply bg-transparent text-text border-border hover:bg-surface; }
+        .btn-sm { @apply h-8 px-3 text-xs; }
+        .chip { @apply h-8 px-3 rounded border border-border bg-transparent text-sm font-medium text-accent hover:bg-accent-soft transition-colors; }
+        .chip-static { @apply px-2 py-0.5 rounded-[4px] border border-border text-xs capitalize; }
+        .badge { @apply inline-flex items-center h-[22px] px-2 rounded-[4px] text-xs font-medium capitalize whitespace-nowrap bg-surface text-muted; }
+        .badge[data-level="high"] { @apply bg-success-bg text-success; }
+        .badge[data-level="medium"] { @apply bg-warning-bg text-warning; }
+        .badge[data-level="low"] { @apply bg-error-bg text-error; }
+        .card { @apply grid gap-4 p-4 border border-border rounded-md; }
+        .card-heading { @apply mb-2 text-xs tracking-wider uppercase text-muted; }
+        .kv-list { @apply list-none p-0 border border-border rounded text-sm divide-y divide-border; }
+        .kv-list li { @apply flex justify-between gap-3 px-3 py-2; }
+        .kv-list li[data-agrees="true"] strong { @apply font-medium text-success; }
+        .kv-list li[data-agrees="false"] strong { @apply font-normal text-muted; }
+        .notice { @apply px-3 py-2 rounded bg-warning-bg text-warning text-xs; }
+        .message { @apply grid gap-3 justify-items-start p-6 border border-border rounded-md; }
+        .navlink { @apply block w-full px-3 py-2 rounded bg-transparent text-text text-sm text-left hover:bg-bg transition-colors; }
+        .row { @apply flex items-center gap-3 w-full min-h-10 px-3 py-2 rounded bg-transparent text-left text-sm hover:bg-bg transition-colors; }
+        .row-active { @apply bg-accent-soft hover:bg-accent-soft; }
+        .row-title { @apply flex-1 min-w-0 truncate; }
+        .row-meta { @apply flex-none text-xs text-muted; }
+        .msg { @apply flex gap-3 [overflow-wrap:anywhere] motion-safe:animate-[msg-in_160ms_cubic-bezier(0.2,0,0,1)_both]; }
+        .msg-avatar { @apply flex-none grid place-items-center w-7 h-7 rounded bg-accent-soft text-accent; }
+        .msg-body { @apply min-w-0; }
+        .msg-user { @apply min-w-0 max-w-full md:max-w-[85%] px-4 py-3 rounded-md bg-surface; }
+        .msg-error { @apply min-w-0 px-4 py-3 rounded bg-error-bg text-error; }
+        .msg-thinking .msg-body { @apply flex items-center min-h-7; }
+        .consent { @apply inline-flex items-center gap-2 min-h-8 p-0 bg-transparent text-xs text-muted hover:text-text; }
+        .consent-done { @apply text-text; }
+        .meter { @apply h-1.5 w-full rounded-[3px] bg-surface overflow-hidden; }
+        .meter > span { @apply block h-full rounded-[3px] bg-accent transition-[width] duration-500; }
+        .meter-muted > span { @apply bg-border; }
+        .swatch { @apply inline-block w-2.5 h-2.5 mr-2 rounded-[3px] bg-accent align-middle; }
+        .reading { @apply grid gap-1.5 px-4 py-3; }
+        .reading-head { @apply flex items-baseline justify-between gap-3 text-sm; }
+        .reading-pct { @apply flex-none font-medium tabular-nums; }
+        .drawer-right { @apply fixed inset-y-0 right-0 z-[1100] w-[min(420px,92vw)] translate-x-full transition-transform xl:static xl:w-auto xl:translate-x-0; }
+        .drawer-left { @apply fixed inset-y-0 left-0 z-[1100] w-[min(300px,88vw)] -translate-x-full transition-transform md:static md:w-auto md:translate-x-0; }
+        .drawer-open { @apply translate-x-0; }
+      }
+
+      button, input, select { font: inherit; color: inherit; }
+      .logo-icon {
+        display: inline-block; width: 22px; height: 22px; background: currentColor;
+        -webkit-mask: url('/logo-mark.svg') center / contain no-repeat; mask: url('/logo-mark.svg') center / contain no-repeat;
+      }
+      .thinking { display: inline-flex; align-items: center; gap: 6px; height: 24px; }
+      .typing::after { content: ''; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -0.15em; background: var(--color-accent); animation: caret 0.9s steps(1) infinite; }
+      @keyframes caret { 50% { opacity: 0; } }
+      .thinking i { width: 7px; height: 7px; border-radius: 2px; background: var(--color-accent); animation: bounce 1.2s cubic-bezier(0.2, 0, 0, 1) infinite; }
+      .thinking i:nth-child(2) { animation-delay: 0.15s; }
+      .thinking i:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.35; } 30% { transform: translateY(-5px); opacity: 1; } }
+      @keyframes msg-in { from { opacity: 0; transform: translateY(6px); } }
+      dialog::backdrop { background: var(--color-scrim); }
+      .consent input { accent-color: var(--color-accent); pointer-events: none; }
+      [data-color="1"] > span, .swatch[data-color="1"] { background: var(--color-chart-1); }
+      [data-color="2"] > span, .swatch[data-color="2"] { background: var(--color-chart-2); }
+      [data-color="3"] > span, .swatch[data-color="3"] { background: var(--color-chart-3); }
+      [data-color="4"] > span, .swatch[data-color="4"] { background: var(--color-chart-4); }
+      [data-color="5"] > span, .swatch[data-color="5"] { background: var(--color-chart-5); }
+      .meter-muted[data-color] > span { background: var(--color-border); }
+      [data-state="empty"] .when-insight, [data-state="ready"] .when-no-insight { display: none; }
+      .chat:not(.has-conversation) .when-conversation, .chat.has-conversation .when-empty { display: none; }
+      #history:not(:empty) + #history-empty { display: none; }
+      @media (prefers-reduced-motion: reduce) { .thinking i { animation-duration: 2.4s; } .drawer-left, .drawer-right, .btn, .chip, .row, .navlink { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <a class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-10 focus:px-3 focus:py-2 focus:bg-bg focus:border focus:border-border focus:rounded" href="#main">Skip to content</a>
+
+    <div class="grid h-dvh grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)_minmax(400px,36%)]">
+      <div id="backdrop" class="fixed inset-0 z-[1050] bg-scrim xl:hidden" hidden></div>
+
+      <aside id="sidebar" class="drawer-left flex flex-col gap-4 min-h-0 p-4 bg-surface border-r border-border" aria-label="Assessments">
+        <div class="flex items-center justify-between min-h-6">
+          <a class="inline-flex items-center gap-2 text-text font-medium no-underline" href="/"><span class="logo-icon" aria-hidden="true"></span>HIRO</a>
+          <button id="sidebar-close" class="btn btn-secondary btn-sm md:hidden" type="button">Close</button>
+        </div>
+
+        <button id="new-chat" class="btn btn-secondary w-full" type="button">New assessment</button>
+
+        <nav class="grid gap-1" aria-label="Help">
+          <button id="how-it-works" class="navlink" type="button">How it works</button>
+          <button id="symptom-index" class="navlink" type="button">Recognised symptoms</button>
+        </nav>
+
+        <section class="flex flex-col gap-2 flex-1 min-h-0 pt-4 border-t border-border" aria-labelledby="history-title">
+          <h2 id="history-title" class="section-title">History</h2>
+          <ul id="history" class="list-none p-0 min-h-0 overflow-y-auto"></ul>
+          <p id="history-empty" class="muted">Your assessments will appear here.</p>
+        </section>
+
+        <p class="text-xs text-muted">For information only. Not a substitute for professional medical advice.</p>
+      </aside>
+
+      <main id="main" class="chat flex flex-col min-w-0 min-h-0">
+        <header class="flex xl:hidden items-center gap-3 h-14 px-4 border-b border-border shrink-0">
+          <button id="menu-toggle" class="btn btn-secondary btn-sm md:hidden" type="button" aria-controls="sidebar" aria-expanded="false">Menu</button>
+          <span class="font-medium">HIRO</span>
+          <button id="insight-toggle" class="btn btn-secondary btn-sm ml-auto" type="button" aria-controls="insight" aria-expanded="false">Insight</button>
+        </header>
+
+        <div id="chat-scroll" class="flex-1 min-h-0 overflow-y-auto">
+          <div class="flex flex-col gap-6 w-full max-w-content min-h-full mx-auto px-3 pt-4 pb-3 md:px-4 md:pt-6 md:pb-4">
+            <div class="when-empty grid gap-2 my-auto text-center">
+              <h1 class="text-xl font-normal">How are you feeling today?</h1>
+              <p id="hero-hint" class="muted"></p>
+            </div>
+            <section id="messages" class="when-conversation flex flex-col gap-6" aria-label="Conversation" aria-live="polite"></section>
+          </div>
+        </div>
+
+        <div class="grid gap-2 shrink-0 w-full max-w-content mx-auto px-3 pb-3 md:px-4 md:pb-4">
+          <form id="chat-form" class="flex items-center gap-1 h-12 pl-3 pr-1 border border-border rounded-md bg-bg transition-colors focus-within:border-accent focus-within:ring-1 focus-within:ring-accent has-[input:disabled]:bg-surface" autocomplete="off">
+            <label class="sr-only" for="message-input">Describe your symptoms</label>
+            <input id="message-input" class="flex-1 min-w-0 h-full p-0 border-0 bg-transparent placeholder:text-muted focus:outline-none disabled:text-muted disabled:cursor-not-allowed" type="text" maxlength="2000" required disabled />
+            <button id="send-button" class="btn btn-primary" type="submit" disabled>Send</button>
+          </form>
+          <p id="status" class="text-center text-xs text-muted empty:hidden data-[state=error]:text-error" role="status"></p>
+          <ul id="consents" class="flex flex-wrap justify-center gap-x-4 gap-y-2 list-none p-0" aria-label="Before you begin">
+            <li><button class="consent" type="button" data-consent="advice" aria-pressed="false"><input type="checkbox" class="w-4 h-4 m-0" tabindex="-1" aria-hidden="true" /><span>Not medical advice</span></button></li>
+            <li><button class="consent" type="button" data-consent="emergency" aria-pressed="false"><input type="checkbox" class="w-4 h-4 m-0" tabindex="-1" aria-hidden="true" /><span>Emergencies</span></button></li>
+            <li><button class="consent" type="button" data-consent="privacy" aria-pressed="false"><input type="checkbox" class="w-4 h-4 m-0" tabindex="-1" aria-hidden="true" /><span>Privacy</span></button></li>
+            <li><button class="consent" type="button" data-consent="terms" aria-pressed="false"><input type="checkbox" class="w-4 h-4 m-0" tabindex="-1" aria-hidden="true" /><span>Terms of use</span></button></li>
+          </ul>
+        </div>
+      </main>
+
+      <aside id="insight" class="drawer-right flex flex-col min-h-0 bg-bg border-l border-border" aria-labelledby="insight-title" data-state="empty">
+        <div class="grid gap-3 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3 min-h-6">
+            <h2 id="insight-title" class="section-title">Model insight</h2>
+            <button id="insight-close" class="btn btn-secondary btn-sm xl:hidden" type="button">Close</button>
+          </div>
+          <div class="when-insight flex flex-wrap items-center justify-between gap-3">
+            <p id="insight-status" class="muted" role="status"></p>
+            <span id="insight-agreement" class="badge"></span>
+          </div>
+        </div>
+
+        <div class="when-no-insight px-4 pb-4">
+          <div class="message">
+            <p class="font-medium">No reading yet</p>
+            <p class="muted">Describe your symptoms in the chat. As soon as one is recognised, each model's prediction and how sure it is appear here and update after every message.</p>
+          </div>
+        </div>
+
+        <div class="when-insight flex-1 min-h-0 overflow-y-auto px-4 pb-4">
+          <div class="grid gap-6">
+            <section aria-labelledby="models-title">
+              <h3 id="models-title" class="card-heading">Models</h3>
+              <ul id="insight-models" class="list-none p-0 border border-border rounded-md divide-y divide-border"></ul>
+            </section>
+            <section aria-labelledby="candidates-title">
+              <h3 id="candidates-title" class="card-heading">Leading conditions</h3>
+              <ul id="insight-candidates" class="list-none p-0 border border-border rounded-md divide-y divide-border"></ul>
+            </section>
+            <p class="text-xs text-muted">Percentages are each model's confidence in its own prediction, averaged for the leading conditions. They describe the models, not the likelihood that you have a condition.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <dialog id="modal" class="w-[min(100%_-_32px,520px)] p-0 border-0 bg-transparent">
+      <div class="grid gap-4 max-h-[calc(100dvh_-_64px)] p-6 border border-border rounded-md bg-bg text-text">
+        <h2 id="modal-title" class="text-lg"></h2>
+        <div id="modal-body" class="grid gap-3 overflow-y-auto text-sm text-muted"></div>
+        <div class="flex justify-end gap-2">
+          <button id="modal-close" class="btn btn-secondary" type="button">Close</button>
+          <button id="modal-agree" class="btn btn-primary" type="button">Agree</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
